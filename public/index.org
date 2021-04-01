@@ -1,4 +1,4 @@
-#+TITLE: Course title goes here
+#+TITLE: Introduction to Statistics (4SWS)
 #+AUTHOR: Instructor name
 #+options: html-link-use-abs-url:nil html-postamble:auto
 #+options: html-preamble:t html-scripts:t html-style:t
