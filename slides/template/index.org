@@ -1,0 +1,4 @@
+#+SETUPFILE: ../setup.org
+#+TITLE: My presentation
+
+* this is a slide

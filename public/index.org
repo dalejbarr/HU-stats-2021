@@ -1,0 +1,47 @@
+#+TITLE: Course title goes here
+#+AUTHOR: Instructor name
+#+options: html-link-use-abs-url:nil html-postamble:auto
+#+options: html-preamble:t html-scripts:t html-style:t
+#+options: html5-fancy:nil tex:t ^:nil num:nil toc:nil
+#+html_doctype: xhtml-strict
+#+html_container: div
+#+description:
+#+keywords:
+#+html_link_home:
+#+html_link_up:
+#+html_mathjax:
+#+html_head:
+#+html_head_extra:
+#+subtitle:
+#+infojs_opt:
+#+creator: <a href="https://www.gnu.org/software/emacs/">Emacs</a> 26.3 (<a href="https://orgmode.org">Org</a> mode 9.3)
+#+latex_header:
+
+* Lecture slides
+
+#+begin_src R :exports results :results value :colnames yes
+  ## as you add in lectures, update the line below with the lecture names
+  matchup <- data.frame(name = "Introduction", dir = "01_intro")
+
+  sdirs <- data.frame(
+    dir = setdiff(list.dirs("slides", FALSE, FALSE), "template"))
+
+  merged <- merge(sdirs, matchup, by = "dir", all.x = TRUE)
+  merged[["name"]] <- ifelse(is.na(merged[["name"]]),
+			      merged[["dir"]], merged[["name"]])
+  merged[["No."]] <- seq_len(nrow(merged))
+  merged[["Lecture"]] <- paste0("[[file:slides/", merged[["dir"]], "][",
+				merged[["name"]], "]]")
+                              
+  merged[c("No.", "Lecture")]                              
+#+end_src
+
+#+RESULTS:
+| No. | Lecture      |
+|-----+--------------|
+|   1 | [[file:slides/01_intro][Introduction]] |
+|   2 | [[file:slides/02_GLM][02_GLM]]       |
+
+* Textbook
+
+[[file:book][Statistical Models]]
