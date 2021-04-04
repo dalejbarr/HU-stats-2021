@@ -1,10 +1,11 @@
-#+TITLE: Introduction to Statistics (4SWS)
-#+AUTHOR: Instructor name
+#+TITLE: Introduction to Statistics (4SWS), HU-Berlin 2021
+#+AUTHOR: Dale Barr
 #+options: html-link-use-abs-url:nil html-postamble:auto
 #+options: html-preamble:t html-scripts:t html-style:t
 #+options: html5-fancy:nil tex:t ^:nil num:nil toc:nil
 #+html_doctype: xhtml-strict
 #+html_container: div
+#+html_head: <link rel="stylesheet" type="text/css" href="css/my_css.css" />
 #+description:
 #+keywords:
 #+html_link_home:
@@ -17,31 +18,129 @@
 #+creator: <a href="https://www.gnu.org/software/emacs/">Emacs</a> 26.3 (<a href="https://orgmode.org">Org</a> mode 9.3)
 #+latex_header:
 
-* Lecture slides
+| Day        |        Time | Topic                                                         |
+|------------+-------------+---------------------------------------------------------------|
+| Tue 06-Apr | 10:00-13:00 | Getting started with R/RStudio ([[file:01_data_wrangling/morning_intro_to_R/intro_to_coding_in_R.html][walkthrough]])                  |
+|            | 14:00-17:00 | Introduction to data wrangling and the tidyverse ([[file:01_data_wrangling/afternoon_intro_to_data_wrangling/index.org][walkthough]]) |
+|------------+-------------+---------------------------------------------------------------|
+| Wed 07-Apr | 10:00-13:00 | Further wrangling & visualization I                           |
+|            | 14:00-17:00 | Further wrangling & visualization II                          |
+|------------+-------------+---------------------------------------------------------------|
+| Thu 08-Apr | 10:00-13:00 | Univariate distributions                                      |
+|            | 14:00-17:00 | Bivariate distributions / correlation                         |
+|------------+-------------+---------------------------------------------------------------|
+| Fri 09-Apr | 10:00-13:00 | t-tests: NHST, power, effect size                             |
+|            | 14:00-17:00 | One-way Analysis of Variance (ANOVA)                          |
+|------------+-------------+---------------------------------------------------------------|
+| Sat 10-Apr | 10:00-13:00 | Regression                                                    |
+|            | 14:00-17:00 | Multiple regression                                           |
+|------------+-------------+---------------------------------------------------------------|
+| Sat 17-Apr | 10:00-13:00 | Continuous-by-categorical interactions                        |
+|            | 14:00-17:00 | Factorial ANOVA                                               |
+|------------+-------------+---------------------------------------------------------------|
+| Sat 24-Apr | 10:00-13:00 | Linear Mixed-Effects Models (LMMs)                            |
+|            | 14:00-17:00 | LMMs with crossed random effects of subjects and stimuli      |
+|------------+-------------+---------------------------------------------------------------|
+| Sat 01-May | 10:00-13:00 | Catch-up / review / Q&A                                       |
+|            | 14:00-17:00 | Catch-up / review / Q&A                                       |
+|------------+-------------+---------------------------------------------------------------|
 
-#+begin_src R :exports results :results value :colnames yes
-  ## as you add in lectures, update the line below with the lecture names
-  matchup <- data.frame(name = "Introduction", dir = "01_intro")
+* Getting access to R / RStudio software
 
-  sdirs <- data.frame(
-    dir = setdiff(list.dirs("slides", FALSE, FALSE), "template"))
+For this course, you will need access to R and RStudio. In the best case, you should install it on your own laptop or desktop computer. To do so, please [[file:00_installation/installation.html][follow these instructions]].
 
-  merged <- merge(sdirs, matchup, by = "dir", all.x = TRUE)
-  merged[["name"]] <- ifelse(is.na(merged[["name"]]),
-			      merged[["dir"]], merged[["name"]])
-  merged[["No."]] <- seq_len(nrow(merged))
-  merged[["Lecture"]] <- paste0("[[file:slides/", merged[["dir"]], "][",
-				merged[["name"]], "]]")
-                              
-  merged[c("No.", "Lecture")]                              
-#+end_src
+If this is not possible, because (1) you are using a laptop with outdated software or limited capabilities (such as Google Chromebook) (2) you experience insurmountable installation problems, here are two fallback options that allow you to run R/RStudio through a web browser.
 
-#+RESULTS:
-| No. | Lecture      |
-|-----+--------------|
-|   1 | [[file:slides/01_intro][Introduction]] |
-|   2 | [[file:slides/02_GLM][02_GLM]]       |
+- Fallback 1: [[https://rstudio.cloud/plans/free][RStudio Cloud]]. This is free, and has most of the capabilities you need. However, you have a limited number of free hours per month. If you run out of hours, then you have to pay for more.
 
-* Textbook
+- Fallback 2: [[https://towardsdatascience.com/how-to-use-r-in-google-colab-b6e02d736497][Google Colab]]. I haven't used this myself, but apparently it is possible to run R, and you will not face any usage limits. However, the interface is different and it will probably be difficult to get help if you get stuck.
 
-[[file:book][Statistical Models]]
+* Extra materials
+
+** Model specification
+- [[https://talklab.psy.gla.ac.uk/tvw/catpred][Coding categorical predictors in factorial designs]]
+# - Extra practice with linear regression: ([[file:extra/extra_lm_practice.Rmd][source Rmd file]]) ([[file:extra/extra_lm_solution.html][solution]])
+
+** Data wrangling practice
+- [[file:01_monday/afternoon_scoring_the_AQ/index.org][Scoring the AQ-10]]
+- [[file:02_tuesday/afternoon_joins/index.org][More data tidying and joins: The =disgust= dataset]]
+# - Scoring the EQ-Short and SQ-Short [hard!]: ([[file:extra/EQ_SQ/EQ_SQ_wrangle.Rmd][Rmd_source]]) ([[file:extra/EQ_SQ/solution.html][solution_html]]) ([[file:extra/EQ_SQ/solution.Rmd][solution_Rmd]]) ([[file:extra/EQ_SQ_files.zip][data_files]])
+
+# ** Data visualization practice
+# - [[file:extra/factorial_plots/factorial_plots.html][Factorial plots]]
+
+# ** Data simulation
+# - [[file:extra/binary/binary.html][Simulating binary data]]
+
+# ** Scripts from Live Coding Sessions
+# - Scottish babynames script from Monday morning: [[file:01_monday/morning_intro_to_R/names.R][names.R]]
+# - Data wrangling and data tidying: [[file:01_monday/afternoon_intro_to_data_wrangling/01_monday_afternoon_script.R][01_monday_afternoon_script.R]]
+# - [[file:extra/misc/misc.html][Miscellaneous extra things (Thursday morning)]]
+
+* Resources
+
+** RMarkdown
+
+- Blog post from The R Graph Gallery: [[https://www.r-graph-gallery.com/pimp-my-rmd-a-few-tips-for-r-markdown/][Pimp my Rmd: A few tips for RMarkdown]]
+
+** Course materials from University of Glasgow Psychology
+
+- [[https://psyteachr.github.io/ug1-practical/][Undergraduate Statistics Year 1 Materials]] (Data Wrangling & Visualization; Basic Probability)
+- [[https://psyteachr.github.io/ug2-practical/][Undergraduate Statistics Year 2 Materials]] (Basic Statistics, Intro to the General Linear Model)
+- [[https://psyteachr.github.io/ug3-stats/][Undergraduate Statistics Year 3 Materials]] (Statistical Models)
+- [[https://psyteachr.github.io/msc-data-skills/][MSc course: Data Skills for Reproducible Science]] (Data Wrangling & Visualization)
+
+** Data visualization
+
+- Kelleher, C., & Wagener, T. (2011). [[https://www.sciencedirect.com/science/article/pii/S1364815210003270][Ten guidelines for effective data visualization in scientific publications]]. /Environmental Modeling & Software/.
+- Rougier, N. P., Droettboom, M., & Bourne, P. E. (2014). [[http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003833][Ten Simple Rules for Better Figures]], /PLOS Computational Biology/.
+- Tufte, E. (2001). /The visual display of quantitative information./ 
+- McCandliss, D. (2012) /Information is beautiful./
+- [[http://docs.ggplot2.org/current][ggplot2 documentation]]
+- [[http://www.cookbook-r.com/Graphs][R graphics cookbook]]
+
+** Regression
+
+- Lindeløv, J. K. (blog post). [[https://lindeloev.github.io/tests-as-linear/][Common statistical tests are linear models.]]
+- Schielzeth, H. (2010). [[https://besjournals.onlinelibrary.wiley.com/doi/abs/10.1111/j.2041-210X.2010.00012.x][Simple means to improve the interpretability of regression coefficients]]. /Methods in Ecology and Evolution/, /1/, 103--113.
+- Blog post by Dale: [[http://talklab.psy.gla.ac.uk/tvw/catpred/][Coding categorical variables when analyzing factorial experiments with regression]]
+- Morrissey and Ruxton (2018), [[http://dx.doi.org/10.3998/ptpbio.16039257.0010.003][Multiple regression is not multiple regressions]]
+- Lawton and Pratchet (2012), [[https://doi.org/10.1002/ece3.253][Influence of dietary specialization and resource availability on geographic specialization in abundance of butterflyfish]]
+- Jan Vanhove, [[https://janhove.github.io/analysis/2018/04/25/graphical-model-checking][Checking model assumptions without getting paranoid]]
+
+** ANOVA
+
+- Blog post by Henrik Singmann: [[http://singmann.org/anova-in-r-afex-may-be-the-solution-you-are-looking-for/][ANOVA in R: afex may be the solution you are looking for]]
+
+** Generalized linear models
+
+- Quené, H. & van den Bergh, H. (2008). [[https://www.sciencedirect.com/science/article/pii/S0749596X08000193][Examples of mixed-effects modeling with crossed random effects and with binomial data]].
+- Liddell, T. M. & Krushke, J. K. (2018). [[https://www.sciencedirect.com/science/article/pii/S0022103117307746][Analyzing ordinal data with metric models: What could possibly go wrong?]]
+- Vuorre, M., & Burkner, P. [[https://psyarxiv.com/x8swp/download?format=pdf][Ordinal regression models in psychological research: A tutorial]].  =psyarxiv.com=.
+
+** Mixed-effects modeling
+
+- Baayen, R. H., Davidson, D. J., Bates, D. M. (2008). [[https://www.sciencedirect.com/science/article/pii/S0749596X07001398][Mixed-effects modeling with crossed random effects for subjects and items]]. /59/, 390--412.
+- Barr, D. J. (2018). Generalizing over encounters: Statistical and theoretical considerations. S-A. Rueschemeyer and G. Gaskell (Eds.), /Oxford Handbook of Psycholinguistics/. ([[https://osf.io/u8yxs/download][preprint]])
+- Barr, D. J. (2013). [[https://www.frontiersin.org/articles/10.3389/fpsyg.2013.00328/full][Random effects structure for testing interactions in linear mixed-effects models]]. /Frontiers in Psychology/, 328.
+- Barr, D. J., Levy, R., Scheepers, C., & Tily, H. (2013). [[http://dx.doi.org/10.1016/j.jml.2012.11.001][Random effects structure for confirmatory hypothesis testing: Keep it maximal]]. /Journal of Memory and Language/, /68/, 255--278.
+- blog post by Tristan Mahr, [[https://tjmahr.github.io/plotting-partial-pooling-in-mixed-effects-models/][Plotting partial pooling in mixed-effects models]]
+
+- Bates, D. M., Mächler, M., Bolker, B. M., Walker S. C. (2014). Fitting linear mixed-effects models using lme4. http://arxiv.org/pdf/1406.5823.pdf (technical)
+
+- Bolker, B. M., et al. (2009). [[https://www.sciencedirect.com/science/article/pii/S0169534709000196][Generalized linear mixed models: A practical guide for ecology and evolution]]. /Trends in Ecology & Evolution/, /24/, 127--135.
+
+- DeBruine, L. & Barr, D. J. (2021). [[https://psyarxiv.com/xp5cy/][Understanding Mixed-Effects Models Through Data Simulation (preprint)]] [[https://journals.sagepub.com/doi/full/10.1177/2515245920965119][(published version)]]
+
+- Halekoh, U., and Hoejsgaard, S. (2014). [[https://www.jstatsoft.org/article/view/v059i09][A Kenward-Roger Approximation and Parametric Bootstrap Methods for Tests in Linear Mixed Models The R Package pbkrtest]].
+
+- Harrison, X., et al. (2018). [[https://peerj.com/articles/4794/][A brief introduction to mixed effects modelling and multi-model inference in ecology]].
+
+- Judd, C. M., Westfall, J., Kenny, D. A. (2012). [[http://jakewestfall.org/publications/JWK.pdf][Treating stimuli as a random factor in social psychology: A new and comprehensive solution to a pervasive but largely ignored problem]]. /Journal of Personality and Social Psychology/, /103/, 54--69.
+
+- Westfall, J., Kenny, D. A., and Judd, C. M. (2014), [[http://psych.colorado.edu/~westfaja/crossed_power_JEPG.pdf][Statistical power and optimal design in experiments where participants respond to samples of stimuli]]. /Journal of Experimental Psychology: General/, /143/.
+
+- =r-lang= and =r-sig-mixed-models= mailing lists
+- =r-sig-mixed-models= FAQ http://glmm.wikidot.com/faq
+- blog post by Doug Bates on [[https://rpubs.com/dmbates/377897][running MixedModels from the Julia programming language in R]] (faster than =lme4::lmer()=)
+

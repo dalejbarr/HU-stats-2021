@@ -1,0 +1,403 @@
+#+TITLE: Scoring the AQ-10: Hints and solutions
+#+OPTIONS: html-link-use-abs-url:nil html-postamble:auto
+#+OPTIONS: html-preamble:t html-scripts:t html-style:t
+#+OPTIONS: html5-fancy:nil tex:t toc:t num:nil h:3 ^:nil toc:nil
+#+HTML_DOCTYPE: xhtml-strict
+#+HTML_CONTAINER: div
+#+DESCRIPTION:
+#+KEYWORDS:
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../../css/my_css.css" />
+#+HTML_LINK_HOME: ../../index.html
+#+HTML_LINK_UP:   index.html
+#+HTML_MATHJAX:
+#+HTML_HEAD:
+#+HTML_HEAD_EXTRA:
+#+SUBTITLE:
+#+INFOJS_OPT:
+#+CREATOR: <a href="https://www.gnu.org/software/emacs/">Emacs</a> 24.5.1 (<a href="http://orgmode.org">Org</a> mode 9.1.5)
+#+LATEX_HEADER:
+#+PROPERTY: header-args:R :session *R* :exports both :results output
+
+* Setup                                                            :noexport:
+
+#+begin_src R :exports none :results silent
+  library("webex")
+  library("tidyverse")
+  options(pillar.subtle = TRUE)
+
+  print.tbl_df <- function(x, ...) {
+    print(head(as.data.frame(x), ifelse(nrow(x) > 20, 10, nrow(x)), ...))
+    invisible(x)
+  }
+
+  setwd("~/workshop/root/01_monday/afternoon_scoring_the_AQ")
+#+end_src
+
+#+NAME: hide
+#+HEADER: :var x="Solution"
+#+begin_src R :exports results :results html value
+hide(x)
+#+end_src
+
+#+NAME: unhide
+#+begin_src R :exports results :results html value
+unhide()
+#+end_src
+
+* Scoring the AQ
+
+As a hint, your solution will involve reshaping using a =tidyr= function and joining tables using one of the two-table verbs in =dplyr=.
+
+First, load in the packages we will need for data processing and visualization.
+
+#+BEGIN_SRC R :exports code :results silent :tangle score_AQ.R
+  library("tidyverse")
+#+END_SRC
+
+Now load in the data itself.
+
+#+BEGIN_SRC R :tangle junk.R :exports none :results silent
+  dat <- read_csv("sm_data.csv", skip = 1)
+#+END_SRC
+
+#+BEGIN_SRC R :exports code :eval never
+  ## read in the data
+  dat <- read_csv("sm_data.csv", skip = 1)
+#+END_SRC
+
+Note that we have used the argument "=skip = 1=" because for some reason, Survey Monkey left the first line blank.  Let's have a =glimpse()=:
+
+#+BEGIN_SRC R :tangle junk.R 
+  glimpse(dat)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+Observations: 66
+Variables: 14
+$ Id          (int) 16, 17, 18, 19, 20, 21, 22, 28, 29, 31, 34, 35, 39, 40,...
+$ Gender      (chr) "Male", "Male", "Male", "Male", "Male", "Female", "Fema...
+$ Age         (int) 20, 40, 33, 18, 24, 42, 19, 49, 17, 18, 32, 18, 20, 39,...
+$ Participate (int) 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1...
+$ Q1          (chr) "Slightly Disagree", "Definitely Agree", "Definitely Ag...
+$ Q2          (chr) "Definitely Agree", "Slightly Agree", "Definitely Agree...
+$ Q3          (chr) "Slightly Disagree", "Slightly Agree", "Slightly Agree"...
+$ Q4          (chr) "Definitely Disagree", "Definitely Agree", "Definitely ...
+$ Q5          (chr) "Slightly Agree", "Definitely Agree", "Definitely Agree...
+$ Q6          (chr) "Slightly Agree", "Definitely Agree", "Definitely Agree...
+$ Q7          (chr) "Slightly Agree", "Slightly Agree", "Slightly Agree", "...
+$ Q8          (chr) "Definitely Disagree", "Slightly Disagree", "Definitely...
+$ Q9          (chr) "Slightly Agree", "Slightly Agree", "Definitely Agree",...
+$ Q10         (chr) "Slightly Agree", "Slightly Disagree", "Definitely Disa...
+#+end_example
+
+** Pull out participant information
+
+The table has a mix of information: participant demographics and responses to survey items.  We want to have separate tables for these.  Next step: pull out the participant information into a separate table called =part_info=.
+
+#+CALL: hide() :results html value
+
+#+BEGIN_SRC R
+  ## pull out participant information
+  part_info <- dat %>%
+      select(Id, Gender, Age, Participate)
+#+END_SRC
+
+#+CALL: unhide() :results html value
+
+** Reshape the question data
+
+Now let's reshape the question data (columns Q1 to Q10) from wide to
+long, and store this in the variable =qdat=.
+
+#+CALL: hide() :results html value
+
+#+BEGIN_SRC R :exports code :results silent
+  qdat <- dat %>%
+      select(Id, Q1:Q10) %>%
+      gather("Question", "Response", Q1:Q10) %>%
+      arrange(Id, Question)
+  
+  qdat
+#+END_SRC
+
+#+CALL: unhide() :results html value
+
+** Deal with the reverse coding
+
+Now let's create our tables that link responses to scores for the two different formats.  There are different possible solutions to this.
+
+#+CALL: hide("Solution 1: case_when()") :results html value
+
+Note that the scoring does not depend on whether the response is "Definitely" or "Slightly"; only on whether it is "Agree" or "Disagree". For items 1, 7, 8, 10, you give one point for Agree and zero for Disagree; for the other items, it is the reverse.  Probably the easiest thing to do is to separate the response into two variables "Slightly/Definitely" and "Agree/Disagree", and then use either =if_else()= or =case_when()= to handle the different cases.
+
+The cases where we assign =Score= to 1 are:
+
+: (Question %in% c("Q1", "Q7", "Q8", "Q10")) & (Agreement == "Agree")
+
+: !(Question %in% c("Q1", "Q7", "Q8", "Q10")) & (Agreement == "Disagree")
+
+Every other case is assigned to zero.  We will use =case_when()= to do this inside of a =mutate()= function, to assign the result to our new variable, =Score=.  With =case_when()=, you specify each condition using the syntax:
+
+: condition ~ value
+
+With the last line, =TRUE ~ value= to assign the 'default' value when no other condition holds.
+
+See =?case_when= for examples.
+
+The boolean =&= is true when both of its arguments are true.
+The logic of the second case reads: "it is not the case that Question was one of Q1, Q7, Q8, or Q10, and agreement is disagree".
+
+#+begin_src R
+  scored <- qdat %>%
+    separate(Response, c("Degree", "Agreement")) %>%
+    mutate(Score =
+	     case_when((Question %in% c("Q1", "Q7", "Q8", "Q10")) &
+		       (Agreement == "Agree") ~ 1L,
+		       !(Question %in% c("Q1", "Q7", "Q8", "Q10")) &
+		       (Agreement == "Disagree") ~ 1L,
+		       TRUE ~ 0L))
+
+  scored
+#+end_src
+
+#+RESULTS:
+#+begin_example
+   Id Question     Degree Agreement Score
+1  16       Q1   Slightly  Disagree     0
+2  16      Q10   Slightly     Agree     1
+3  16       Q2 Definitely     Agree     0
+4  16       Q3   Slightly  Disagree     1
+5  16       Q4 Definitely  Disagree     1
+6  16       Q5   Slightly     Agree     0
+7  16       Q6   Slightly     Agree     0
+8  16       Q7   Slightly     Agree     1
+9  16       Q8 Definitely  Disagree     0
+10 16       Q9   Slightly     Agree     0
+#+end_example
+
+#+CALL: unhide() :results html value
+
+#+CALL: hide("Solution 2: Lookup table") :results html value
+
+Type the response categories (=Response=), question format, i.e, forward or reverse (=Format=: 1 or 2), and scores directly into a =tibble()=.   You can then join the question table to this lookup table on the keys =Format= and =Response=.
+
+#+BEGIN_SRC R :results silent
+  ## table link format to response score
+  rscores <- tibble(Format = rep(1:2, each = 4),
+		    Response = rep(c("Definitely Agree", "Slightly Agree",
+				     "Slightly Disagree", "Definitely Disagree"),
+				   times = 2),
+		    Score=c(1, 1, 0, 0,
+			    0, 0, 1, 1))
+#+END_SRC
+
+Let's have a look:
+
+#+BEGIN_SRC R :tangle junk.R
+  rscores
+#+END_SRC
+
+Now let's make a table linking each question to format number (1 or 2).
+
+#+BEGIN_SRC R :results silent
+  ## table linking question to format
+  qformats <- data_frame(Question = paste0("Q", 1:10),
+			 Format = c(1, 2, 2, 2, 2, 2,
+			     1, 1, 2, 1))
+#+END_SRC
+
+Let's have a look at this.
+
+#+BEGIN_SRC R :tangle junk.R
+  qformats
+#+END_SRC
+
+OK, now we're ready to score each individual question by linking =qdat= to =rscores= by way of =qformats=.
+
+#+BEGIN_SRC R :tangle junk.R
+  scored <- qdat %>%
+      inner_join(qformats, "Question") %>%
+      inner_join(rscores, c("Format", "Response"))
+#+END_SRC
+
+If everything goes correctly, we should have the same number of rows in =scored= as we had in =qdat=.  The next line is just to formally test that this is the case, using =stopifnot()=.  This will cause the program to halt if the condition is not satisfied.
+
+#+begin_src R
+  stopifnot(nrow(scored) == nrow(qdat))
+#+end_src
+
+#+CALL: unhide() :results html value
+
+We should always double check that our scoring system worked. We can do this using =count()=. We should never have a case for Q1, Q7, Q8, or Q10 where Disagree is scored as 1; likewise, for the other questions, we should never have a case where Agree is scored as 1.  We can see that this is in fact the situation:
+
+#+begin_src R
+  scored %>% count(Question, Response, Score)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+   Question Agreement Score  n
+1        Q1     Agree     1 47
+2        Q1  Disagree     0 19
+3       Q10     Agree     1 19
+4       Q10  Disagree     0 47
+5        Q2     Agree     0 30
+6        Q2  Disagree     1 36
+7        Q3     Agree     0 46
+8        Q3  Disagree     1 20
+9        Q4     Agree     0 46
+10       Q4  Disagree     1 20
+11       Q5     Agree     0 54
+12       Q5  Disagree     1 12
+13       Q6     Agree     0 61
+14       Q6  Disagree     1  5
+15       Q7     Agree     1 10
+16       Q7  Disagree     0 56
+17       Q8     Agree     1 22
+18       Q8  Disagree     0 44
+19       Q9     Agree     0 54
+20       Q9  Disagree     1 12
+#+end_example
+
+** Calculate the AQ
+
+The final thing to do is to calculate the AQ, which is the sum of the 1s for each =Id= (because each unique value of =Id= stands in for a unique participant).  
+
+A hint here is to use =group_by()= and =summarise()=.
+
+#+CALL: hide() :results html value
+
+Use =group_by(Id) %>% summarise(AQ = sum(Score))=, and pipe the result into arrange, so the participants with the highest AQ scores show up at the top.  The final result gets stored in =AQ_scores=.
+
+#+BEGIN_SRC R
+  AQ_scores <- scored %>%
+      group_by(Id) %>%
+      summarise(AQ = sum(Score)) %>%
+      arrange(desc(AQ))
+#+END_SRC
+
+#+BEGIN_SRC R :tangle junk.R
+  AQ_scores
+#+END_SRC
+
+#+CALL: hide() :results html value
+
+** Plot
+
+Our last task was to generate a histogram using =ggplot2=.
+
+#+CALL: hide() :results html value
+
+#+HEADER: :file aq_dist.png
+#+BEGIN_SRC R :results output graphics file :exports both
+  ggplot(AQ_scores, aes(AQ)) + geom_bar() + scale_x_discrete(limits = 0:10)
+#+END_SRC
+
+#+RESULTS:
+[[file:aq_dist.png]]
+
+#+CALL: unhide() :results html value
+
+** Merge with participant information
+
+We probably want to link the AQ scores back to participant info (since, for example, we'd want to contact participants with particularly high AQs).  To do this you need to use a join.
+
+#+CALL: hide() :results html value
+
+#+BEGIN_SRC R :exports code :results silent
+  part_AQ <- inner_join(AQ_scores, part_info, "Id") 
+#+END_SRC
+
+#+BEGIN_SRC R :tangle junk.R
+  head(part_AQ, 10)
+#+END_SRC
+
+#+CALL: unhide() :results html value
+
+* 
+
+#+begin_export html
+ <script>
+
+ /* update total correct if #total_correct exists */
+ update_total_correct = function() {
+   if (t = document.getElementById("total_correct")) {
+     t.innerHTML =
+       document.getElementsByClassName("correct").length + " of " +
+       document.getElementsByClassName("solveme").length + " correct";
+   }
+ }
+
+ /* solution button toggling function */
+ b_func = function() {
+   var cl = this.parentElement.classList;
+   if (cl.contains('open')) {
+     cl.remove("open");
+   } else {
+     cl.add("open");
+   }
+ }
+
+ /* function for checking solveme answers */
+ solveme_func = function(e) {
+   var real_answers = JSON.parse(this.dataset.answer);
+   var my_answer = this.value;
+   var cl = this.classList;
+   if (cl.contains("ignorecase")) {
+     my_answer = my_answer.toLowerCase();
+   }
+   if (cl.contains("nospaces")) {
+     my_answer = my_answer.replace(/ /g, "");
+   }
+  
+   if (my_answer !== "" & real_answers.includes(my_answer)) {
+     cl.add("correct");
+   } else {
+     cl.remove("correct");
+   }
+   update_total_correct();
+ }
+
+ window.onload = function() {
+   /* set up solution buttons */
+   var buttons = document.getElementsByTagName("button");
+
+   for (var i = 0; i < buttons.length; i++) {
+     if (buttons[i].parentElement.classList.contains('solution')) {
+       buttons[i].onclick = b_func;
+     }
+   }
+  
+   /* set up solveme inputs */
+   var solveme = document.getElementsByClassName("solveme");
+
+   for (var i = 0; i < solveme.length; i++) {
+     /* make sure input boxes don't auto-anything */
+     solveme[i].setAttribute("autocomplete","off");
+     solveme[i].setAttribute("autocorrect", "off");
+     solveme[i].setAttribute("autocapitalize", "off"); 
+     solveme[i].setAttribute("spellcheck", "false");
+     solveme[i].value = "";
+    
+     /* adjust answer for ignorecase or nospaces */
+     var cl = solveme[i].classList;
+     var real_answer = solveme[i].dataset.answer;
+     if (cl.contains("ignorecase")) {
+       real_answer = real_answer.toLowerCase();
+     }
+     if (cl.contains("nospaces")) {
+       real_answer = real_answer.replace(/ /g, "");
+     }
+     solveme[i].dataset.answer = real_answer;
+    
+     /* attach checking function */
+     solveme[i].onkeyup = solveme_func;
+     solveme[i].onchange = solveme_func;
+   }
+  
+   update_total_correct();
+ }
+
+ </script>
+#+end_export

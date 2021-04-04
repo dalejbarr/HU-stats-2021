@@ -1,0 +1,2962 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2021-04-04 Sun 17:56 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Introduction to data wrangling with the tidyverse</title>
+<meta name="generator" content="Org mode" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<link rel="stylesheet" type="text/css" href="../../css/my_css.css" />
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2019 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="org-div-home-and-up">
+ <a accesskey="h" href="../../index.html"> UP </a>
+ |
+ <a accesskey="H" href="../../index.html"> HOME </a>
+</div><div id="content">
+<h1 class="title">Introduction to data wrangling with the tidyverse</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org453daaa">Background</a>
+<ul>
+<li><a href="#org793aae7">Tabular data</a></li>
+<li><a href="#org670530e">Be master of your data, or your data will be master of you</a></li>
+<li><a href="#orgabcde6b">The <code>babynames</code> database</a></li>
+<li><a href="#orgbe50957">A motivating example</a></li>
+</ul>
+</li>
+<li><a href="#org82385cf">Operations on tables: The Way of the Wickham Six</a>
+<ul>
+<li><a href="#orgd828129"><code>select()</code>: choosing which variables to keep</a>
+<ul>
+<li><a href="#orgbc64e6e">A few <code>select()</code> tricks</a></li>
+<li><a href="#org65ea9af"><b>Exercises</b> with <code>select()</code></a></li>
+</ul>
+</li>
+<li><a href="#org0dcdc69"><code>arrange()</code>: putting records in order</a>
+<ul>
+<li><a href="#org742cc9a"><b>Exercises</b> with <code>arrange()</code></a></li>
+</ul>
+</li>
+<li><a href="#org31e3984"><code>filter()</code>: subsetting observations</a>
+<ul>
+<li><a href="#org98fd376"><b>Exercises</b> with <code>filter()</code></a></li>
+</ul>
+</li>
+<li><a href="#org5a2bf73"><code>mutate()</code>: creating new variables</a>
+<ul>
+<li><a href="#org19dc7e1"><b>Exercises</b> with <code>mutate()</code></a></li>
+</ul>
+</li>
+<li><a href="#org9bb1b71"><code>group_by()</code>: putting records into groups</a></li>
+<li><a href="#orgb5d792a"><code>summarise()</code>: calculating data summaries</a>
+<ul>
+<li><a href="#orgdce893a"><b>Exercises</b> with <code>group_by()</code> and <code>summarise()</code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#orgf21daf6">Stringing verbs together to form &rsquo;paragraphs&rsquo; in a pipeline</a>
+<ul>
+<li><a href="#orgad28dd7">ADVANCED: &ldquo;windowed&rdquo; operations with <code>group_by()</code></a></li>
+</ul>
+</li>
+<li><a href="#org711b1de">A few additional tips</a>
+<ul>
+<li><a href="#org5a62c7f">A shortcut for counting with <code>count()</code></a></li>
+<li><a href="#org386cf9b">Concatenating tibbles with <code>bind_rows()</code></a></li>
+<li><a href="#orgce08c76">Slicing out rows with <code>slice()</code></a></li>
+<li><a href="#orgf3a78a3">Converting a table to a vector with <code>pull()</code> and getting values with <code>pluck()</code></a></li>
+</ul>
+</li>
+<li><a href="#org0f9658f">Tidy data</a>
+<ul>
+<li><a href="#org00564db">Introduction: What is tidy data?</a></li>
+<li><a href="#org0d8ab83">Tidy tools: Why you should care about tidy data</a></li>
+<li><a href="#org0d6da85">Example: Deriving a tidy table of babynames with <code>distinct()</code></a>
+<ul>
+<li><a href="#org70bb0c2"><b>Exercise</b> (optional) with <code>distinct()</code></a></li>
+</ul>
+</li>
+<li><a href="#orgbe62218">The <code>tidyr</code> package: going from wide to long and back again</a>
+<ul>
+<li><a href="#org91aa5d2"><b>Exercises</b></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org31cb795">Combining information across tables: <code>dplyr</code> two-table verbs</a>
+<ul>
+<li><a href="#org4192bac">Mutating joins</a>
+<ul>
+<li><a href="#orga4a7ea1"><code>inner_join()</code></a></li>
+<li><a href="#orga868dbf"><code>left_join()</code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#orga7c8af0"></a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org453daaa" class="outline-2">
+<h2 id="org453daaa">Background</h2>
+<div class="outline-text-2" id="text-org453daaa">
+</div>
+<div id="outline-container-org793aae7" class="outline-3">
+<h3 id="org793aae7">Tabular data</h3>
+<div class="outline-text-3" id="text-org793aae7">
+<p>
+Data comes in lots of different formats, but one of the most common formats is that of a two-dimensional <i>table</i>, where each row stands for a separate observation, and each column stands for a different variable.  A key benefit of tabular data is that it allows you to store different types of data&#x2014;numerical measurements, alphanumeric labels, categorical descriptors&#x2014;all in one place.
+</p>
+
+<p>
+In R, the two data primary structures that encode tabular data are the <code>data.frame</code> (from base R) and the <code>tibble</code> (from the add-on <code>tibble</code> package).  Tibbles are a recent addition to R, and offer a number of improvements on data.frames that make them more powerful and easier to work with, but the principles you will learn in this lesson apply to both types.  To learn more about the differences between a tibble and a data.frame, see <code>vignette("tibble")</code>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org670530e" class="outline-3">
+<h3 id="org670530e">Be master of your data, or your data will be master of you</h3>
+<div class="outline-text-3" id="text-org670530e">
+<p>
+It may surprise you to learn that scientists actually spend far more of time <i>cleaning</i> and <i>preparing</i> their data than they spend actually analysing it.  Indeed, some have estimated that up to 80% of time spent on data analysis involves data preparation (Dasu  &amp; Johnson, 2003<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>), including among other things cleaning up bad values, changing the structure of tables, merging information stored in separate tables, reducing the data down to a subset of observations, and producing data summaries.  
+</p>
+
+<p>
+Many people seem to operate under the assumption that the only option for data cleaning is the painstaking and time-consuming cutting and pasting of data within a spreadsheet program like Excel.  I have witnessed students and colleagues waste days, weeks, and even months manually transforming their data in Excel, cutting, copying, and pasting data, labour that more suitable for a mindless robot than for someone with an advanced degree.  Fixing up your data by hand is not only a terrible use of your time, but it is error-prone and not reproducible.  
+</p>
+
+<p>
+While doing things by hand might be acceptable and easier for small datasets, the by-hand approach does not scale to large datasets.  In this age where we can easily collect massive datasets online, you will not thrive as a scientist if you do not learn some key data wrangling skills.  Although every dataset presents unique challenges, there are some systematic principles you should follow that will make your analyses easier, less error-prone, more efficient, and more reproducible.  
+</p>
+
+<p>
+In this lesson you will see how data science skills will allow you to efficiently get answers to nearly any question you might want to ask about your data.  It will seem to go slowly while you are learning, but soon enough, you will experience huge gains in efficiency.  Moreover, your research will become more transparent and reproducible, because you can easily share all the data processing stages in a very easy-to-understand format.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgabcde6b" class="outline-3">
+<h3 id="orgabcde6b">The <code>babynames</code> database</h3>
+<div class="outline-text-3" id="text-orgabcde6b">
+<p>
+To demonstrate the power of these <code>dplyr</code> verbs, we will work with the <code>babynames</code> data from the <code>babynames</code> add-on package.  The babynames dataset has historical information about births of babies in the U.S.  (For more local color check out the <a href="https://github.com/leeper/ukbabynames"><code>ukbabynames</code></a> package, which has babynames from the UK.) We will also need the <code>ggplot2</code> package so that we can make some cool graphs.
+</p>
+
+<p>
+Load in the packages by typing the following lines at the top of a new R script.  Don&rsquo;t forget to send the commands to the console window using Ctrl-Enter, or the rest of the commands in this lesson will fail!
+</p>
+
+<p>
+The package <code>babynames</code> contains an object of the same name which we can get information about by printing it to the console:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">babynames
+</pre>
+</div>
+
+<pre class="example">
+# A tibble: 1,924,665 x 5
+    year sex   name          n   prop
+   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt;
+ 1  1880 F     Mary       7065 0.0724
+ 2  1880 F     Anna       2604 0.0267
+ 3  1880 F     Emma       2003 0.0205
+ 4  1880 F     Elizabeth  1939 0.0199
+ 5  1880 F     Minnie     1746 0.0179
+ 6  1880 F     Margaret   1578 0.0162
+ 7  1880 F     Ida        1472 0.0151
+ 8  1880 F     Alice      1414 0.0145
+ 9  1880 F     Bertha     1320 0.0135
+10  1880 F     Sarah      1288 0.0132
+# … with 1,924,655 more rows
+</pre>
+
+<p>
+The table we are looking at is a <code>tibble</code> with information on five variables over 1.8 million rows. Yes, this dataset contains <b>1.8 million</b> observations.  Interested in analyzing these data by hand?
+</p>
+
+<p>
+Fortunately, the <code>print()</code> rules for tibbles means that only the first 10 rows of this dataset will be displayed.<sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup>
+</p>
+
+<p>
+Each row in the table represents data about births for a given name and sex in a given year.  The variables are:
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">variable</th>
+<th scope="col" class="org-left">type</th>
+<th scope="col" class="org-left">description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">year</td>
+<td class="org-left">double (numeric)</td>
+<td class="org-left">year of birth</td>
+</tr>
+
+<tr>
+<td class="org-left">sex</td>
+<td class="org-left">character</td>
+<td class="org-left">recorded sex of baby (F = female, M = male)</td>
+</tr>
+
+<tr>
+<td class="org-left">name</td>
+<td class="org-left">character</td>
+<td class="org-left">forename given to baby</td>
+</tr>
+
+<tr>
+<td class="org-left">n</td>
+<td class="org-left">integer</td>
+<td class="org-left">number of babies given that name</td>
+</tr>
+
+<tr>
+<td class="org-left">prop</td>
+<td class="org-left">double (numeric)</td>
+<td class="org-left">proportion of all babies of that sex</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+So the first row of the table&#x2026;
+</p>
+
+<pre class="example">
+    year   sex      name     n       prop
+   &lt;dbl&gt; &lt;chr&gt;     &lt;chr&gt; &lt;int&gt;      &lt;dbl&gt;
+1   1880     F      Mary  7065 0.07238359
+</pre>
+
+
+<p>
+&#x2026;tells us that in the year 1880, there were 7065 baby girls born in the U.S. who were given the name Mary, and this accounted for about 7% of all baby girls.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgbe50957" class="outline-3">
+<h3 id="orgbe50957">A motivating example</h3>
+<div class="outline-text-3" id="text-orgbe50957">
+<p>
+The snippet of code below won&rsquo;t make sense to you at this point, so don&rsquo;t worry about not understanding it yet!  The point is just to motivate you by showing how much you can accomplish with very little code.  The code below creates a graph showing the popularity of four girl babynames&#x2014;Emma, Olivia, Sophia, and Hannah&#x2014;from 1880 to 2014.  Cut and paste the code into a new R script and run it yourself.  Make sure you have the <code>dplyr</code>, <code>ggplot2</code> and <code>babynames</code> packages installed on your system.  You can plug in different names if you like and see how the plot changes.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R"><span style="font-weight: bold; text-decoration: underline;">library</span>(<span style="font-style: italic;">"tidyverse"</span>)
+<span style="font-weight: bold; text-decoration: underline;">library</span>(<span style="font-style: italic;">"babynames"</span>)
+
+dat <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> babynames <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span> 
+  filter(name <span style="font-weight: bold; text-decoration: underline;">%in%</span> c(<span style="font-style: italic;">"Emma"</span>, <span style="font-style: italic;">"Olivia"</span>, <span style="font-style: italic;">"Sophia"</span>, <span style="font-style: italic;">"Hannah"</span>), sex == <span style="font-style: italic;">"F"</span>)
+
+ggplot(dat, aes(year, prop, colour = name)) +
+  geom_line()
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="motivating_example.png" alt="motivating_example.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-org82385cf" class="outline-2">
+<h2 id="org82385cf">Operations on tables: The Way of the Wickham Six</h2>
+<div class="outline-text-2" id="text-org82385cf">
+<p>
+Hadley Wickham (@hadleywickham), a world-famous data scientist and the primary force behind many of the add-on packages you will be learning to use, has claimed that 90% of data analysis can be reduced to the operations described by six English verbs.
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left"><code>select()</code></td>
+<td class="org-left">Include or exclude certain variables (columns)</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>filter()</code></td>
+<td class="org-left">Include or exclude certain observations (rows)</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>mutate()</code></td>
+<td class="org-left">Create new variables (columns)</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>arrange()</code></td>
+<td class="org-left">Change the order of observations (rows)</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>group_by()</code></td>
+<td class="org-left">Organize the observations into groups</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>summarise()</code></td>
+<td class="org-left">Derive aggregate variables for groups of observations</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+These six verbs are also the names of functions in Wickham&rsquo;s brilliant <code>dplyr</code> add-on package.  They are known as &rsquo;single table verbs&rsquo; because they only operate on one table at a time.  In your next lab, you will learn two-table verbs that you can use to merge tables together.  Although the operations of these functions may seem very simplistic, it&rsquo;s amazing what you can accomplish when you string them together.
+</p>
+</div>
+
+<div id="outline-container-orgd828129" class="outline-3">
+<h3 id="orgd828129"><code>select()</code>: choosing which variables to keep</h3>
+<div class="outline-text-3" id="text-orgd828129">
+<p>
+Now, of the two numeric measurements of name popularity, <code>prop</code> is probably more useful than <code>n</code> because it takes into account that different numbers of babies are born in different years.  If we wanted to create a data set that included everything but the variable <code>n</code>, we could do this using the <code>dplyr::select()</code> function.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">select(babynames, year, sex, name, prop)
+</pre>
+</div>
+
+<pre class="example">
+# A tibble: 1,924,665 x 4
+    year sex   name        prop
+   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;      &lt;dbl&gt;
+ 1  1880 F     Mary      0.0724
+ 2  1880 F     Anna      0.0267
+ 3  1880 F     Emma      0.0205
+ 4  1880 F     Elizabeth 0.0199
+ 5  1880 F     Minnie    0.0179
+ 6  1880 F     Margaret  0.0162
+ 7  1880 F     Ida       0.0151
+ 8  1880 F     Alice     0.0145
+ 9  1880 F     Bertha    0.0135
+10  1880 F     Sarah     0.0132
+# … with 1,924,655 more rows
+</pre>
+
+<p>
+The first argument to the <code>select()</code> function is a tibble, and further arguments are the names of columns you want to include.  But sometimes all you want to do is exclude a single column, and <code>select()</code> allows you to do that while saving typing by putting a minus sign in front of the column:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">select(babynames, -n)
+</pre>
+</div>
+
+<pre class="example">
+# A tibble: 1,924,665 x 4
+    year sex   name        prop
+   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;      &lt;dbl&gt;
+ 1  1880 F     Mary      0.0724
+ 2  1880 F     Anna      0.0267
+ 3  1880 F     Emma      0.0205
+ 4  1880 F     Elizabeth 0.0199
+ 5  1880 F     Minnie    0.0179
+ 6  1880 F     Margaret  0.0162
+ 7  1880 F     Ida       0.0151
+ 8  1880 F     Alice     0.0145
+ 9  1880 F     Bertha    0.0135
+10  1880 F     Sarah     0.0132
+# … with 1,924,655 more rows
+</pre>
+
+<p>
+Note that <code>select()</code> does not change the original tibble, but makes a <i>new</i> tibble with the specified columns.  If you don&rsquo;t save this new tibble to a variable, it will be printed to the console and lost forever.  So if you want to keep it around, assign it to a variable, e.g., <code>bbn &lt;- select(babynames, -n)</code>.
+</p>
+
+<p>
+Another trick is to select columns by column number (i.e., ordinal <i>position</i>) in the table rather than by name. For instance
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">select(babynames, 3)
+</pre>
+</div>
+
+<pre class="example">
+# A tibble: 1,924,665 x 1
+   name     
+   &lt;chr&gt;    
+ 1 Mary     
+ 2 Anna     
+ 3 Emma     
+ 4 Elizabeth
+ 5 Minnie   
+ 6 Margaret 
+ 7 Ida      
+ 8 Alice    
+ 9 Bertha   
+10 Sarah    
+# … with 1,924,655 more rows
+</pre>
+
+<p>
+Selects the third column <code>name</code> from the table.  Likewise, <code>select(babynames, -3)</code> selects everything <b>but</b> the third column.
+</p>
+</div>
+
+<div id="outline-container-orgbc64e6e" class="outline-4">
+<h4 id="orgbc64e6e">A few <code>select()</code> tricks</h4>
+<div class="outline-text-4" id="text-orgbc64e6e">
+</div>
+<ul class="org-ul">
+<li><a id="org7c93262"></a>selecting a range of columns<br />
+<div class="outline-text-5" id="text-org7c93262">
+<p>
+You can select a range of columns using the <code>:</code> operator. From the intro materials, you may recall that <code>1:5</code> gives the integer sequence 1 to 5.
+</p>
+
+<pre class="example">
+[1] 1 2 3 4 5
+</pre>
+
+
+<p>
+You can use the colon with select to select a range. You can even use <code>:</code> with names instead of integer positions. For instance:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">select(babynames, name:prop)
+</pre>
+</div>
+
+<pre class="example">
+# A tibble: 1,924,665 x 3
+   name          n   prop
+   &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt;
+ 1 Mary       7065 0.0724
+ 2 Anna       2604 0.0267
+ 3 Emma       2003 0.0205
+ 4 Elizabeth  1939 0.0199
+ 5 Minnie     1746 0.0179
+ 6 Margaret   1578 0.0162
+ 7 Ida        1472 0.0151
+ 8 Alice      1414 0.0145
+ 9 Bertha     1320 0.0135
+10 Sarah      1288 0.0132
+# … with 1,924,655 more rows
+</pre>
+
+<p>
+gives the same thing as
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">select(babynames, 3:5)
+</pre>
+</div>
+
+<pre class="example">
+# A tibble: 1,924,665 x 3
+   name          n   prop
+   &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt;
+ 1 Mary       7065 0.0724
+ 2 Anna       2604 0.0267
+ 3 Emma       2003 0.0205
+ 4 Elizabeth  1939 0.0199
+ 5 Minnie     1746 0.0179
+ 6 Margaret   1578 0.0162
+ 7 Ida        1472 0.0151
+ 8 Alice      1414 0.0145
+ 9 Bertha     1320 0.0135
+10 Sarah      1288 0.0132
+# … with 1,924,655 more rows
+</pre>
+</div>
+</li>
+
+<li><a id="org9b3af1f"></a>weird column names<br />
+<div class="outline-text-5" id="text-org9b3af1f">
+<p>
+Sometimes you load in a file and the column names are not legal names for R variables. They may have spaces or other special characters. You can reference the weird variables by escaping them between backticks, like so: <code>select(dat, `my weird column name!`)</code>.  This may be easier than referencing the column number.  Another tip is to use <b>tab completion</b> (start typing the first few characters, then press TAB) so that you don&rsquo;t make a typo when typing a long variable name.
+</p>
+</div>
+</li>
+
+<li><a id="org6bd7a61"></a>renaming columns<br />
+<div class="outline-text-5" id="text-org6bd7a61">
+<p>
+You can rename columns &rsquo;on the fly&rsquo; during select using the syntax <code>newname = oldname</code>. For example:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">select(babynames,
+       birth_year = year, sex, child_name = name,
+       number_of_babies = n, proportion = prop)
+</pre>
+</div>
+
+<pre class="example">
+
+# A tibble: 1,924,665 x 5
+   birth_year sex   child_name number_of_babies proportion
+        &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;                 &lt;int&gt;      &lt;dbl&gt;
+ 1       1880 F     Mary                   7065     0.0724
+ 2       1880 F     Anna                   2604     0.0267
+ 3       1880 F     Emma                   2003     0.0205
+ 4       1880 F     Elizabeth              1939     0.0199
+ 5       1880 F     Minnie                 1746     0.0179
+ 6       1880 F     Margaret               1578     0.0162
+ 7       1880 F     Ida                    1472     0.0151
+ 8       1880 F     Alice                  1414     0.0145
+ 9       1880 F     Bertha                 1320     0.0135
+10       1880 F     Sarah                  1288     0.0132
+# … with 1,924,655 more rows
+</pre>
+
+<p>
+or, if you want to select all columns while renaming one or more, use <code>rename()</code> instead of <code>select()</code>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">rename(babynames, birth_year = year, number_of_babies = n)
+</pre>
+</div>
+
+<pre class="example">
+# A tibble: 1,924,665 x 5
+   birth_year sex   name      number_of_babies   prop
+        &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;                &lt;int&gt;  &lt;dbl&gt;
+ 1       1880 F     Mary                  7065 0.0724
+ 2       1880 F     Anna                  2604 0.0267
+ 3       1880 F     Emma                  2003 0.0205
+ 4       1880 F     Elizabeth             1939 0.0199
+ 5       1880 F     Minnie                1746 0.0179
+ 6       1880 F     Margaret              1578 0.0162
+ 7       1880 F     Ida                   1472 0.0151
+ 8       1880 F     Alice                 1414 0.0145
+ 9       1880 F     Bertha                1320 0.0135
+10       1880 F     Sarah                 1288 0.0132
+# … with 1,924,655 more rows
+</pre>
+</div>
+</li>
+
+<li><a id="org9c84b46"></a>&rsquo;fronting&rsquo; a column or columns<br />
+<div class="outline-text-5" id="text-org9c84b46">
+<p>
+If you want to just get a column or columns in the first position, without having to type all of the column names, 
+type the column names to put in front, followed by the <code>everything()</code> helper function.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R"><span style="font-weight: bold; font-style: italic;">## </span><span style="font-weight: bold; font-style: italic;">put babynames and prop first</span>
+select(babynames, prop, everything())
+<span style="font-weight: bold; font-style: italic;">## </span><span style="font-weight: bold; font-style: italic;">equivalent to:</span>
+<span style="font-weight: bold; font-style: italic;">## </span><span style="font-weight: bold; font-style: italic;">select(prop, year, sex, name, n)</span>
+</pre>
+</div>
+
+<pre class="example">
+
+# A tibble: 1,924,665 x 5
+     prop  year sex   name          n
+    &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;     &lt;int&gt;
+ 1 0.0724  1880 F     Mary       7065
+ 2 0.0267  1880 F     Anna       2604
+ 3 0.0205  1880 F     Emma       2003
+ 4 0.0199  1880 F     Elizabeth  1939
+ 5 0.0179  1880 F     Minnie     1746
+ 6 0.0162  1880 F     Margaret   1578
+ 7 0.0151  1880 F     Ida        1472
+ 8 0.0145  1880 F     Alice      1414
+ 9 0.0135  1880 F     Bertha     1320
+10 0.0132  1880 F     Sarah      1288
+# … with 1,924,655 more rows
+</pre>
+
+<p>
+See <code>?select</code> for more helper functions (e.g., <code>starts_with()</code>, <code>ends_with()</code>, etc).
+</p>
+</div>
+</li>
+</ul>
+</div>
+
+<div id="outline-container-org65ea9af" class="outline-4">
+<h4 id="org65ea9af"><b>Exercises</b> with <code>select()</code></h4>
+<div class="outline-text-4" id="text-org65ea9af">
+</div>
+<ul class="org-ul">
+<li><a id="org192d9af"></a>Use <code>select()</code> to make a table that looks like this from the built-in <code>starwars</code> dataset<br />
+<div class="outline-text-5" id="text-org192d9af">
+<pre class="example">
+# A tibble: 87 x 4
+   name               eyes      home     species
+   &lt;chr&gt;              &lt;chr&gt;     &lt;chr&gt;    &lt;chr&gt;  
+ 1 Luke Skywalker     blue      Tatooine Human  
+ 2 C-3PO              yellow    Tatooine Droid  
+ 3 R2-D2              red       Naboo    Droid  
+ 4 Darth Vader        yellow    Tatooine Human  
+ 5 Leia Organa        brown     Alderaan Human  
+ 6 Owen Lars          blue      Tatooine Human  
+ 7 Beru Whitesun lars blue      Tatooine Human  
+ 8 R5-D4              red       Tatooine Droid  
+ 9 Biggs Darklighter  brown     Tatooine Human  
+10 Obi-Wan Kenobi     blue-gray Stewjon  Human  
+# … with 77 more rows
+</pre>
+
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">select(starwars, name, eyes = eye_color, home = homeworld, species)
+</pre>
+</div>
+
+
+</div>
+</div>
+</li>
+
+<li><a id="org0582c3b"></a>Renaming a weird column<br />
+<div class="outline-text-5" id="text-org0582c3b">
+<p>
+Download the <a href="infmort.csv"><code>infmort.csv</code></a> file, put it in your working directory and load it into the variable <code>infmort</code>.  This is data from the World Health Organization on infant mortality.  The first few rows of the data file look like this:
+</p>
+
+<pre class="example">
+Country,Year,Infant mortality rate (probability of dying between birth and age 1 per 1000 live births)
+Afghanistan,2015,66.3 [52.7-83.9]
+Afghanistan,2014,68.1 [55.7-83.6]
+Afghanistan,2013,69.9 [58.7-83.5]
+Afghanistan,2012,71.7 [61.6-83.7]
+Afghanistan,2011,73.4 [64.4-84.2]
+</pre>
+
+<p>
+Look at the table. Then rename the column that begins with &ldquo;Infant mortality rate&rdquo; to a legal R variable name.
+</p>
+
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">infmort <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> read_csv(<span style="font-style: italic;">"infmort.csv"</span>)
+
+glimpse(infmort)
+rename(infmort, IMR = <span style="color: #000000; background-color: #ffffff;">`Infant mortality rate (probability of dying between birth and age 1 per 1000 live births)`</span>)
+</pre>
+</div>
+
+<pre class="example">
+
+── Column specification ────────────────────────────────────────────────────────
+cols(
+  Country = col_character(),
+  Year = col_double(),
+  `Infant mortality rate (probability of dying between birth and age 1 per 1000 live births)` = col_character()
+)
+
+Rows: 5,044
+Columns: 3
+$ Country                                                                                     &lt;chr&gt; …
+$ Year                                                                                        &lt;dbl&gt; …
+$ `Infant mortality rate (probability of dying between birth and age 1 per 1000 live births)` &lt;chr&gt; …
+
+# A tibble: 5,044 x 3
+   Country      Year IMR             
+   &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;           
+ 1 Afghanistan  2015 66.3 [52.7-83.9]
+ 2 Afghanistan  2014 68.1 [55.7-83.6]
+ 3 Afghanistan  2013 69.9 [58.7-83.5]
+ 4 Afghanistan  2012 71.7 [61.6-83.7]
+ 5 Afghanistan  2011 73.4 [64.4-84.2]
+ 6 Afghanistan  2010 75.1 [66.9-85.1]
+ 7 Afghanistan  2009 76.8 [69.0-86.1]
+ 8 Afghanistan  2008 78.6 [71.2-87.3]
+ 9 Afghanistan  2007 80.4 [73.4-88.9]
+10 Afghanistan  2006 82.3 [75.5-90.7]
+# … with 5,034 more rows
+</pre>
+
+
+</div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org0dcdc69" class="outline-3">
+<h3 id="org0dcdc69"><code>arrange()</code>: putting records in order</h3>
+<div class="outline-text-3" id="text-org0dcdc69">
+<p>
+The dplyr verb <code>arrange()</code> will sort the rows in the table according to the columns you supply.  Try it:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">arrange(babynames, name)
+</pre>
+</div>
+
+<pre class="example">
+# A tibble: 1,924,665 x 5
+    year sex   name      n       prop
+   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; &lt;int&gt;      &lt;dbl&gt;
+ 1  2007 M     Aaban     5 0.00000226
+ 2  2009 M     Aaban     6 0.00000283
+ 3  2010 M     Aaban     9 0.00000439
+ 4  2011 M     Aaban    11 0.00000542
+ 5  2012 M     Aaban    11 0.00000543
+ 6  2013 M     Aaban    14 0.00000694
+ 7  2014 M     Aaban    16 0.00000783
+ 8  2015 M     Aaban    15 0.00000736
+ 9  2016 M     Aaban     9 0.00000446
+10  2017 M     Aaban    11 0.0000056 
+# … with 1,924,655 more rows
+</pre>
+
+<p>
+The data are now sorted in ascending alphabetical order by name.  The default is to sort in ascending order.  If we want it descending, we wrap the variable name in the <code>desc()</code> function.  For instance, to sort by year in descending order:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">arrange(babynames, desc(year))
+</pre>
+</div>
+
+<pre class="example">
+# A tibble: 1,924,665 x 5
+    year sex   name          n    prop
+   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;     &lt;int&gt;   &lt;dbl&gt;
+ 1  2017 F     Emma      19738 0.0105 
+ 2  2017 F     Olivia    18632 0.00994
+ 3  2017 F     Ava       15902 0.00848
+ 4  2017 F     Isabella  15100 0.00805
+ 5  2017 F     Sophia    14831 0.00791
+ 6  2017 F     Mia       13437 0.00717
+ 7  2017 F     Charlotte 12893 0.00688
+ 8  2017 F     Amelia    11800 0.00629
+ 9  2017 F     Evelyn    10675 0.00569
+10  2017 F     Abigail   10551 0.00563
+# … with 1,924,655 more rows
+</pre>
+
+<p>
+We can sort by more than one column.  <code>arrange(dat, varname1, varname2, varname3, ..., varnameN)</code> will sort by <code>varname1</code>, breaking ties by <code>varname2</code>, then break any further ties by <code>varname3</code>, etc.
+</p>
+</div>
+
+<div id="outline-container-org742cc9a" class="outline-4">
+<h4 id="org742cc9a"><b>Exercises</b> with <code>arrange()</code></h4>
+<div class="outline-text-4" id="text-org742cc9a">
+</div>
+<ul class="org-ul">
+<li><a id="org7489fad"></a>Arrange the <code>babynames</code> dataset in descending order by year with the most popular names for each year coming first<br />
+<div class="outline-text-5" id="text-org7489fad">
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">arrange(babynames, desc(year), desc(n))
+</pre>
+</div>
+
+<pre class="example">
+# A tibble: 1,924,665 x 5
+    year sex   name         n    prop
+   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;    &lt;int&gt;   &lt;dbl&gt;
+ 1  2017 F     Emma     19738 0.0105 
+ 2  2017 M     Liam     18728 0.00954
+ 3  2017 F     Olivia   18632 0.00994
+ 4  2017 M     Noah     18326 0.00933
+ 5  2017 F     Ava      15902 0.00848
+ 6  2017 F     Isabella 15100 0.00805
+ 7  2017 M     William  14904 0.00759
+ 8  2017 F     Sophia   14831 0.00791
+ 9  2017 M     James    14232 0.00725
+10  2017 M     Logan    13974 0.00712
+# … with 1,924,655 more rows
+</pre>
+
+
+</div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org31e3984" class="outline-3">
+<h3 id="org31e3984"><code>filter()</code>: subsetting observations</h3>
+<div class="outline-text-3" id="text-org31e3984">
+<p>
+Often what we want to do is to focus on some subset of observations;
+say, only babies born after some year, or only babies named &ldquo;Mary&rdquo;.  In other words, we want to pull out observations based on some arbitrary criteria.  We do this using the verb <code>filter()</code>.  The <code>filter()</code> function is a bit more involved than the other operators, and requires more detailed explanation, but this is because it is also extremely powerful.  Can you guess what the following function call will do?
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">filter(babynames, year &gt; 2000)
+</pre>
+</div>
+
+<pre class="example">
+# A tibble: 562,156 x 5
+    year sex   name          n    prop
+   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;     &lt;int&gt;   &lt;dbl&gt;
+ 1  2001 F     Emily     25055 0.0127 
+ 2  2001 F     Madison   22164 0.0112 
+ 3  2001 F     Hannah    20712 0.0105 
+ 4  2001 F     Ashley    16526 0.00835
+ 5  2001 F     Alexis    16401 0.00828
+ 6  2001 F     Sarah     15896 0.00803
+ 7  2001 F     Samantha  15862 0.00801
+ 8  2001 F     Abigail   14807 0.00748
+ 9  2001 F     Elizabeth 14784 0.00747
+10  2001 F     Olivia    13978 0.00706
+# … with 562,146 more rows
+</pre>
+
+<p>
+The second argument in the above function call, <code>year &gt; 2000</code>, is what is known as a <i>Boolean expression</i>: an expression whose evaluation results in a value of <code>TRUE</code> or <code>FALSE</code>.  What <code>filter()</code> does is include any observations (rows) for which the expression evaluates to <code>TRUE</code>, and exclude any for which it evaluates to <code>FALSE</code>.  So in effect, behind the scenes, <code>filter()</code> goes through the entire set of 1.8 million rows, row by row, checking the value of <code>year</code> for each row, keeping it if the value is greater than 2000, and rejecting it if it is less than 2000.  To see how a boolean expression works, consider the code below:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">years <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> 1996:2005  
+
+years   <span style="font-weight: bold; font-style: italic;"># </span><span style="font-weight: bold; font-style: italic;">print it out</span>
+years &gt; 2000  <span style="font-weight: bold; font-style: italic;"># </span><span style="font-weight: bold; font-style: italic;">compute and print the boolean expression 'years &gt; 2000'</span>
+</pre>
+</div>
+
+<pre class="example">
+
+[1] 1996 1997 1998 1999 2000 2001 2002 2003 2004 2005
+
+[1] FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE
+</pre>
+
+
+<p>
+You can see that the expression <code>years &gt; 2000</code> returns a <i>logical vector</i> (a vector of <code>TRUE</code> and <code>FALSE</code> values), where each element represents whether the expression is true or false for that element.  For the first five elements (1996 to 2000) it is false, and for the last five elements (2001 to 2005) it is true.
+</p>
+
+<p>
+Here are the most commonly used Boolean expressions.
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Operator</th>
+<th scope="col" class="org-left">Name</th>
+<th scope="col" class="org-left">is TRUE if and only if</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">A &lt; B</td>
+<td class="org-left">less than</td>
+<td class="org-left">A is less than B</td>
+</tr>
+
+<tr>
+<td class="org-left">A &lt;= B</td>
+<td class="org-left">less than or equal</td>
+<td class="org-left">A is less than or equal to B</td>
+</tr>
+
+<tr>
+<td class="org-left">A &gt; B</td>
+<td class="org-left">greater than</td>
+<td class="org-left">A is greater than B</td>
+</tr>
+
+<tr>
+<td class="org-left">A &gt;= B</td>
+<td class="org-left">greater than or equal</td>
+<td class="org-left">A is greater than or equal to B</td>
+</tr>
+
+<tr>
+<td class="org-left">A == B</td>
+<td class="org-left">equivalence</td>
+<td class="org-left">A exactly equals B</td>
+</tr>
+
+<tr>
+<td class="org-left">A != B</td>
+<td class="org-left">not equal</td>
+<td class="org-left">A does not exactly equal B</td>
+</tr>
+
+<tr>
+<td class="org-left">A %in% B</td>
+<td class="org-left">in</td>
+<td class="org-left">A is an element of vector B</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+If you want only those observations for a specific name (e.g., Mary), you use the equivalence operator.  Note that we are using double equal signs (the equivalence operator), not a single equal sign.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">filter(babynames, name == <span style="font-style: italic;">"Mary"</span>)
+</pre>
+</div>
+
+<pre class="example">
+# A tibble: 268 x 5
+    year sex   name      n     prop
+   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; &lt;int&gt;    &lt;dbl&gt;
+ 1  1880 F     Mary   7065 0.0724  
+ 2  1880 M     Mary     27 0.000228
+ 3  1881 F     Mary   6919 0.0700  
+ 4  1881 M     Mary     29 0.000268
+ 5  1882 F     Mary   8148 0.0704  
+ 6  1882 M     Mary     30 0.000246
+ 7  1883 F     Mary   8012 0.0667  
+ 8  1883 M     Mary     32 0.000284
+ 9  1884 F     Mary   9217 0.0670  
+10  1884 M     Mary     36 0.000293
+# … with 258 more rows
+</pre>
+
+<p>
+If you wanted all the names <i>except</i> Mary, you use the &rsquo;not equals&rsquo; operator:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">filter(babynames, name != <span style="font-style: italic;">"Mary"</span>)
+</pre>
+</div>
+
+<pre class="example">
+# A tibble: 1,924,397 x 5
+    year sex   name          n   prop
+   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt;
+ 1  1880 F     Anna       2604 0.0267
+ 2  1880 F     Emma       2003 0.0205
+ 3  1880 F     Elizabeth  1939 0.0199
+ 4  1880 F     Minnie     1746 0.0179
+ 5  1880 F     Margaret   1578 0.0162
+ 6  1880 F     Ida        1472 0.0151
+ 7  1880 F     Alice      1414 0.0145
+ 8  1880 F     Bertha     1320 0.0135
+ 9  1880 F     Sarah      1288 0.0132
+10  1880 F     Annie      1258 0.0129
+# … with 1,924,387 more rows
+</pre>
+
+<p>
+and if you wanted names within a defined set&#x2014;e.g., names of British
+queens&#x2014;you can use <code>%in%</code>:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">filter(babynames, name <span style="font-weight: bold; text-decoration: underline;">%in%</span> c(<span style="font-style: italic;">"Mary"</span>, <span style="font-style: italic;">"Elizabeth"</span>, <span style="font-style: italic;">"Victoria"</span>))
+</pre>
+</div>
+
+<pre class="example">
+# A tibble: 772 x 5
+    year sex   name          n      prop
+   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;     &lt;int&gt;     &lt;dbl&gt;
+ 1  1880 F     Mary       7065 0.0724   
+ 2  1880 F     Elizabeth  1939 0.0199   
+ 3  1880 F     Victoria     93 0.000953 
+ 4  1880 M     Mary         27 0.000228 
+ 5  1880 M     Elizabeth     9 0.0000760
+ 6  1881 F     Mary       6919 0.0700   
+ 7  1881 F     Elizabeth  1852 0.0187   
+ 8  1881 F     Victoria    117 0.00118  
+ 9  1881 M     Mary         29 0.000268 
+10  1882 F     Mary       8148 0.0704   
+# … with 762 more rows
+</pre>
+
+<p>
+This gives you data for the names in the vector on the right hand side of <code>%in%</code>.  And you can always invert an expression to get its opposite.  So, for instance, if you wanted to get rid of all Marys, Elizabeths, and Victorias:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">filter(babynames, !(name <span style="font-weight: bold; text-decoration: underline;">%in%</span> c(<span style="font-style: italic;">"Mary"</span>, <span style="font-style: italic;">"Elizabeth"</span>, <span style="font-style: italic;">"Victoria"</span>)))
+</pre>
+</div>
+
+<pre class="example">
+# A tibble: 1,923,893 x 5
+    year sex   name         n   prop
+   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;    &lt;int&gt;  &lt;dbl&gt;
+ 1  1880 F     Anna      2604 0.0267
+ 2  1880 F     Emma      2003 0.0205
+ 3  1880 F     Minnie    1746 0.0179
+ 4  1880 F     Margaret  1578 0.0162
+ 5  1880 F     Ida       1472 0.0151
+ 6  1880 F     Alice     1414 0.0145
+ 7  1880 F     Bertha    1320 0.0135
+ 8  1880 F     Sarah     1288 0.0132
+ 9  1880 F     Annie     1258 0.0129
+10  1880 F     Clara     1226 0.0126
+# … with 1,923,883 more rows
+</pre>
+
+<p>
+You can include as many expressions as you like as additional arguments to <code>filter()</code> and it will only pull out the rows for which <i>all</i> of the expressions for that row evaluate to TRUE.  For instance, <code>filter(babynames, year &gt; 2000, prop &gt; .01)</code> will pull out only those observations beyond the year 2000 that represent greater than 1% of the names for a given sex; any observation where either expression is false will be excluded.  This ability to string together criteria makes <code>filter()</code> a very powerful member of the Wickham Six.
+</p>
+</div>
+
+<div id="outline-container-org98fd376" class="outline-4">
+<h4 id="org98fd376"><b>Exercises</b> with <code>filter()</code></h4>
+<div class="outline-text-4" id="text-org98fd376">
+</div>
+<ul class="org-ul">
+<li><a id="org4ce64ae"></a>Pull out the babynames given to at least 5% (.05) of babies (in any given year)<br />
+<div class="outline-text-5" id="text-org4ce64ae">
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">filter(babynames, prop &gt;= .05) 
+</pre>
+</div>
+
+<pre class="example">
+# A tibble: 168 x 5
+    year sex   name        n   prop
+   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;   &lt;int&gt;  &lt;dbl&gt;
+ 1  1880 F     Mary     7065 0.0724
+ 2  1880 M     John     9655 0.0815
+ 3  1880 M     William  9532 0.0805
+ 4  1880 M     James    5927 0.0501
+ 5  1881 F     Mary     6919 0.0700
+ 6  1881 M     John     8769 0.0810
+ 7  1881 M     William  8524 0.0787
+ 8  1881 M     James    5441 0.0502
+ 9  1882 F     Mary     8148 0.0704
+10  1882 M     John     9557 0.0783
+# … with 158 more rows
+</pre>
+
+
+</div>
+</div>
+</li>
+
+<li><a id="orga0d65eb"></a>Pick three people in this room and find their names<br />
+<div class="outline-text-5" id="text-orga0d65eb">
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">filter(babynames, name <span style="font-weight: bold; text-decoration: underline;">%in%</span> c(<span style="font-style: italic;">"Dale"</span>, <span style="font-style: italic;">"Luc"</span>, <span style="font-style: italic;">"Oliver"</span>))
+</pre>
+</div>
+
+<pre class="example">
+# A tibble: 531 x 5
+    year sex   name       n      prop
+   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;  &lt;int&gt;     &lt;dbl&gt;
+ 1  1880 M     Oliver   234 0.00198  
+ 2  1881 M     Oliver   238 0.00220  
+ 3  1881 M     Dale       6 0.0000554
+ 4  1882 M     Oliver   244 0.00200  
+ 5  1882 M     Dale       7 0.0000574
+ 6  1883 M     Oliver   219 0.00195  
+ 7  1883 M     Dale      11 0.0000978
+ 8  1884 M     Oliver   245 0.00200  
+ 9  1884 M     Dale      10 0.0000815
+10  1885 M     Oliver   258 0.00223  
+# … with 521 more rows
+</pre>
+
+
+</div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-org5a2bf73" class="outline-3">
+<h3 id="org5a2bf73"><code>mutate()</code>: creating new variables</h3>
+<div class="outline-text-3" id="text-org5a2bf73">
+<p>
+Sometimes we find we need to create a new variable that doesn&rsquo;t exist in our dataset.  For instance, we might want to figure out what decade a particular year belongs to.  To create new variables, we use the <code>mutate()</code> function.<sup><a id="fnr.3" class="footref" href="#fn.3">3</a></sup>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">mutate(babynames, decade = floor(year / 10) * 10)
+</pre>
+</div>
+
+<pre class="example">
+# A tibble: 1,924,665 x 6
+    year sex   name          n   prop decade
+   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+ 1  1880 F     Mary       7065 0.0724   1880
+ 2  1880 F     Anna       2604 0.0267   1880
+ 3  1880 F     Emma       2003 0.0205   1880
+ 4  1880 F     Elizabeth  1939 0.0199   1880
+ 5  1880 F     Minnie     1746 0.0179   1880
+ 6  1880 F     Margaret   1578 0.0162   1880
+ 7  1880 F     Ida        1472 0.0151   1880
+ 8  1880 F     Alice      1414 0.0145   1880
+ 9  1880 F     Bertha     1320 0.0135   1880
+10  1880 F     Sarah      1288 0.0132   1880
+# … with 1,924,655 more rows
+</pre>
+</div>
+
+<div id="outline-container-org19dc7e1" class="outline-4">
+<h4 id="org19dc7e1"><b>Exercises</b> with <code>mutate()</code></h4>
+<div class="outline-text-4" id="text-org19dc7e1">
+</div>
+<ul class="org-ul">
+<li><a id="org87fb1aa"></a>Create a new variable <code>century</code> that calculates the century<br />
+<div class="outline-text-5" id="text-org87fb1aa">
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">mutate(babynames, century = floor(year / 100) * 100)
+</pre>
+</div>
+
+<pre class="example">
+# A tibble: 1,924,665 x 6
+    year sex   name          n   prop century
+   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt;   &lt;dbl&gt;
+ 1  1880 F     Mary       7065 0.0724    1800
+ 2  1880 F     Anna       2604 0.0267    1800
+ 3  1880 F     Emma       2003 0.0205    1800
+ 4  1880 F     Elizabeth  1939 0.0199    1800
+ 5  1880 F     Minnie     1746 0.0179    1800
+ 6  1880 F     Margaret   1578 0.0162    1800
+ 7  1880 F     Ida        1472 0.0151    1800
+ 8  1880 F     Alice      1414 0.0145    1800
+ 9  1880 F     Bertha     1320 0.0135    1800
+10  1880 F     Sarah      1288 0.0132    1800
+# … with 1,924,655 more rows
+</pre>
+
+
+</div>
+</div>
+</li>
+
+<li><a id="orgee09baa"></a>Create a new variable <code>name_length</code> that calculates the length of the name in characters (hint: <code>nchar()</code>)<br />
+<div class="outline-text-5" id="text-orgee09baa">
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">mutate(babynames, name_length = nchar(name))
+</pre>
+</div>
+
+<pre class="example">
+# A tibble: 1,924,665 x 6
+    year sex   name          n   prop name_length
+   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt;       &lt;int&gt;
+ 1  1880 F     Mary       7065 0.0724           4
+ 2  1880 F     Anna       2604 0.0267           4
+ 3  1880 F     Emma       2003 0.0205           4
+ 4  1880 F     Elizabeth  1939 0.0199           9
+ 5  1880 F     Minnie     1746 0.0179           6
+ 6  1880 F     Margaret   1578 0.0162           8
+ 7  1880 F     Ida        1472 0.0151           3
+ 8  1880 F     Alice      1414 0.0145           5
+ 9  1880 F     Bertha     1320 0.0135           6
+10  1880 F     Sarah      1288 0.0132           5
+# … with 1,924,655 more rows
+</pre>
+
+
+</div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+
+
+
+<div id="outline-container-org9bb1b71" class="outline-3">
+<h3 id="org9bb1b71"><code>group_by()</code>: putting records into groups</h3>
+<div class="outline-text-3" id="text-org9bb1b71">
+<p>
+Sometimes you might want to ask a question whose answer requires calculating some value over sets of observations.  For instance, you might want to know which names are the most popular ones over the entire database.  To do this, you need to create a grouped tibble: a tibble containing information about subsets of observations.  You can do this using the function <code>group_by()</code>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">group_by(babynames, name)
+</pre>
+</div>
+
+<pre class="example">
+# A tibble: 1,924,665 x 5
+# Groups:   name [97,310]
+    year sex   name          n   prop
+   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt;
+ 1  1880 F     Mary       7065 0.0724
+ 2  1880 F     Anna       2604 0.0267
+ 3  1880 F     Emma       2003 0.0205
+ 4  1880 F     Elizabeth  1939 0.0199
+ 5  1880 F     Minnie     1746 0.0179
+ 6  1880 F     Margaret   1578 0.0162
+ 7  1880 F     Ida        1472 0.0151
+ 8  1880 F     Alice      1414 0.0145
+ 9  1880 F     Bertha     1320 0.0135
+10  1880 F     Sarah      1288 0.0132
+# … with 1,924,655 more rows
+</pre>
+
+<p>
+Note that the table that results from <code>group_by()</code> is the same as the original table, except that the second line out the output tells you that the dataset has been organised into <code>97310</code> groups, each group corresponding to a unique value of <code>name</code>.  We could also group by both <code>name</code> and <code>sex</code>, since there are some names (Hadley, Hilary, Dale, Morton) that are given to both boys and girls.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">group_by(babynames, name, sex)
+</pre>
+</div>
+
+<pre class="example">
+# A tibble: 1,924,665 x 5
+# Groups:   name, sex [107,973]
+    year sex   name          n   prop
+   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt;
+ 1  1880 F     Mary       7065 0.0724
+ 2  1880 F     Anna       2604 0.0267
+ 3  1880 F     Emma       2003 0.0205
+ 4  1880 F     Elizabeth  1939 0.0199
+ 5  1880 F     Minnie     1746 0.0179
+ 6  1880 F     Margaret   1578 0.0162
+ 7  1880 F     Ida        1472 0.0151
+ 8  1880 F     Alice      1414 0.0145
+ 9  1880 F     Bertha     1320 0.0135
+10  1880 F     Sarah      1288 0.0132
+# … with 1,924,655 more rows
+</pre>
+
+<p>
+Now you can see that we have <code>107973</code> groups, one for each unique combination of <code>name</code> and <code>sex</code>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgb5d792a" class="outline-3">
+<h3 id="orgb5d792a"><code>summarise()</code>: calculating data summaries</h3>
+<div class="outline-text-3" id="text-orgb5d792a">
+<p>
+There is one main reason why we organize datasets into groups, and that is to apply other dplyr verbs at the group level rather than at the level of the entire dataset.  In other words, applying <code>arrange()</code>, <code>mutate()</code>, or <code>filter()</code> to a grouped dataset will apply the verb individually to each group.
+</p>
+
+<p>
+One verb that we haven&rsquo;t met yet that is particularly useful for grouped data is <code>summarise()</code>.  This function calculates summary values for each group.  For instance, you might want to know how many babies of each name and sex there are <i>in the entire dataset</i>, collapsing over year.  To this, we use <code>summarise()</code>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">gdat <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> group_by(babynames, name, sex)
+gsum <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> summarise(gdat, total = sum(n))  
+gsum
+</pre>
+</div>
+
+<pre class="example">
+
+`summarise()` has grouped output by 'name'. You can override using the `.groups` argument.
+
+# A tibble: 107,973 x 3
+# Groups:   name [97,310]
+   name      sex   total
+   &lt;chr&gt;     &lt;chr&gt; &lt;int&gt;
+ 1 Aaban     M       107
+ 2 Aabha     F        35
+ 3 Aabid     M        10
+ 4 Aabir     M         5
+ 5 Aabriella F        32
+ 6 Aada      F         5
+ 7 Aadam     M       254
+ 8 Aadan     M       130
+ 9 Aadarsh   M       199
+10 Aaden     F         5
+# … with 107,963 more rows
+</pre>
+
+<p>
+Note that <code>summarise()</code> is like <code>mutate()</code>, in that it creates new variables in the dataset.  Some of the functions that are most useful for creating variables within <code>summarise()</code> are listed below (and are generally self explanatory; substitute for <code>x</code> the name of the variable you want to calculate over.
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Function</th>
+<th scope="col" class="org-left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>sum(x)</code></td>
+<td class="org-left">sum</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>mean(x)</code></td>
+<td class="org-left">mean</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>min(x)</code></td>
+<td class="org-left">minimum</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>max(x)</code></td>
+<td class="org-left">maximum</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>median(x)</code></td>
+<td class="org-left">median</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>n()</code></td>
+<td class="org-left">count number of observations in each group</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Also note that when you apply <code>summarise()</code> a table that you have organised into groups as the result of <code>group_by</code>, the only variables that appear in the result are the grouping variables (<code>name</code>, <code>sex</code>) and the new variables you calculated (<code>total</code>).  We defined <code>total</code> to equal <code>sum(n)</code>, the sum of the values of variable <code>n</code> for each group.  We stored the summarised dataset into a new object, <code>gsum</code> so that we can do more things with it; for instance, we can find the name given to the greatest number of babies since record keeping began in 1880.  We will do this using <code>filter()</code>.  However, we have to get rid of the groups in the <code>gsum</code> object first; otherwise, as noted above, whatever verb we use will apply to each group in the <code>gsum</code> dataset.  We can get rid of the groups using <code>ungroup()</code>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">gsum2 <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> ungroup(gsum)
+</pre>
+</div>
+
+<p>
+Now let&rsquo;s find out the most popular name in the entire database.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">filter(gsum2, total == max(total))
+</pre>
+</div>
+
+<pre class="example">
+# A tibble: 1 x 3
+  name  sex     total
+  &lt;chr&gt; &lt;chr&gt;   &lt;int&gt;
+1 James M     5150472
+</pre>
+
+
+<p>
+So the winner for most popular name of all time is <code>James</code>, with <code>5150472</code> baby Jameses!
+</p>
+</div>
+
+<div id="outline-container-orgdce893a" class="outline-4">
+<h4 id="orgdce893a"><b>Exercises</b> with <code>group_by()</code> and <code>summarise()</code></h4>
+<div class="outline-text-4" id="text-orgdce893a">
+</div>
+<ul class="org-ul">
+<li><a id="orgbed6a11"></a>Calculate the total number of babies for each name in the dataset<br />
+<div class="outline-text-5" id="text-orgbed6a11">
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">grouped <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> group_by(babynames, name)
+summarise(grouped, total = sum(n))  
+</pre>
+</div>
+
+<pre class="example">
+
+# A tibble: 97,310 x 2
+   name      total
+   &lt;chr&gt;     &lt;int&gt;
+ 1 Aaban       107
+ 2 Aabha        35
+ 3 Aabid        10
+ 4 Aabir         5
+ 5 Aabriella    32
+ 6 Aada          5
+ 7 Aadam       254
+ 8 Aadan       130
+ 9 Aadarsh     199
+10 Aaden      4658
+# … with 97,300 more rows
+</pre>
+
+
+</div>
+</div>
+</li>
+
+<li><a id="org5971276"></a>Create a new variable <code>century</code> that calculates the century, then calculate the total number of babies in each century broken down by sex<br />
+<div class="outline-text-5" id="text-org5971276">
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">dat <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> mutate(babynames, century = floor(year / 100) * 100)
+grouped <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> group_by(dat, century, sex)
+summarise(grouped, total = sum(n))
+</pre>
+</div>
+
+<pre class="example">
+
+`summarise()` has grouped output by 'century'. You can override using the `.groups` argument.
+# A tibble: 6 x 3
+# Groups:   century [3]
+  century sex       total
+    &lt;dbl&gt; &lt;chr&gt;     &lt;int&gt;
+1    1800 F       3534247
+2    1800 M       2236374
+3    1900 F     136301837
+4    1900 M     138428563
+5    2000 F      32534995
+6    2000 M      35084501
+</pre>
+
+
+</div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgf21daf6" class="outline-2">
+<h2 id="orgf21daf6">Stringing verbs together to form &rsquo;paragraphs&rsquo; in a pipeline</h2>
+<div class="outline-text-2" id="text-orgf21daf6">
+<p>
+You may have noticed that each of the Wickham Six functions introduced above has the same function syntax:
+</p>
+
+<pre class="example">
+verb(tibble, ...)
+</pre>
+
+
+<p>
+where <code>verb</code> is the name of the function, <code>tibble</code> is the name of a variable holding a tabular data object (tibble or data.frame), and <code>...</code> represent additional comma-separated arguments to the function (usually column names, logical expressions, or function calls to create new variables).
+</p>
+
+<p>
+To every analysis there is a logical &rsquo;pipeline&rsquo;, a sequence in which you apply operations.  You apply a verb to a tibble, pass the result onto another verb, pass this result onto yet another verb, and so on.  In the way we have been doing things up to now, our pipeline requires us to store the result of each verb in a new object.  For instance, when we just calculated the most popular name, we used the following steps:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">gdat <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> group_by(babynames, name, sex)  
+gsum <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> summarise(gdat, total = sum(n)) 
+gsum2 <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> ungroup(gsum)  
+filter(gsum2, total == max(total))
+</pre>
+</div>
+
+<p>
+so the result of <code>group_by()</code> was stored in <code>gdat</code>, and <code>gdat</code> was passed into <code>summarise()</code>, the result of which was stored in <code>gsum</code>, which in turn was passed as the first argument to <code>ungroup()</code>, and the result of this was stored in <code>gsum2</code> and then passed along to <code>filter()</code>.  But the objects we created along the way, <code>gdat</code> and <code>gsum</code>, are just intermediate by-products that we can forget about because we won&rsquo;t ever need to use them again.  It would be much nicer not to have to do all of this record keeping, and it would make the code much more readable, because we could then focus on the actions being performed and forget about the intermediate results.
+</p>
+
+<p>
+Recognising this, <code>dplyr</code> provides a new &ldquo;pipe&rdquo; operator <code>%&gt;%</code>, which allows you to string functions along in a single <i>pipeline</i>.  This is extremely powerful and makes your code easier to follow.
+</p>
+
+<p>
+Pipes take the form <code>x %&gt;% y(...)</code> or <code>x(...) %&gt;% y(...)</code>, where the object or function results on the left hand side of the pipe is passed along as the first argument to the function on the right hand side of the pipe.  Because it is passed along implicitly, you don&rsquo;t have to store it an intermediate variable, and you don&rsquo;t mention the first argument in the function call; you start with the second argument.  This is best illustrated by an example.  Here is the same operation (<code>group_by()</code>) expressed with and without a pipe.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">babynames <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span> group_by(name, sex)   <span style="font-weight: bold; font-style: italic;"># </span><span style="font-weight: bold; font-style: italic;">pipe version</span>
+group_by(babynames, name, sex)      <span style="font-weight: bold; font-style: italic;"># </span><span style="font-weight: bold; font-style: italic;">non-pipe version</span>
+</pre>
+</div>
+
+<p>
+Note that in the first version, we don&rsquo;t name <code>babynames</code> as the first argument, because the pipe takes care of it for us; it puts the thing on the left as the first argument in the function on the right.  The two versions are completely equivalent.  However, with pipes, we can extend things a step further.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">babynames <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span> group_by(name, sex) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span> summarise(total = sum(n))
+</pre>
+</div>
+
+<pre class="example">
+`summarise()` has grouped output by 'name'. You can override using the `.groups` argument.
+# A tibble: 107,973 x 3
+# Groups:   name [97,310]
+   name      sex   total
+   &lt;chr&gt;     &lt;chr&gt; &lt;int&gt;
+ 1 Aaban     M       107
+ 2 Aabha     F        35
+ 3 Aabid     M        10
+ 4 Aabir     M         5
+ 5 Aabriella F        32
+ 6 Aada      F         5
+ 7 Aadam     M       254
+ 8 Aadan     M       130
+ 9 Aadarsh   M       199
+10 Aaden     F         5
+# … with 107,963 more rows
+</pre>
+
+<p>
+What we did here was pass babynames as the first argument to <code>group_by()</code>, then passed the result of <code>group_by()</code> as the first argument to <code>summarise()</code>.  Note that what appears as the first argument to <code>summarise()</code>, <code>total = sum(n)</code>, is actually the <i>second</i> argument, because the first argument is &ldquo;tacit&rdquo; and not mentioned.
+</p>
+
+<p>
+You can string together as many function calls as you wish, but it is a good idea to never go beyond five or six.  When using pipes, it makes more readable code if you limit yourself to one function (i.e., verb) per line of code.  Also, indent each line two spaces and leave a blank line before and after so that you can easily see where the block begins and ends. So the code that we wrote above that calculated the most popular name might be written with pipes as follows:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R"><span style="font-weight: bold; font-style: italic;">## </span><span style="font-weight: bold; font-style: italic;">calculate total number of babies for each name+sex combo</span>
+<span style="font-weight: bold; font-style: italic;">## </span><span style="font-weight: bold; font-style: italic;">across all the years</span>
+name_totals <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> babynames <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  group_by(name, sex) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  summarise(total = sum(n)) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  ungroup()
+
+<span style="font-weight: bold; font-style: italic;">## </span><span style="font-weight: bold; font-style: italic;">most popular all-time names</span>
+name_totals <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  group_by(sex) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  filter(total == max(total)) <span style="font-weight: bold; font-style: italic;"># </span><span style="font-weight: bold; font-style: italic;">find the </span>
+</pre>
+</div>
+
+<pre class="example">
+
+`summarise()` has grouped output by 'name'. You can override using the `.groups` argument.
+
+# A tibble: 2 x 3
+# Groups:   sex [2]
+  name  sex     total
+  &lt;chr&gt; &lt;chr&gt;   &lt;int&gt;
+1 James M     5150472
+2 Mary  F     4123200
+</pre>
+
+
+<p>
+Note that because of judicious choice of verbs by Hadley Wickham, the above code is <i>self-documenting</i>: it tells you in plain English what is happening and what order, with no need for any explanatory comments.
+</p>
+</div>
+
+<div id="outline-container-orgad28dd7" class="outline-3">
+<h3 id="orgad28dd7">ADVANCED: &ldquo;windowed&rdquo; operations with <code>group_by()</code></h3>
+<div class="outline-text-3" id="text-orgad28dd7">
+<p>
+You can also perform operations other than <code>summarise()</code> on groups; most commonly, you can add variables using <code>mutate()</code> or filter rows using <code>filter()</code>.  It is important to note that when you apply either of these functions on a grouped data frame, the operations will apply separately to each group.  This is called a <i>windowed operation</i>.
+</p>
+
+<p>
+Let&rsquo;s demonstrate this using an example. Let&rsquo;s say you want to use the <code>top_n</code> function to pull out the top 5 names in 1971 <b>for each sex</b>. You could do this with two pipelines, like so:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">top_f <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> babynames <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  filter(sex == <span style="font-style: italic;">"F"</span>, year == 1971) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  top_n(5)
+
+top_m <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> babynames <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  filter(sex == <span style="font-style: italic;">"M"</span>, year == 1971) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  top_n(5)
+
+bind_rows(top_f, top_m)
+</pre>
+</div>
+
+<pre class="example">
+
+Selecting by prop
+
+Selecting by prop
+
+# A tibble: 10 x 5
+    year sex   name         n   prop
+   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;    &lt;int&gt;  &lt;dbl&gt;
+ 1  1971 F     Jennifer 56784 0.0324
+ 2  1971 F     Michelle 33159 0.0189
+ 3  1971 F     Lisa     32909 0.0188
+ 4  1971 F     Kimberly 30695 0.0175
+ 5  1971 F     Amy      26238 0.0150
+ 6  1971 M     Michael  77591 0.0427
+ 7  1971 M     James    54622 0.0300
+ 8  1971 M     David    53121 0.0292
+ 9  1971 M     John     51516 0.0283
+10  1971 M     Robert   50655 0.0279
+</pre>
+
+<p>
+But note that it took three separate steps to do this; once for females, once for males, and then combine the two results.  You could do this all at once in a windowed version like so:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">top5 <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> babynames <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  filter(year == 1971) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  group_by(sex) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  top_n(5)
+
+top5
+</pre>
+</div>
+
+<pre class="example">
+
+Selecting by prop
+
+# A tibble: 10 x 5
+# Groups:   sex [2]
+    year sex   name         n   prop
+   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;    &lt;int&gt;  &lt;dbl&gt;
+ 1  1971 F     Jennifer 56784 0.0324
+ 2  1971 F     Michelle 33159 0.0189
+ 3  1971 F     Lisa     32909 0.0188
+ 4  1971 F     Kimberly 30695 0.0175
+ 5  1971 F     Amy      26238 0.0150
+ 6  1971 M     Michael  77591 0.0427
+ 7  1971 M     James    54622 0.0300
+ 8  1971 M     David    53121 0.0292
+ 9  1971 M     John     51516 0.0283
+10  1971 M     Robert   50655 0.0279
+</pre>
+
+<p>
+Note that any groups we created remain in the result <code>top5</code>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">is.grouped_df(top5)
+</pre>
+</div>
+
+<pre class="example">
+[1] TRUE
+</pre>
+
+
+<p>
+So any further operations we apply to that will also apply at the group level, including <code>mutate()</code>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">mutate(top5, rn = row_number())
+</pre>
+</div>
+
+<pre class="example">
+# A tibble: 10 x 6
+# Groups:   sex [2]
+    year sex   name         n   prop    rn
+   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;    &lt;int&gt;  &lt;dbl&gt; &lt;int&gt;
+ 1  1971 F     Jennifer 56784 0.0324     1
+ 2  1971 F     Michelle 33159 0.0189     2
+ 3  1971 F     Lisa     32909 0.0188     3
+ 4  1971 F     Kimberly 30695 0.0175     4
+ 5  1971 F     Amy      26238 0.0150     5
+ 6  1971 M     Michael  77591 0.0427     1
+ 7  1971 M     James    54622 0.0300     2
+ 8  1971 M     David    53121 0.0292     3
+ 9  1971 M     John     51516 0.0283     4
+10  1971 M     Robert   50655 0.0279     5
+</pre>
+
+<p>
+Note that this numbered the rows separately for females and males.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org711b1de" class="outline-2">
+<h2 id="org711b1de">A few additional tips</h2>
+<div class="outline-text-2" id="text-org711b1de">
+</div>
+<div id="outline-container-org5a62c7f" class="outline-3">
+<h3 id="org5a62c7f">A shortcut for counting with <code>count()</code></h3>
+<div class="outline-text-3" id="text-org5a62c7f">
+<p>
+One last verb that is not part of the Wickham Six is <code>count()</code>, but is still useful, is <code>count()</code>.  This verb exists because it is a shortcut for a very common way of counting things using <code>group_by()</code> and <code>summarise()</code>.
+</p>
+
+<p>
+For instance, you might want to see how many entries you have for each name and sex:
+</p>
+
+<p>
+the following:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">babynames <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span> 
+  group_by(name, sex) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  summarize(n = n())
+</pre>
+</div>
+
+<pre class="example">
+
+`summarise()` has grouped output by 'name'. You can override using the `.groups` argument.
+# A tibble: 107,973 x 3
+# Groups:   name [97,310]
+   name      sex       n
+   &lt;chr&gt;     &lt;chr&gt; &lt;int&gt;
+ 1 Aaban     M        10
+ 2 Aabha     F         5
+ 3 Aabid     M         2
+ 4 Aabir     M         1
+ 5 Aabriella F         5
+ 6 Aada      F         1
+ 7 Aadam     M        26
+ 8 Aadan     M        11
+ 9 Aadarsh   M        17
+10 Aaden     F         1
+# … with 107,963 more rows
+</pre>
+
+<p>
+This can be expressed more conveniently using <code>count()</code>:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">count(babynames, name, sex)
+<span style="font-weight: bold; font-style: italic;">## </span><span style="font-weight: bold; font-style: italic;">pipe version:</span>
+<span style="font-weight: bold; font-style: italic;">##   </span><span style="font-weight: bold; font-style: italic;">babynames %&gt;% count(name, sex)</span>
+</pre>
+</div>
+
+<pre class="example">
+# A tibble: 107,973 x 3
+   name      sex       n
+   &lt;chr&gt;     &lt;chr&gt; &lt;int&gt;
+ 1 Aaban     M        10
+ 2 Aabha     F         5
+ 3 Aabid     M         2
+ 4 Aabir     M         1
+ 5 Aabriella F         5
+ 6 Aada      F         1
+ 7 Aadam     M        26
+ 8 Aadan     M        11
+ 9 Aadarsh   M        17
+10 Aaden     F         1
+# … with 107,963 more rows
+</pre>
+
+<p>
+Note that <code>count()</code> is counting the number of rows in the dataset for each unique combination of <code>name</code> and <code>sex</code>, which is different from summing up the <code>n</code> for each group that we did above.  Also note that the result of <code>count()</code> is a grouped tibble, and you might need to undo the grouping using <code>ungroup()</code> depending on what you want to do with the result.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org386cf9b" class="outline-3">
+<h3 id="org386cf9b">Concatenating tibbles with <code>bind_rows()</code></h3>
+<div class="outline-text-3" id="text-org386cf9b">
+<p>
+Sometimes you might want to put together data from two separate tables into one bigger table.  You can do this using <code>bind_rows()</code>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">sonny <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> babynames <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span> filter(name == <span style="font-style: italic;">"Sonny"</span>)
+cher <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> babynames <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span> filter(name == <span style="font-style: italic;">"Cher"</span>)
+
+sonny_and_cher <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> bind_rows(sonny, cher)
+</pre>
+</div>
+
+<p>
+Each argument to <code>bind_rows()</code> is a tibble, and you can put in as many tibbles as you want to combine.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgce08c76" class="outline-3">
+<h3 id="orgce08c76">Slicing out rows with <code>slice()</code></h3>
+<div class="outline-text-3" id="text-orgce08c76">
+<p>
+You can take out a single row or a range of rows with <code>slice()</code>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">babynames <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span> slice(1777:1779)
+</pre>
+</div>
+
+<pre class="example">
+# A tibble: 3 x 5
+   year sex   name      n      prop
+  &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; &lt;int&gt;     &lt;dbl&gt;
+1  1880 M     Cora      6 0.0000507
+2  1880 M     Coy       6 0.0000507
+3  1880 M     Cruz      6 0.0000507
+</pre>
+</div>
+</div>
+
+
+<div id="outline-container-orgf3a78a3" class="outline-3">
+<h3 id="orgf3a78a3">Converting a table to a vector with <code>pull()</code> and getting values with <code>pluck()</code></h3>
+<div class="outline-text-3" id="text-orgf3a78a3">
+<p>
+Sometimes you need to work with just a single column of your data. For this, you can use the dplyr verb <code>pull()</code>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">babynames <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span> pull(n) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span> max()
+</pre>
+</div>
+
+<pre class="example">
+[1] 99686
+</pre>
+
+
+<p>
+To get the nth value within a vector, use <code>pluck(n)</code>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">babynames <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span> pull(name) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span> pluck(1079) <span style="font-weight: bold; font-style: italic;"># </span><span style="font-weight: bold; font-style: italic;">get element number 1079</span>
+</pre>
+</div>
+
+<pre class="example">
+[1] "Gus"
+</pre>
+
+
+<p>
+There are other ways to do these things in base R, but <code>pull()</code> and <code>pluck()</code> work especially well within pipelines.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org0f9658f" class="outline-2">
+<h2 id="org0f9658f">Tidy data</h2>
+<div class="outline-text-2" id="text-org0f9658f">
+</div>
+<div id="outline-container-org00564db" class="outline-3">
+<h3 id="org00564db">Introduction: What is tidy data?</h3>
+<div class="outline-text-3" id="text-org00564db">
+<blockquote>
+<p>
+&ldquo;Happy families are all alike; every unhappy family is unhappy in its own way.&rdquo; -Tolstoy
+</p>
+</blockquote>
+
+<p>
+This <a href="http://vita.had.co.nz/papers/tidy-data.html">influential paper by Hadley Wickham</a> introduces the notion of tidy data. In this section, we will learn the basic principles of tidy data, why it is important, and what tools you need to get your data into tidy format.
+</p>
+
+<p>
+Tidy datasets conform to <b>a standarized way of linking data structure to data semantics (meaning)</b> based on the following three principles:
+</p>
+
+<ol class="org-ol">
+<li>Each variable forms a column</li>
+<li>Each observation forms a row</li>
+<li>Each type of observational unit forms a table</li>
+</ol>
+
+<p>
+These principles are best illustrated by example.
+</p>
+
+<p>
+Consider the dataset below, corresponding to an imaginary two-alternative forced choice lexical decision study, where you present four word stimuli in a row to each participant, with each stimulus being in one of two conditions (<code>Cond</code>: control, <code>C</code> or experimental, <code>E</code>) and you record response time (<code>RT</code> in milliseconds) and the participant&rsquo;s choice (<code>Choice</code>: <code>A</code> or <code>B</code>).  Here is an untidy representation of the data.
+</p>
+
+
+<div class="figure">
+<p><img src="untidy.png" alt="untidy.png" />
+</p>
+<p><span class="figure-number">Figure 2: </span>Untidy representation.</p>
+</div>
+
+<p>
+If you think about the variables in the study&#x2014; <code>Cond</code>, <code>RT</code>, <code>Choice</code>, <code>SubjectID</code> &#x2014; this representation is clearly <i>untidy</i>.  The person who entered the data did it in such a way that they squeezed all of the observations for a single subject into one row.
+</p>
+
+<p>
+Tidyness can be a matter of degree.  Here is a more tidy version of the dataset.  This is better, but can you see the way that it is untidy?
+</p>
+
+
+<div class="figure">
+<p><img src="tidyish.png" alt="tidyish.png" />
+</p>
+<p><span class="figure-number">Figure 3: </span>Tidy-ish representation.</p>
+</div>
+
+
+<div class='solution'><button>Solution</button>
+
+<p>
+This table violates the third principle; multiple observation units are represented in a single table.
+</p>
+
+
+</div>
+
+<p>
+The observation units in this study can be broken down to Subject and Trial (and even Item, if we have information about each stimulus, such as whether it is high or low frequency).  Breaking these apart into separate tables eliminates redundancy.
+</p>
+
+
+<div class="figure">
+<p><img src="tidy.png" alt="tidy.png" />
+</p>
+<p><span class="figure-number">Figure 4: </span>Tidy representation.</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org0d8ab83" class="outline-3">
+<h3 id="org0d8ab83">Tidy tools: Why you should care about tidy data</h3>
+<div class="outline-text-3" id="text-org0d8ab83">
+<p>
+The tidy format is a clean, predictable data structure. We don&rsquo;t just make our data tidy because it looks nice, but because having tidy data allows us to work with <b>tidy tools</b>.  A <b>tidy tool</b> is a function to transform data that takes tidy data as input and returns tidy data as output.  All of the functions in the <code>tidyverse</code> packages have been designed as tidy tools, and thus are interoperable. In contrast, many of the older functions in base R do not yield tidy output, which impaires interoperability.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org0d6da85" class="outline-3">
+<h3 id="org0d6da85">Example: Deriving a tidy table of babynames with <code>distinct()</code></h3>
+<div class="outline-text-3" id="text-org0d6da85">
+<p>
+Let&rsquo;s imagine you are a linguist interested in whether trends in babynames have a phonological basis; for example, do girls names ending with a vowel become popular at certain times in history?  You would need to derive information about the sound properties of each name in the babynames dataset.  A good place to start would be to derive a table containing all of the unique names in the dataset; once you&rsquo;ve created the table then you could fill in the table with additional information, and later recombine it with the popularity data.  The <code>distinct()</code> function is the function you need to do this.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">name_table <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> babynames <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span> distinct(name) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span> arrange(name)
+
+name_table
+</pre>
+</div>
+
+<pre class="example">
+
+# A tibble: 97,310 x 1
+   name     
+   &lt;chr&gt;    
+ 1 Aaban    
+ 2 Aabha    
+ 3 Aabid    
+ 4 Aabir    
+ 5 Aabriella
+ 6 Aada     
+ 7 Aadam    
+ 8 Aadan    
+ 9 Aadarsh  
+10 Aaden    
+# … with 97,300 more rows
+</pre>
+
+<p>
+Now <code>name_table</code> is a table of the <code class="src src-R">nrow(name_table)</code> <code>[1] 97310</code> distinct names in the dataset.  Let&rsquo;s determine whether the name ends with a vowel using the <code>substr()</code> function, which extracts a substring from a character value.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">name_table <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  mutate(end_char = substr(name, nchar(name), nchar(name)),
+         is_vowel = end_char <span style="font-weight: bold; text-decoration: underline;">%in%</span> c(<span style="font-style: italic;">"a"</span>, <span style="font-style: italic;">"e"</span>, <span style="font-style: italic;">"i"</span>, <span style="font-style: italic;">"o"</span>, <span style="font-style: italic;">"u"</span>))
+</pre>
+</div>
+
+<pre class="example">
+
+# A tibble: 97,310 x 3
+   name      end_char is_vowel
+   &lt;chr&gt;     &lt;chr&gt;    &lt;lgl&gt;   
+ 1 Aaban     n        FALSE   
+ 2 Aabha     a        TRUE    
+ 3 Aabid     d        FALSE   
+ 4 Aabir     r        FALSE   
+ 5 Aabriella a        TRUE    
+ 6 Aada      a        TRUE    
+ 7 Aadam     m        FALSE   
+ 8 Aadan     n        FALSE   
+ 9 Aadarsh   h        FALSE   
+10 Aaden     n        FALSE   
+# … with 97,300 more rows
+</pre>
+
+<p>
+You could add further linguistic information into this table (e.g., number of syllables, etc.). Later on we will learn how you could re-combine this back with the original table using an <code>inner_join()</code>.
+</p>
+</div>
+
+<div id="outline-container-org70bb0c2" class="outline-4">
+<h4 id="org70bb0c2"><b>Exercise</b> (optional) with <code>distinct()</code></h4>
+<div class="outline-text-4" id="text-org70bb0c2">
+<p>
+Create a table containing the distinct names for each sex in the table. (Note that you can use more than one argument to <code>distinct()</code>.)  Then pull out those names that are <b>not</b> androgynous, i.e., that <b>only</b> appear for boys and never for girls, or vice versa.
+</p>
+
+
+<div class='solution'><button>Hint</button>
+
+<p>
+you can use a <a href="#orgad28dd7">windowed operation with <code>group_by()</code></a>
+</p>
+
+
+</div>
+
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">distinct(babynames, name, sex) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  group_by(name) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  filter(n() == 1)
+
+<span style="font-weight: bold; font-style: italic;">## </span><span style="font-weight: bold; font-style: italic;">alternative solution:</span>
+<span style="font-weight: bold; font-style: italic;">## </span><span style="font-weight: bold; font-style: italic;">distinct(babynames, name, sex) %&gt;%</span>
+<span style="font-weight: bold; font-style: italic;">##   </span><span style="font-weight: bold; font-style: italic;">count(name) %&gt;%</span>
+<span style="font-weight: bold; font-style: italic;">##   </span><span style="font-weight: bold; font-style: italic;">filter(n == 1)</span>
+</pre>
+</div>
+
+<pre class="example">
+
+# A tibble: 86,647 x 2
+# Groups:   name [86,647]
+   sex   name    
+   &lt;chr&gt; &lt;chr&gt;   
+ 1 F     Lulu    
+ 2 F     Belle   
+ 3 F     Mayme   
+ 4 F     Mathilda
+ 5 F     Hettie  
+ 6 F     Fanny   
+ 7 F     Adelaide
+ 8 F     Lelia   
+ 9 F     Nelle   
+10 F     Minerva 
+# … with 86,637 more rows
+</pre>
+
+
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgbe62218" class="outline-3">
+<h3 id="orgbe62218">The <code>tidyr</code> package: going from wide to long and back again</h3>
+<div class="outline-text-3" id="text-orgbe62218">
+<p>
+The <a href="https://github.com/rstudio/cheatsheets/raw/master/data-import.pdf">RStudio Data Import cheatsheet</a> may be useful for this part of the session.  Here is the key part of that cheatsheet that explains what we&rsquo;ll be learning.
+</p>
+
+
+<div class="figure">
+<p><img src="tidying.png" alt="tidying.png" />
+</p>
+</div>
+
+<p>
+The examples in the figure above are available to your session through the <code>tidyr</code> package.  Try them out in the console so that you get an understanding of how they work.
+</p>
+
+<p>
+The dataset we will be working with in the file <a href="personality.csv"><code>personality.csv</code></a>.  The dataset is from a 5-factor (OCEAN) personality questionnaire (thanks to Lisa DeBruine). Each question is labelled with the domain (Op = openness, Co = concientiousness, Ex = extraversion, Ag = agreeableness, and Ne = neuroticism) and the question number.
+</p>
+</div>
+
+<div id="outline-container-org91aa5d2" class="outline-4">
+<h4 id="org91aa5d2"><b>Exercises</b></h4>
+<div class="outline-text-4" id="text-org91aa5d2">
+</div>
+<ul class="org-ul">
+<li><a id="org76fffc4"></a>Load and look!<br />
+<div class="outline-text-5" id="text-org76fffc4">
+<p>
+Load in the data from the csv file into the variable <code>big5</code> and look at it (use <code>glimpse()</code> and <code>View()</code>).
+</p>
+
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">big5 <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> read_csv(<span style="font-style: italic;">"personality.csv"</span>)
+glimpse(big5)
+</pre>
+</div>
+
+<pre class="example">
+
+── Column specification ────────────────────────────────────────────────────────
+cols(
+  .default = col_double(),
+  date = col_date(format = "")
+)
+ℹ Use `spec()` for the full column specifications.
+
+Rows: 15,000
+Columns: 43
+$ user_id &lt;dbl&gt; 0, 1, 2, 5, 8, 108, 233, 298, 426, 436, 685, 807, 871, 881, 94…
+$ date    &lt;date&gt; 2006-03-23, 2006-02-08, 2005-10-24, 2005-12-07, 2006-07-27, 2…
+$ Op1     &lt;dbl&gt; 3, 6, 6, 6, 6, 3, 3, 6, 6, 3, 4, 5, 5, 5, 6, 4, 1, 2, 5, 6, 4,…
+$ Ne1     &lt;dbl&gt; 4, 0, 0, 4, 1, 2, 3, 4, 0, 3, 3, 3, 2, 1, 1, 3, 4, 5, 2, 4, 5,…
+$ Ne2     &lt;dbl&gt; 0, 6, 6, 4, 2, 1, 2, 3, 1, 2, 5, 5, 3, 1, 1, 1, 1, 6, 1, 2, 5,…
+$ Op2     &lt;dbl&gt; 6, 0, 0, 4, 6, 4, 4, 0, 0, 3, 4, 3, 3, 4, 5, 3, 3, 4, 1, 6, 6,…
+$ Ex1     &lt;dbl&gt; 3, 0, 0, 2, 2, 4, 4, 3, 5, 4, 1, 1, 3, 3, 1, 3, 5, 1, 0, 4, 1,…
+$ Ex2     &lt;dbl&gt; 3, 0, 0, 3, 3, 4, 5, 2, 5, 3, 4, 1, 3, 2, 1, 6, 5, 3, 4, 4, 1,…
+$ Co1     &lt;dbl&gt; 3, 0, 0, 3, 5, 4, 3, 4, 5, 3, 3, 3, 1, 5, 5, 4, 4, 5, 6, 4, 2,…
+$ Co2     &lt;dbl&gt; 3, 0, 0, 3, 4, 3, 3, 4, 5, 3, 5, 3, 3, 4, 5, 1, 5, 4, 5, 2, 5,…
+$ Ne3     &lt;dbl&gt; 0, 0, 0, 1, 0, 1, 4, 4, 0, 4, 2, 5, 1, 2, 5, 5, 2, 2, 1, 2, 5,…
+$ Ag1     &lt;dbl&gt; 2, 0, 0, 4, 6, 5, 5, 4, 2, 5, 4, 3, 2, 4, 5, 3, 5, 5, 5, 4, 4,…
+$ Ag2     &lt;dbl&gt; 1, 6, 6, 0, 5, 4, 5, 3, 4, 3, 5, 1, 5, 4, 2, 6, 5, 5, 5, 5, 2,…
+$ Ne4     &lt;dbl&gt; 3, 6, 6, 2, 3, 2, 3, 3, 0, 4, 4, 5, 5, 4, 5, 3, 2, 5, 2, 4, 5,…
+$ Ex3     &lt;dbl&gt; 3, 6, 5, 5, 3, 3, 3, 0, 6, 1, 4, 2, 3, 2, 1, 2, 5, 1, 0, 5, 5,…
+$ Co3     &lt;dbl&gt; 2, 0, 1, 3, 4, 4, 5, 4, 5, 3, 4, 3, 4, 4, 5, 4, 2, 4, 5, 2, 2,…
+$ Op3     &lt;dbl&gt; 2, 6, 5, 5, 5, 4, 3, 2, 4, 3, 3, 6, 5, 5, 6, 5, 4, 4, 3, 6, 5,…
+$ Ex4     &lt;dbl&gt; 1, 0, 1, 3, 3, 3, 4, 3, 5, 3, 2, 0, 3, 3, 1, 2, NA, 4, 4, 4, 1…
+$ Op4     &lt;dbl&gt; 3, 0, 1, 6, 6, 3, 3, 0, 6, 3, 4, 5, 4, 5, 6, 6, 2, 2, 4, 5, 5,…
+$ Ex5     &lt;dbl&gt; 3, 0, 1, 6, 3, 3, 4, 2, 5, 2, 2, 4, 2, 3, 0, 4, 5, 2, 3, 1, 1,…
+$ Ag3     &lt;dbl&gt; 1, 0, 1, 1, 0, 4, 4, 4, 3, 3, 4, 4, 3, 4, 4, 5, 5, 4, 5, 3, 4,…
+$ Co4     &lt;dbl&gt; 3, 6, 5, 5, 5, 3, 2, 4, 3, 1, 4, 3, 1, 2, 4, 2, NA, 5, 6, 1, 1…
+$ Co5     &lt;dbl&gt; 0, 6, 5, 5, 5, 3, 3, 1, 5, 1, 2, 4, 4, 4, 2, 1, 6, 4, 3, 1, 3,…
+$ Ne5     &lt;dbl&gt; 3, 0, 1, 4, 1, 1, 4, 5, 0, 3, 4, 6, 2, 0, 1, 1, 0, 4, 3, 1, 5,…
+$ Op5     &lt;dbl&gt; 6, 6, 5, 2, 5, 4, 3, 2, 6, 6, 2, 4, 3, 4, 6, 6, 6, 5, 3, 3, 5,…
+$ Ag4     &lt;dbl&gt; 1, 0, 1, 4, 6, 5, 5, 6, 6, 6, 4, 2, 4, 5, 4, 5, 6, 4, 5, 6, 5,…
+$ Op6     &lt;dbl&gt; 0, 6, 5, 1, 6, 4, 6, 0, 0, 3, 5, 3, 5, 5, 5, 2, 5, 1, 1, 6, 2,…
+$ Co6     &lt;dbl&gt; 6, 0, 1, 4, 6, 5, 6, 5, 4, 3, 5, 5, 4, 6, 6, 1, 3, 4, 5, 4, 6,…
+$ Ex6     &lt;dbl&gt; 3, 6, 5, 3, 0, 4, 3, 1, 6, 3, 2, 1, 4, 2, 1, 5, 6, 2, 1, 2, 1,…
+$ Ne6     &lt;dbl&gt; 1, 6, 5, 1, 0, 1, 3, 4, 0, 4, 4, 5, 2, 1, 5, 6, 1, 2, 2, 3, 5,…
+$ Co7     &lt;dbl&gt; 3, 6, 5, 1, 3, 4, NA, 2, 3, 3, 2, 2, 4, 2, 5, 2, 5, 5, 3, 1, 1…
+$ Ag5     &lt;dbl&gt; 3, 6, 5, 0, 2, 5, 6, 2, 2, 3, 4, 1, 3, 5, 2, 6, 5, 6, 5, 3, 3,…
+$ Co8     &lt;dbl&gt; 3, 0, 1, 1, 3, 4, 3, 0, 1, 3, 2, 2, 1, 2, 4, 3, 2, 4, 5, 2, 6,…
+$ Ex7     &lt;dbl&gt; 3, 6, 5, 4, 1, 2, 5, 3, 6, 3, 4, 3, 5, 1, 1, 6, 6, 3, 1, 1, 3,…
+$ Ne7     &lt;dbl&gt; NA, 0, 1, 2, 0, 2, 4, 4, 0, 3, 2, 5, 1, 2, 5, 2, 2, 4, 1, 3, 5…
+$ Co9     &lt;dbl&gt; 3, 6, 5, 4, 3, 4, 5, 3, 5, 3, 4, 3, 4, 4, 2, 4, 6, 5, 5, 2, 2,…
+$ Op7     &lt;dbl&gt; 0, 6, 5, 5, 5, 4, 6, 2, 1, 3, 2, 4, 5, 5, 6, 3, 6, 5, 2, 6, 5,…
+$ Ne8     &lt;dbl&gt; 2, 0, 1, 1, 1, 1, 5, 4, 0, 4, 4, 5, 1, 2, 5, 2, 1, 5, 1, 2, 5,…
+$ Ag6     &lt;dbl&gt; NA, 6, 5, 2, 3, 4, 5, 6, 1, 3, 4, 2, 3, 5, 1, 6, 2, 6, 6, 5, 3…
+$ Ag7     &lt;dbl&gt; 3, 0, 1, 1, 1, 3, 3, 5, 0, 3, 2, 1, 2, 3, 5, 6, 4, 4, 6, 6, 2,…
+$ Co10    &lt;dbl&gt; 1, 6, 5, 5, 3, 5, 1, 2, 5, 2, 4, 3, 4, 4, 3, 2, 5, 5, 5, 2, 2,…
+$ Ex8     &lt;dbl&gt; 2, 0, 1, 4, 3, 4, 2, 4, 6, 2, 4, 0, 4, 4, 1, 3, 5, 4, 3, 1, 1,…
+$ Ex9     &lt;dbl&gt; 4, 6, 5, 5, 5, 2, 3, 3, 6, 3, 3, 4, 4, 3, 2, 5, 5, 4, 4, 0, 4,…
+</pre>
+
+
+</div>
+</div>
+</li>
+
+<li><a id="orgbef061a"></a>Reshape from wide to long<br />
+<div class="outline-text-5" id="text-orgbef061a">
+<p>
+The dataset is in wide format. Use the appropriate tidyr function to reshape it to long, with variables named <code>item</code> (which item, <code>Op1</code>, <code>Ne1</code>, etc) and <code>score</code> (3, 4, 0, 6, etc).  Store the long data in the variable <code>big5_long</code>
+</p>
+
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">big5_long <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> gather(big5, <span style="font-style: italic;">"item"</span>, <span style="font-style: italic;">"score"</span>, Op1:Ex9)  
+
+big5_long
+</pre>
+</div>
+
+<pre class="example">
+
+# A tibble: 615,000 x 4
+   user_id date       item  score
+     &lt;dbl&gt; &lt;date&gt;     &lt;chr&gt; &lt;dbl&gt;
+ 1       0 2006-03-23 Op1       3
+ 2       1 2006-02-08 Op1       6
+ 3       2 2005-10-24 Op1       6
+ 4       5 2005-12-07 Op1       6
+ 5       8 2006-07-27 Op1       6
+ 6     108 2006-02-28 Op1       3
+ 7     233 2006-11-08 Op1       3
+ 8     298 2005-11-08 Op1       6
+ 9     426 2006-09-05 Op1       6
+10     436 2006-05-31 Op1       3
+# … with 614,990 more rows
+</pre>
+
+
+</div>
+</div>
+</li>
+
+<li><a id="orga190ca8"></a>Split the <code>item</code> variable into two variables<br />
+<div class="outline-text-5" id="text-orga190ca8">
+<p>
+Try to use the <code>separate()</code> function to make your table look like this:
+</p>
+
+<pre class="example">
+# A tibble: 615,000 x 5
+   user_id date       trait question score
+     &lt;dbl&gt; &lt;date&gt;     &lt;chr&gt;    &lt;int&gt; &lt;dbl&gt;
+ 1       0 2006-03-23 Op           1     3
+ 2       1 2006-02-08 Op           1     6
+ 3       2 2005-10-24 Op           1     6
+ 4       5 2005-12-07 Op           1     6
+ 5       8 2006-07-27 Op           1     6
+ 6     108 2006-02-28 Op           1     3
+ 7     233 2006-11-08 Op           1     3
+ 8     298 2005-11-08 Op           1     6
+ 9     426 2006-09-05 Op           1     6
+10     436 2006-05-31 Op           1     3
+# … with 614,990 more rows
+</pre>
+
+<p>
+See <code>?separate</code> to find out what argument you need to use to be able to separate based on position (rather than character).  Store the result in <code>big5_long2</code>.
+</p>
+
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">big5_long2 <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> big5_long <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  separate(item, c(<span style="font-style: italic;">"trait"</span>, <span style="font-style: italic;">"question"</span>), sep = 2, convert = <span style="font-weight: bold; text-decoration: underline;">TRUE</span>)
+</pre>
+</div>
+
+
+</div>
+</div>
+</li>
+
+<li><a id="org65807b1"></a>Calculate scores for each <code>trait/user_id</code> combination<br />
+<div class="outline-text-5" id="text-org65807b1">
+<p>
+Now calculate trait scores for each <code>user_id</code> and <code>trait</code> by summing the scores.  Store the result in <code>big5_scores</code>.
+</p>
+
+
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">big5_long2 <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  group_by(user_id, trait) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  summarise(tot = sum(score, na.rm = <span style="font-weight: bold; text-decoration: underline;">FALSE</span>))
+</pre>
+</div>
+
+<pre class="example">
+
+`summarise()` has grouped output by 'user_id'. You can override using the `.groups` argument.
+# A tibble: 75,000 x 3
+# Groups:   user_id [15,000]
+   user_id trait   tot
+     &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt;
+ 1       0 Ag       NA
+ 2       0 Co       27
+ 3       0 Ex       25
+ 4       0 Ne       NA
+ 5       0 Op       20
+ 6       1 Ag       18
+ 7       1 Co       30
+ 8       1 Ex       24
+ 9       1 Ne       18
+10       1 Op       30
+# … with 74,990 more rows
+</pre>
+
+
+</div>
+</div>
+</li>
+
+
+<li><a id="org69e88a6"></a>EXTRA: string all the above commands in a single pipeline<br />
+<div class="outline-text-5" id="text-org69e88a6">
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">big5 <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> read_csv(<span style="font-style: italic;">"personality.csv"</span>) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  gather(<span style="font-style: italic;">"item"</span>, <span style="font-style: italic;">"score"</span>, Op1:Ex9) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  separate(item, c(<span style="font-style: italic;">"trait"</span>, <span style="font-style: italic;">"question"</span>), sep = 2, convert = <span style="font-weight: bold; text-decoration: underline;">TRUE</span>) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  group_by(user_id, trait) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  summarise(tot = sum(score, na.rm = <span style="font-weight: bold; text-decoration: underline;">FALSE</span>))
+
+big5
+</pre>
+</div>
+
+<pre class="example">
+
+
+── Column specification ────────────────────────────────────────────────────────
+cols(
+  .default = col_double(),
+  date = col_date(format = "")
+)
+ℹ Use `spec()` for the full column specifications.
+
+`summarise()` has grouped output by 'user_id'. You can override using the `.groups` argument.
+
+# A tibble: 75,000 x 3
+# Groups:   user_id [15,000]
+   user_id trait   tot
+     &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt;
+ 1       0 Ag       NA
+ 2       0 Co       27
+ 3       0 Ex       25
+ 4       0 Ne       NA
+ 5       0 Op       20
+ 6       1 Ag       18
+ 7       1 Co       30
+ 8       1 Ex       24
+ 9       1 Ne       18
+10       1 Op       30
+# … with 74,990 more rows
+</pre>
+
+
+</div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org31cb795" class="outline-2">
+<h2 id="org31cb795">Combining information across tables: <code>dplyr</code> two-table verbs</h2>
+<div class="outline-text-2" id="text-org31cb795">
+<p>
+If you follow the principles of tidy data, you will end up with information scattered across different tables, since you&rsquo;ll have independent tables for each unit of observation. Often you will need to combine information from multiple tables. How do you put it back together? You do this using the various join functions from the <code>dplyr</code> package.
+</p>
+
+<p>
+There are two main types of join functions: <i>mutating</i> joins and <i>filtering</i> joins, called thus because their functions are analogous to what <code>mutate()</code> and <code>filter()</code> do for single tables.
+</p>
+
+<p>
+Mutating joins connect the information in two tables through linking variables or <i>keys</i> that identify which rows go together. 
+</p>
+
+<p>
+Filtering joins allow you to decide which rows to keep or remove in one table based on the rows available in another table.  In the interest of time, we won&rsquo;t be covering filtering joins (<code>semi_join()</code> and <code>anti_join()</code>).
+</p>
+</div>
+
+<div id="outline-container-org4192bac" class="outline-3">
+<h3 id="org4192bac">Mutating joins</h3>
+<div class="outline-text-3" id="text-org4192bac">
+<p>
+The two main mutating joins you should know about are <code>inner_join()</code> and <code>left_join()</code>.
+</p>
+</div>
+
+<div id="outline-container-orga4a7ea1" class="outline-4">
+<h4 id="orga4a7ea1"><code>inner_join()</code></h4>
+<div class="outline-text-4" id="text-orga4a7ea1">
+<p>
+A common situation where you might want to use an inner join is when you want to look up values in a <i>lookup table.</i>   For instance, consider the situation where you have numerical scores for an exam and want to convert them to alphanumeric grades.  My university, the University of Glasgow, uses a 22 point scale that looks like this:
+</p>
+
+<table id="org0027b06" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-right" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">score</th>
+<th scope="col" class="org-left">mark</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">22</td>
+<td class="org-left">A1</td>
+</tr>
+
+<tr>
+<td class="org-right">21</td>
+<td class="org-left">A2</td>
+</tr>
+
+<tr>
+<td class="org-right">20</td>
+<td class="org-left">A3</td>
+</tr>
+
+<tr>
+<td class="org-right">19</td>
+<td class="org-left">A4</td>
+</tr>
+
+<tr>
+<td class="org-right">18</td>
+<td class="org-left">A5</td>
+</tr>
+
+<tr>
+<td class="org-right">17</td>
+<td class="org-left">B1</td>
+</tr>
+
+<tr>
+<td class="org-right">16</td>
+<td class="org-left">B2</td>
+</tr>
+
+<tr>
+<td class="org-right">15</td>
+<td class="org-left">B3</td>
+</tr>
+
+<tr>
+<td class="org-right">14</td>
+<td class="org-left">C1</td>
+</tr>
+
+<tr>
+<td class="org-right">13</td>
+<td class="org-left">C2</td>
+</tr>
+
+<tr>
+<td class="org-right">12</td>
+<td class="org-left">C3</td>
+</tr>
+
+<tr>
+<td class="org-right">11</td>
+<td class="org-left">D1</td>
+</tr>
+
+<tr>
+<td class="org-right">10</td>
+<td class="org-left">D2</td>
+</tr>
+
+<tr>
+<td class="org-right">9</td>
+<td class="org-left">D3</td>
+</tr>
+
+<tr>
+<td class="org-right">8</td>
+<td class="org-left">E1</td>
+</tr>
+
+<tr>
+<td class="org-right">7</td>
+<td class="org-left">E2</td>
+</tr>
+
+<tr>
+<td class="org-right">6</td>
+<td class="org-left">E3</td>
+</tr>
+
+<tr>
+<td class="org-right">5</td>
+<td class="org-left">F1</td>
+</tr>
+
+<tr>
+<td class="org-right">4</td>
+<td class="org-left">F2</td>
+</tr>
+
+<tr>
+<td class="org-right">3</td>
+<td class="org-left">F3</td>
+</tr>
+
+<tr>
+<td class="org-right">2</td>
+<td class="org-left">G1</td>
+</tr>
+
+<tr>
+<td class="org-right">1</td>
+<td class="org-left">G2</td>
+</tr>
+
+<tr>
+<td class="org-right">0</td>
+<td class="org-left">H</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Let&rsquo;s say this is stored in the variable <code>mscale</code>. You also have a table of scores called <code>exam</code> like the one below, and you want to assign each 0-22 score the <code>mark</code> that appears in <code>mscale</code>. 
+</p>
+
+<pre class="example">
+
+# A tibble: 10 x 2
+   student_id score
+   &lt;chr&gt;      &lt;int&gt;
+ 1 6905937       18
+ 2 1643036       14
+ 3 6207607       16
+ 4 9889279       22
+ 5 4459823        3
+ 6 3149436       14
+ 7 5799233       12
+ 8 5587114       16
+ 9 7278201        1
+10 5340821       23
+</pre>
+
+<p>
+So student <code class="src src-R">sids[1]</code> <code>[1] "6905937"</code> who got an 18 should be given an A5, the student who got a 14 should get a C1, etc. You could do this by hand, but it would be tedious and error-prone. What you could do instead would be to join the two tables on the <i>key</i> field of <code>score</code>, like so:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">result <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> inner_join(exam, mscale, <span style="font-style: italic;">"score"</span>)
+result
+</pre>
+</div>
+
+<pre class="example">
+
+# A tibble: 9 x 3
+  student_id score mark 
+  &lt;chr&gt;      &lt;int&gt; &lt;chr&gt;
+1 6905937       18 A5   
+2 1643036       14 C1   
+3 6207607       16 B2   
+4 9889279       22 A1   
+5 4459823        3 F3   
+6 3149436       14 C1   
+7 5799233       12 C3   
+8 5587114       16 B2   
+9 7278201        1 G2
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orga868dbf" class="outline-4">
+<h4 id="orga868dbf"><code>left_join()</code></h4>
+<div class="outline-text-4" id="text-orga868dbf">
+<p>
+Note that the one student who had an <code>23</code> for their score (error? extra credit?) got thrown out from the result table.  A <code>left_join(x, y)</code> keeps all of the data in table <code>x</code> even if it lacks a match in table <code>y</code>, and the missing variable values get filled in with <code>NAs</code>.  Compare this result to the one above.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">left_join(exam, mscale, <span style="font-style: italic;">"score"</span>)
+</pre>
+</div>
+
+<pre class="example">
+# A tibble: 10 x 3
+   student_id score mark 
+   &lt;chr&gt;      &lt;int&gt; &lt;chr&gt;
+ 1 6905937       18 A5   
+ 2 1643036       14 C1   
+ 3 6207607       16 B2   
+ 4 9889279       22 A1   
+ 5 4459823        3 F3   
+ 6 3149436       14 C1   
+ 7 5799233       12 C3   
+ 8 5587114       16 B2   
+ 9 7278201        1 G2   
+10 5340821       23 &lt;NA&gt;
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orga7c8af0" class="outline-2">
+<h2 id="orga7c8af0"></h2>
+<div class="outline-text-2" id="text-orga7c8af0">
+<script>
+
+/* update total correct if #total_correct exists */
+update_total_correct = function() {
+  if (t = document.getElementById("total_correct")) {
+    t.innerHTML =
+      document.getElementsByClassName("correct").length + " of " +
+      document.getElementsByClassName("solveme").length + " correct";
+  }
+}
+
+/* solution button toggling function */
+b_func = function() {
+  var cl = this.parentElement.classList;
+  if (cl.contains('open')) {
+    cl.remove("open");
+  } else {
+    cl.add("open");
+  }
+}
+
+/* function for checking solveme answers */
+solveme_func = function(e) {
+  var real_answers = JSON.parse(this.dataset.answer);
+  var my_answer = this.value;
+  var cl = this.classList;
+  if (cl.contains("ignorecase")) {
+    my_answer = my_answer.toLowerCase();
+  }
+  if (cl.contains("nospaces")) {
+    my_answer = my_answer.replace(/ /g, "");
+  }
+
+  if (my_answer !== "" & real_answers.includes(my_answer)) {
+    cl.add("correct");
+  } else {
+    cl.remove("correct");
+  }
+  update_total_correct();
+}
+
+window.onload = function() {
+  /* set up solution buttons */
+  var buttons = document.getElementsByTagName("button");
+
+  for (var i = 0; i < buttons.length; i++) {
+    if (buttons[i].parentElement.classList.contains('solution')) {
+      buttons[i].onclick = b_func;
+    }
+  }
+
+  /* set up solveme inputs */
+  var solveme = document.getElementsByClassName("solveme");
+
+  for (var i = 0; i < solveme.length; i++) {
+    /* make sure input boxes don't auto-anything */
+    solveme[i].setAttribute("autocomplete","off");
+    solveme[i].setAttribute("autocorrect", "off");
+    solveme[i].setAttribute("autocapitalize", "off"); 
+    solveme[i].setAttribute("spellcheck", "false");
+    solveme[i].value = "";
+
+    /* adjust answer for ignorecase or nospaces */
+    var cl = solveme[i].classList;
+    var real_answer = solveme[i].dataset.answer;
+    if (cl.contains("ignorecase")) {
+      real_answer = real_answer.toLowerCase();
+    }
+    if (cl.contains("nospaces")) {
+      real_answer = real_answer.replace(/ /g, "");
+    }
+    solveme[i].dataset.answer = real_answer;
+
+    /* attach checking function */
+    solveme[i].onkeyup = solveme_func;
+    solveme[i].onchange = solveme_func;
+  }
+
+  update_total_correct();
+}
+
+</script>
+</div>
+</div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara"><p class="footpara">Dasu, T., &amp; Johnson, T. (2003).  <i>Exploratory data mining and data cleaning.</i>  John Wiley &amp; Sons.</p></div></div>
+
+<div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2">2</a></sup> <div class="footpara"><p class="footpara"><b>NOTE: if you print the object <code>babynames</code> without first loading in the package <code>dplyr</code>, you will see R attempt to print out the <i>entire</i> babynames dataset, though fortunately it gives up before printing all 1,825,433 observations.</b>  Printing out the data in its entirety is the default print behavior for data.frames.  Base R doesn&rsquo;t know about tibbles, only data.frames, and so treates <code>babynames</code> as a data.frame.  The <code>tibble</code> package is imported when you load <code>dplyr</code>.</p></div></div>
+
+<div class="footdef"><sup><a id="fn.3" class="footnum" href="#fnr.3">3</a></sup> <div class="footpara"><p class="footpara">In this code, we used a programming trick to compute the decade: <code>floor(year / 10) * 10</code>.  To get the decade a year belongs to, you divide the year by 10, throw away the decimal part, and then multiply by 10.  The function <code>floor()</code> takes a number and throws away the decimal part.  So for instance, <code>floor(1989 / 10)</code> yields <code>198</code>, and <code>198 * 10</code> is <code>1980</code>.</p></div></div>
+
+
+</div>
+</div></div>
+<div id="postamble" class="status">
+<p class="date">Created: 2021-04-04 Sun 17:56</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

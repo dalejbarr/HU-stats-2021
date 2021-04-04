@@ -1,0 +1,1668 @@
+#+TITLE: Introduction to data wrangling with the tidyverse
+#+OPTIONS: html-link-use-abs-url:nil html-postamble:auto
+#+OPTIONS: html-preamble:t html-scripts:t html-style:t
+#+OPTIONS: html5-fancy:nil tex:t toc:t num:nil h:3 ^:nil
+#+HTML_DOCTYPE: xhtml-strict
+#+HTML_CONTAINER: div
+#+DESCRIPTION:
+#+KEYWORDS:
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../../css/my_css.css" />
+#+HTML_LINK_HOME: ../../index.html
+#+HTML_LINK_UP:   ../../index.html
+#+HTML_MATHJAX:
+#+HTML_HEAD:
+#+HTML_HEAD_EXTRA:
+#+SUBTITLE:
+#+INFOJS_OPT:
+#+CREATOR: <a href="https://www.gnu.org/software/emacs/">Emacs</a> 24.5.1 (<a href="http://orgmode.org">Org</a> mode 9.1.5)
+#+LATEX_HEADER:
+#+PROPERTY: header-args:R :session *R* :exports both :results output
+
+* Setup                                                            :noexport:
+
+#+begin_src R :exports none :results silent
+  library("webex")
+  options(crayon.enabled = FALSE, tidyverse.quiet = TRUE)
+  library("tidyverse")
+
+  ##print.tbl_df <- function(x, ...) {
+  ##  print(head(as.data.frame(x), ifelse(nrow(x) > 20, 10, nrow(x)), ...))
+  ##  invisible(x)
+  ##}
+
+  ##setwd("~/ps_stats/root/01_monday/afternoon_intro_to_data_wrangling")
+#+end_src
+
+#+NAME: hide
+#+HEADER: :var x="Solution"
+#+begin_src R :exports results :results html value
+hide(x)
+#+end_src
+
+#+NAME: unhide
+#+begin_src R :exports results :results html value
+unhide()
+#+end_src
+
+* Tasks                                                            :noexport:
+** TODO case_when(), recode(), and if_else() under mutate()
+
+* Background
+** Tabular data
+
+Data comes in lots of different formats, but one of the most common formats is that of a two-dimensional /table/, where each row stands for a separate observation, and each column stands for a different variable.  A key benefit of tabular data is that it allows you to store different types of data---numerical measurements, alphanumeric labels, categorical descriptors---all in one place.
+
+In R, the two data primary structures that encode tabular data are the =data.frame= (from base R) and the =tibble= (from the add-on =tibble= package).  Tibbles are a recent addition to R, and offer a number of improvements on data.frames that make them more powerful and easier to work with, but the principles you will learn in this lesson apply to both types.  To learn more about the differences between a tibble and a data.frame, see =vignette("tibble")=.
+
+** Be master of your data, or your data will be master of you
+
+ It may surprise you to learn that scientists actually spend far more of time /cleaning/ and /preparing/ their data than they spend actually analysing it.  Indeed, some have estimated that up to 80% of time spent on data analysis involves data preparation (Dasu  & Johnson, 2003[fn:: Dasu, T., & Johnson, T. (2003).  /Exploratory data mining and data cleaning./  John Wiley & Sons.]), including among other things cleaning up bad values, changing the structure of tables, merging information stored in separate tables, reducing the data down to a subset of observations, and producing data summaries.  
+
+Many people seem to operate under the assumption that the only option for data cleaning is the painstaking and time-consuming cutting and pasting of data within a spreadsheet program like Excel.  I have witnessed students and colleagues waste days, weeks, and even months manually transforming their data in Excel, cutting, copying, and pasting data, labour that more suitable for a mindless robot than for someone with an advanced degree.  Fixing up your data by hand is not only a terrible use of your time, but it is error-prone and not reproducible.  
+
+While doing things by hand might be acceptable and easier for small datasets, the by-hand approach does not scale to large datasets.  In this age where we can easily collect massive datasets online, you will not thrive as a scientist if you do not learn some key data wrangling skills.  Although every dataset presents unique challenges, there are some systematic principles you should follow that will make your analyses easier, less error-prone, more efficient, and more reproducible.  
+
+In this lesson you will see how data science skills will allow you to efficiently get answers to nearly any question you might want to ask about your data.  It will seem to go slowly while you are learning, but soon enough, you will experience huge gains in efficiency.  Moreover, your research will become more transparent and reproducible, because you can easily share all the data processing stages in a very easy-to-understand format.
+
+** The =babynames= database
+
+ To demonstrate the power of these =dplyr= verbs, we will work with the =babynames= data from the =babynames= add-on package.  The babynames dataset has historical information about births of babies in the U.S.  (For more local color check out the [[https://github.com/leeper/ukbabynames][=ukbabynames=]] package, which has babynames from the UK.) We will also need the =ggplot2= package so that we can make some cool graphs.
+
+Load in the packages by typing the following lines at the top of a new R script.  Don't forget to send the commands to the console window using Ctrl-Enter, or the rest of the commands in this lesson will fail!
+
+ #+BEGIN_SRC R :exports none :results silent
+   library(dplyr)
+   library(ggplot2)
+   library(babynames)
+ #+END_SRC
+
+ The package =babynames= contains an object of the same name which we can get information about by printing it to the console:
+
+ #+BEGIN_SRC R
+   babynames
+ #+END_SRC
+
+ #+RESULTS:
+ #+begin_example
+    year sex      name    n       prop
+ 1  1880   F      Mary 7065 0.07238433
+ 2  1880   F      Anna 2604 0.02667923
+ 3  1880   F      Emma 2003 0.02052170
+ 4  1880   F Elizabeth 1939 0.01986599
+ 5  1880   F    Minnie 1746 0.01788861
+ 6  1880   F  Margaret 1578 0.01616737
+ 7  1880   F       Ida 1472 0.01508135
+ 8  1880   F     Alice 1414 0.01448711
+ 9  1880   F    Bertha 1320 0.01352404
+ 10 1880   F     Sarah 1288 0.01319618
+ #+end_example
+
+ The table we are looking at is a =tibble= with information on five variables over 1.8 million rows. Yes, this dataset contains *1.8 million* observations.  Interested in analyzing these data by hand?
+
+ Fortunately, the =print()= rules for tibbles means that only the first 10 rows of this dataset will be displayed.[fn:: *NOTE: if you print the object =babynames= without first loading in the package =dplyr=, you will see R attempt to print out the /entire/ babynames dataset, though fortunately it gives up before printing all 1,825,433 observations.*  Printing out the data in its entirety is the default print behavior for data.frames.  Base R doesn't know about tibbles, only data.frames, and so treates =babynames= as a data.frame.  The =tibble= package is imported when you load =dplyr=.]
+
+ Each row in the table represents data about births for a given name and sex in a given year.  The variables are:
+
+ | variable | type             | description                                 |
+ |----------+------------------+---------------------------------------------|
+ | year     | double (numeric) | year of birth                               |
+ | sex      | character        | recorded sex of baby (F = female, M = male) |
+ | name     | character        | forename given to baby                      |
+ | n        | integer          | number of babies given that name            |
+ | prop     | double (numeric) | proportion of all babies of that sex        |
+
+ So the first row of the table...
+
+ :     year   sex      name     n       prop
+ :    <dbl> <chr>     <chr> <int>      <dbl>
+ : 1   1880     F      Mary  7065 0.07238359
+
+ ...tells us that in the year 1880, there were 7065 baby girls born in the U.S. who were given the name Mary, and this accounted for about 7% of all baby girls.
+
+** A motivating example
+
+The snippet of code below won't make sense to you at this point, so don't worry about not understanding it yet!  The point is just to motivate you by showing how much you can accomplish with very little code.  The code below creates a graph showing the popularity of four girl babynames---Emma, Olivia, Sophia, and Hannah---from 1880 to 2014.  Cut and paste the code into a new R script and run it yourself.  Make sure you have the =dplyr=, =ggplot2= and =babynames= packages installed on your system.  You can plug in different names if you like and see how the plot changes.
+
+#+BEGIN_SRC R :exports both :results output graphics file :file motivating_example.png :width 600 :height 400
+  library("tidyverse")
+  library("babynames")
+
+  dat <- babynames %>% 
+    filter(name %in% c("Emma", "Olivia", "Sophia", "Hannah"), sex == "F")
+
+  ggplot(dat, aes(year, prop, colour = name)) +
+    geom_line()
+#+END_SRC
+
+#+RESULTS:
+[[file:motivating_example.png]]
+
+
+* Operations on tables: The Way of the Wickham Six
+
+Hadley Wickham (@hadleywickham), a world-famous data scientist and the primary force behind many of the add-on packages you will be learning to use, has claimed that 90% of data analysis can be reduced to the operations described by six English verbs.
+
+| =select()=    | Include or exclude certain variables (columns)        |
+| =filter()=    | Include or exclude certain observations (rows)        |
+| =mutate()=    | Create new variables (columns)                        |
+| =arrange()=   | Change the order of observations (rows)               |
+| =group_by()=  | Organize the observations into groups                 |
+| =summarise()= | Derive aggregate variables for groups of observations |
+
+These six verbs are also the names of functions in Wickham's brilliant =dplyr= add-on package.  They are known as 'single table verbs' because they only operate on one table at a time.  In your next lab, you will learn two-table verbs that you can use to merge tables together.  Although the operations of these functions may seem very simplistic, it's amazing what you can accomplish when you string them together.
+
+** =select()=: choosing which variables to keep
+
+Now, of the two numeric measurements of name popularity, =prop= is probably more useful than =n= because it takes into account that different numbers of babies are born in different years.  If we wanted to create a data set that included everything but the variable =n=, we could do this using the =dplyr::select()= function.
+
+#+BEGIN_SRC R
+  select(babynames, year, sex, name, prop)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+# A tibble: 1,825,433 x 4
+    year   sex      name       prop
+   <dbl> <chr>     <chr>      <dbl>
+1   1880     F      Mary 0.07238359
+2   1880     F      Anna 0.02667896
+3   1880     F      Emma 0.02052149
+4   1880     F Elizabeth 0.01986579
+5   1880     F    Minnie 0.01788843
+6   1880     F  Margaret 0.01616720
+7   1880     F       Ida 0.01508119
+8   1880     F     Alice 0.01448696
+9   1880     F    Bertha 0.01352390
+10  1880     F     Sarah 0.01319605
+# ... with 1,825,423 more rows
+#+end_example
+
+The first argument to the =select()= function is a tibble, and further arguments are the names of columns you want to include.  But sometimes all you want to do is exclude a single column, and =select()= allows you to do that while saving typing by putting a minus sign in front of the column:
+
+#+BEGIN_SRC R
+  select(babynames, -n)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+# A tibble: 1,825,433 x 4
+    year   sex      name       prop
+   <dbl> <chr>     <chr>      <dbl>
+1   1880     F      Mary 0.07238359
+2   1880     F      Anna 0.02667896
+3   1880     F      Emma 0.02052149
+4   1880     F Elizabeth 0.01986579
+5   1880     F    Minnie 0.01788843
+6   1880     F  Margaret 0.01616720
+7   1880     F       Ida 0.01508119
+8   1880     F     Alice 0.01448696
+9   1880     F    Bertha 0.01352390
+10  1880     F     Sarah 0.01319605
+# ... with 1,825,423 more rows
+#+end_example
+
+Note that =select()= does not change the original tibble, but makes a /new/ tibble with the specified columns.  If you don't save this new tibble to a variable, it will be printed to the console and lost forever.  So if you want to keep it around, assign it to a variable, e.g., =bbn <- select(babynames, -n)=.
+
+Another trick is to select columns by column number (i.e., ordinal /position/) in the table rather than by name. For instance
+
+#+begin_src R
+  select(babynames, 3)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+        name
+1       Mary
+2       Anna
+3       Emma
+4  Elizabeth
+5     Minnie
+6   Margaret
+7        Ida
+8      Alice
+9     Bertha
+10     Sarah
+#+end_example
+
+Selects the third column =name= from the table.  Likewise, =select(babynames, -3)= selects everything *but* the third column.
+
+*** A few =select()= tricks
+
+**** selecting a range of columns
+
+You can select a range of columns using the =:= operator. From the intro materials, you may recall that =1:5= gives the integer sequence 1 to 5.
+
+#+begin_src R :exports results
+1:5
+#+end_src
+
+You can use the colon with select to select a range. You can even use =:= with names instead of integer positions. For instance:
+
+#+begin_src R
+  select(babynames, name:prop)
+#+end_src
+
+gives the same thing as
+
+#+begin_src R
+  select(babynames, 3:5)
+#+end_src
+
+**** weird column names
+
+Sometimes you load in a file and the column names are not legal names for R variables. They may have spaces or other special characters. You can reference the weird variables by escaping them between backticks, like so: =select(dat, `my weird column name!`)=.  This may be easier than referencing the column number.  Another tip is to use *tab completion* (start typing the first few characters, then press TAB) so that you don't make a typo when typing a long variable name.
+
+**** renaming columns
+
+You can rename columns 'on the fly' during select using the syntax =newname = oldname=. For example:
+
+#+begin_src R
+  select(babynames,
+	 birth_year = year, sex, child_name = name,
+	 number_of_babies = n, proportion = prop)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+   birth_year sex child_name number_of_babies proportion
+1        1880   F       Mary             7065 0.07238433
+2        1880   F       Anna             2604 0.02667923
+3        1880   F       Emma             2003 0.02052170
+4        1880   F  Elizabeth             1939 0.01986599
+5        1880   F     Minnie             1746 0.01788861
+6        1880   F   Margaret             1578 0.01616737
+7        1880   F        Ida             1472 0.01508135
+8        1880   F      Alice             1414 0.01448711
+9        1880   F     Bertha             1320 0.01352404
+10       1880   F      Sarah             1288 0.01319618
+#+end_example
+
+or, if you want to select all columns while renaming one or more, use =rename()= instead of =select()=.
+
+#+begin_src R
+  rename(babynames, birth_year = year, number_of_babies = n)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+   birth_year sex      name number_of_babies       prop
+1        1880   F      Mary             7065 0.07238433
+2        1880   F      Anna             2604 0.02667923
+3        1880   F      Emma             2003 0.02052170
+4        1880   F Elizabeth             1939 0.01986599
+5        1880   F    Minnie             1746 0.01788861
+6        1880   F  Margaret             1578 0.01616737
+7        1880   F       Ida             1472 0.01508135
+8        1880   F     Alice             1414 0.01448711
+9        1880   F    Bertha             1320 0.01352404
+10       1880   F     Sarah             1288 0.01319618
+#+end_example
+
+**** 'fronting' a column or columns
+
+If you want to just get a column or columns in the first position, without having to type all of the column names, 
+type the column names to put in front, followed by the =everything()= helper function.
+
+#+begin_src R
+  ## put babynames and prop first
+  select(babynames, prop, everything())
+  ## equivalent to:
+  ## select(prop, year, sex, name, n)
+#+end_src
+
+See =?select= for more helper functions (e.g., =starts_with()=, =ends_with()=, etc).
+
+*** *Exercises* with =select()=
+
+**** Use =select()= to make a table that looks like this from the built-in =starwars= dataset
+
+#+begin_src R :exports results
+  select(starwars, name, eyes = eye_color, home = homeworld, species)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+                 name      eyes     home species
+1      Luke Skywalker      blue Tatooine   Human
+2               C-3PO    yellow Tatooine   Droid
+3               R2-D2       red    Naboo   Droid
+4         Darth Vader    yellow Tatooine   Human
+5         Leia Organa     brown Alderaan   Human
+6           Owen Lars      blue Tatooine   Human
+7  Beru Whitesun lars      blue Tatooine   Human
+8               R5-D4       red Tatooine   Droid
+9   Biggs Darklighter     brown Tatooine   Human
+10     Obi-Wan Kenobi blue-gray  Stewjon   Human
+#+end_example
+
+#+CALL: hide() :results html value
+
+#+begin_src R :exports code :results silent
+  select(starwars, name, eyes = eye_color, home = homeworld, species)
+#+end_src
+
+#+CALL: unhide() :results html value
+
+**** Renaming a weird column
+
+Download the [[file:infmort.csv][=infmort.csv=]] file, put it in your working directory and load it into the variable =infmort=.  This is data from the World Health Organization on infant mortality.  The first few rows of the data file look like this:
+
+#+begin_example
+Country,Year,Infant mortality rate (probability of dying between birth and age 1 per 1000 live births)
+Afghanistan,2015,66.3 [52.7-83.9]
+Afghanistan,2014,68.1 [55.7-83.6]
+Afghanistan,2013,69.9 [58.7-83.5]
+Afghanistan,2012,71.7 [61.6-83.7]
+Afghanistan,2011,73.4 [64.4-84.2]
+#+end_example
+
+Look at the table. Then rename the column that begins with "Infant mortality rate" to a legal R variable name.
+
+#+CALL: hide() :results html value
+
+#+begin_src R
+  infmort <- read_csv("infmort.csv")
+
+  glimpse(infmort)
+  rename(infmort, IMR = `Infant mortality rate (probability of dying between birth and age 1 per 1000 live births)`)
+#+end_src
+
+#+CALL: unhide() :results html value
+
+** =arrange()=: putting records in order
+
+The dplyr verb =arrange()= will sort the rows in the table according to the columns you supply.  Try it:
+
+#+BEGIN_SRC R
+  arrange(babynames, name)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+# A tibble: 1,825,433 x 5
+    year   sex  name     n         prop
+   <dbl> <chr> <chr> <int>        <dbl>
+1   2007     M Aaban     5 2.260251e-06
+2   2009     M Aaban     6 2.834029e-06
+3   2010     M Aaban     9 4.390297e-06
+4   2011     M Aaban    11 5.429927e-06
+5   2012     M Aaban    11 5.440091e-06
+6   2013     M Aaban    14 6.961721e-06
+7   2014     M Aaban    16 7.882569e-06
+8   2011     F Aabha     7 3.622491e-06
+9   2012     F Aabha     5 2.587144e-06
+10  2014     F Aabha     9 4.642684e-06
+# ... with 1,825,423 more rows
+#+end_example
+
+The data are now sorted in ascending alphabetical order by name.  The default is to sort in ascending order.  If we want it descending, we wrap the variable name in the =desc()= function.  For instance, to sort by year in descending order:
+
+#+BEGIN_SRC R
+  arrange(babynames, desc(year))
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+# A tibble: 1,825,433 x 5
+    year   sex      name     n        prop
+   <dbl> <chr>     <chr> <int>       <dbl>
+1   2014     F      Emma 20799 0.010729242
+2   2014     F    Olivia 19674 0.010148906
+3   2014     F    Sophia 18490 0.009538136
+4   2014     F  Isabella 16950 0.008743721
+5   2014     F       Ava 15586 0.008040096
+6   2014     F       Mia 13442 0.006934106
+7   2014     F     Emily 12562 0.006480155
+8   2014     F   Abigail 11985 0.006182507
+9   2014     F   Madison 10247 0.005285953
+10  2014     F Charlotte 10048 0.005183298
+# ... with 1,825,423 more rows
+#+end_example
+
+We can sort by more than one column.  =arrange(dat, varname1, varname2, varname3, ..., varnameN)= will sort by =varname1=, breaking ties by =varname2=, then break any further ties by =varname3=, etc.
+
+*** *Exercises* with =arrange()=
+
+**** Arrange the =babynames= dataset in descending order by year with the most popular names for each year coming first
+
+#+CALL: hide() :results html value
+
+#+begin_src R
+  arrange(babynames, desc(year), desc(n))
+#+end_src
+
+#+RESULTS:
+#+begin_example
+   year sex     name     n        prop
+1  2015   F     Emma 20355 0.010518787
+2  2015   F   Olivia 19553 0.010104340
+3  2015   M     Noah 19511 0.009626163
+4  2015   M     Liam 18281 0.009019316
+5  2015   F   Sophia 17327 0.008954018
+6  2015   M    Mason 16535 0.008157891
+7  2015   F      Ava 16286 0.008416063
+8  2015   M    Jacob 15816 0.007803157
+9  2015   M  William 15809 0.007799703
+10 2015   F Isabella 15504 0.008011952
+#+end_example
+
+#+CALL: unhide() :results html value
+
+** =filter()=: subsetting observations
+
+Often what we want to do is to focus on some subset of observations;
+say, only babies born after some year, or only babies named "Mary".  In other words, we want to pull out observations based on some arbitrary criteria.  We do this using the verb =filter()=.  The =filter()= function is a bit more involved than the other operators, and requires more detailed explanation, but this is because it is also extremely powerful.  Can you guess what the following function call will do?
+
+#+BEGIN_SRC R
+  filter(babynames, year > 2000)
+#+END_SRC
+
+The second argument in the above function call, =year > 2000=, is what is known as a /Boolean expression/: an expression whose evaluation results in a value of =TRUE= or =FALSE=.  What =filter()= does is include any observations (rows) for which the expression evaluates to =TRUE=, and exclude any for which it evaluates to =FALSE=.  So in effect, behind the scenes, =filter()= goes through the entire set of 1.8 million rows, row by row, checking the value of =year= for each row, keeping it if the value is greater than 2000, and rejecting it if it is less than 2000.  To see how a boolean expression works, consider the code below:
+
+#+BEGIN_SRC R
+  years <- 1996:2005  
+
+  years   # print it out
+  years > 2000  # compute and print the boolean expression 'years > 2000'
+#+END_SRC
+
+#+RESULTS:
+:  
+: [1] 1996 1997 1998 1999 2000 2001 2002 2003 2004 2005
+:  
+: [1] FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE
+
+You can see that the expression =years > 2000= returns a /logical vector/ (a vector of =TRUE= and =FALSE= values), where each element represents whether the expression is true or false for that element.  For the first five elements (1996 to 2000) it is false, and for the last five elements (2001 to 2005) it is true.
+
+Here are the most commonly used Boolean expressions.
+
+| Operator | Name                  | is TRUE if and only if          |
+|----------+-----------------------+---------------------------------|
+| A < B    | less than             | A is less than B                |
+| A <= B   | less than or equal    | A is less than or equal to B    |
+| A > B    | greater than          | A is greater than B             |
+| A >= B   | greater than or equal | A is greater than or equal to B |
+| A == B   | equivalence           | A exactly equals B              |
+| A != B   | not equal             | A does not exactly equal B      |
+| A %in% B | in                    | A is an element of vector B     |
+
+If you want only those observations for a specific name (e.g., Mary), you use the equivalence operator.  Note that we are using double equal signs (the equivalence operator), not a single equal sign.
+
+#+BEGIN_SRC R
+  filter(babynames, name == "Mary")
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+# A tibble: 265 x 5
+    year   sex  name     n         prop
+   <dbl> <chr> <chr> <int>        <dbl>
+1   1880     F  Mary  7065 0.0723835869
+2   1880     M  Mary    27 0.0002280405
+3   1881     F  Mary  6919 0.0699906935
+4   1881     M  Mary    29 0.0002678143
+5   1882     F  Mary  8148 0.0704247264
+6   1882     M  Mary    30 0.0002458351
+7   1883     F  Mary  8012 0.0667310768
+8   1883     M  Mary    32 0.0002844950
+9   1884     F  Mary  9217 0.0669898538
+10  1884     M  Mary    36 0.0002933005
+# ... with 255 more rows
+#+end_example
+
+If you wanted all the names /except/ Mary, you use the 'not equals' operator:
+
+#+BEGIN_SRC R
+  filter(babynames, name != "Mary")
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+# A tibble: 1,825,168 x 5
+    year   sex      name     n       prop
+   <dbl> <chr>     <chr> <int>      <dbl>
+1   1880     F      Anna  2604 0.02667896
+2   1880     F      Emma  2003 0.02052149
+3   1880     F Elizabeth  1939 0.01986579
+4   1880     F    Minnie  1746 0.01788843
+5   1880     F  Margaret  1578 0.01616720
+6   1880     F       Ida  1472 0.01508119
+7   1880     F     Alice  1414 0.01448696
+8   1880     F    Bertha  1320 0.01352390
+9   1880     F     Sarah  1288 0.01319605
+10  1880     F     Annie  1258 0.01288868
+# ... with 1,825,158 more rows
+#+end_example
+
+and if you wanted names within a defined set---e.g., names of British
+queens---you can use =%in%=:
+
+#+BEGIN_SRC R
+  filter(babynames, name %in% c("Mary", "Elizabeth", "Victoria"))
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+# A tibble: 758 x 5
+    year   sex      name     n         prop
+   <dbl> <chr>     <chr> <int>        <dbl>
+1   1880     F      Mary  7065 7.238359e-02
+2   1880     F Elizabeth  1939 1.986579e-02
+3   1880     F  Victoria    93 9.528200e-04
+4   1880     M      Mary    27 2.280405e-04
+5   1880     M Elizabeth     9 7.601351e-05
+6   1881     F      Mary  6919 6.999069e-02
+7   1881     F Elizabeth  1852 1.873432e-02
+8   1881     F  Victoria   117 1.183540e-03
+9   1881     M      Mary    29 2.678143e-04
+10  1882     F      Mary  8148 7.042473e-02
+# ... with 748 more rows
+#+end_example
+
+This gives you data for the names in the vector on the right hand side of =%in%=.  And you can always invert an expression to get its opposite.  So, for instance, if you wanted to get rid of all Marys, Elizabeths, and Victorias:
+
+#+BEGIN_SRC R
+  filter(babynames, !(name %in% c("Mary", "Elizabeth", "Victoria")))
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+# A tibble: 1,824,675 x 5
+    year   sex     name     n       prop
+   <dbl> <chr>    <chr> <int>      <dbl>
+1   1880     F     Anna  2604 0.02667896
+2   1880     F     Emma  2003 0.02052149
+3   1880     F   Minnie  1746 0.01788843
+4   1880     F Margaret  1578 0.01616720
+5   1880     F      Ida  1472 0.01508119
+6   1880     F    Alice  1414 0.01448696
+7   1880     F   Bertha  1320 0.01352390
+8   1880     F    Sarah  1288 0.01319605
+9   1880     F    Annie  1258 0.01288868
+10  1880     F    Clara  1226 0.01256083
+# ... with 1,824,665 more rows
+#+end_example
+
+You can include as many expressions as you like as additional arguments to =filter()= and it will only pull out the rows for which /all/ of the expressions for that row evaluate to TRUE.  For instance, =filter(babynames, year > 2000, prop > .01)= will pull out only those observations beyond the year 2000 that represent greater than 1% of the names for a given sex; any observation where either expression is false will be excluded.  This ability to string together criteria makes =filter()= a very powerful member of the Wickham Six.
+
+*** *Exercises* with =filter()=
+
+**** Pull out the babynames given to at least 5% (.05) of babies (in any given year)
+
+#+CALL: hide() :results html value
+
+#+begin_src R
+filter(babynames, prop >= .05) 
+#+end_src
+
+#+RESULTS:
+#+begin_example
+   year sex    name    n       prop
+1  1880   F    Mary 7065 0.07238433
+2  1880   M    John 9655 0.08154630
+3  1880   M William 9531 0.08049899
+4  1880   M   James 5927 0.05005954
+5  1881   F    Mary 6919 0.06999140
+6  1881   M    John 8769 0.08098299
+7  1881   M William 8524 0.07872038
+8  1881   M   James 5441 0.05024843
+9  1882   F    Mary 8148 0.07042594
+10 1882   M    John 9557 0.07831617
+#+end_example
+
+#+CALL: unhide() :results html value
+
+**** Pick three people in this room and find their names
+
+#+CALL: hide() :results html value
+
+#+begin_src R
+filter(babynames, name %in% c("Dale", "Luc", "Oliver"))
+#+end_src
+
+#+RESULTS:
+#+begin_example
+   year sex   name   n         prop
+1  1880   M Oliver 234 1.976368e-03
+2  1881   M Oliver 238 2.197965e-03
+3  1881   M   Dale   6 5.541087e-05
+4  1882   M Oliver 244 1.999492e-03
+5  1882   M   Dale   7 5.736247e-05
+6  1883   M Oliver 219 1.947047e-03
+7  1883   M   Dale  11 9.779690e-05
+8  1884   M Oliver 245 1.996106e-03
+9  1884   M   Dale  10 8.147370e-05
+10 1885   M Oliver 258 2.225174e-03
+#+end_example
+
+#+CALL: unhide() :results html value
+
+
+** =mutate()=: creating new variables
+
+Sometimes we find we need to create a new variable that doesn't exist in our dataset.  For instance, we might want to figure out what decade a particular year belongs to.  To create new variables, we use the =mutate()= function.[fn:: In this code, we used a programming trick to compute the decade: =floor(year / 10) * 10=.  To get the decade a year belongs to, you divide the year by 10, throw away the decimal part, and then multiply by 10.  The function =floor()= takes a number and throws away the decimal part.  So for instance, =floor(1989 / 10)= yields =198=, and =198 * 10= is =1980=.]
+
+#+BEGIN_SRC R
+  mutate(babynames, decade = floor(year / 10) * 10)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+# A tibble: 1,825,433 x 6
+    year   sex      name     n       prop decade
+   <dbl> <chr>     <chr> <int>      <dbl>  <dbl>
+1   1880     F      Mary  7065 0.07238359   1880
+2   1880     F      Anna  2604 0.02667896   1880
+3   1880     F      Emma  2003 0.02052149   1880
+4   1880     F Elizabeth  1939 0.01986579   1880
+5   1880     F    Minnie  1746 0.01788843   1880
+6   1880     F  Margaret  1578 0.01616720   1880
+7   1880     F       Ida  1472 0.01508119   1880
+8   1880     F     Alice  1414 0.01448696   1880
+9   1880     F    Bertha  1320 0.01352390   1880
+10  1880     F     Sarah  1288 0.01319605   1880
+# ... with 1,825,423 more rows
+#+end_example
+
+*** *Exercises* with =mutate()=
+
+**** Create a new variable =century= that calculates the century
+
+#+CALL: hide() :results html value
+
+#+begin_src R
+  mutate(babynames, century = floor(year / 100) * 100)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+   year sex      name    n       prop century
+1  1880   F      Mary 7065 0.07238433    1800
+2  1880   F      Anna 2604 0.02667923    1800
+3  1880   F      Emma 2003 0.02052170    1800
+4  1880   F Elizabeth 1939 0.01986599    1800
+5  1880   F    Minnie 1746 0.01788861    1800
+6  1880   F  Margaret 1578 0.01616737    1800
+7  1880   F       Ida 1472 0.01508135    1800
+8  1880   F     Alice 1414 0.01448711    1800
+9  1880   F    Bertha 1320 0.01352404    1800
+10 1880   F     Sarah 1288 0.01319618    1800
+#+end_example
+
+#+CALL: unhide() :results html value
+
+**** Create a new variable =name_length= that calculates the length of the name in characters (hint: =nchar()=)
+
+#+CALL: hide() :results html value
+
+#+begin_src R
+  mutate(babynames, name_length = nchar(name))
+#+end_src
+
+#+RESULTS:
+#+begin_example
+   year sex      name    n       prop name_length
+1  1880   F      Mary 7065 0.07238433           4
+2  1880   F      Anna 2604 0.02667923           4
+3  1880   F      Emma 2003 0.02052170           4
+4  1880   F Elizabeth 1939 0.01986599           9
+5  1880   F    Minnie 1746 0.01788861           6
+6  1880   F  Margaret 1578 0.01616737           8
+7  1880   F       Ida 1472 0.01508135           3
+8  1880   F     Alice 1414 0.01448711           5
+9  1880   F    Bertha 1320 0.01352404           6
+10 1880   F     Sarah 1288 0.01319618           5
+#+end_example
+
+#+CALL: unhide() :results html value
+
+
+
+** =group_by()=: putting records into groups
+
+Sometimes you might want to ask a question whose answer requires calculating some value over sets of observations.  For instance, you might want to know which names are the most popular ones over the entire database.  To do this, you need to create a grouped tibble: a tibble containing information about subsets of observations.  You can do this using the function =group_by()=.
+
+#+BEGIN_SRC R
+	group_by(babynames, name)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+Source: local data frame [1,825,433 x 5]
+Groups: name [93,889]
+
+    year   sex      name     n       prop
+   <dbl> <chr>     <chr> <int>      <dbl>
+1   1880     F      Mary  7065 0.07238359
+2   1880     F      Anna  2604 0.02667896
+3   1880     F      Emma  2003 0.02052149
+4   1880     F Elizabeth  1939 0.01986579
+5   1880     F    Minnie  1746 0.01788843
+6   1880     F  Margaret  1578 0.01616720
+7   1880     F       Ida  1472 0.01508119
+8   1880     F     Alice  1414 0.01448696
+9   1880     F    Bertha  1320 0.01352390
+10  1880     F     Sarah  1288 0.01319605
+# ... with 1,825,423 more rows
+#+end_example
+
+Note that the table that results from =group_by()= is the same as the original table, except that the second line out the output tells you that the dataset has been organised into src_R[:exports results :results value]{group_by(babynames, name) %>% n_groups()} groups, each group corresponding to a unique value of =name=.  We could also group by both =name= and =sex=, since there are some names (Hadley, Hilary, Dale, Morton) that are given to both boys and girls.
+
+#+BEGIN_SRC R
+  group_by(babynames, name, sex)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+Source: local data frame [1,825,433 x 5]
+Groups: name, sex [104,110]
+
+    year   sex      name     n       prop
+   <dbl> <chr>     <chr> <int>      <dbl>
+1   1880     F      Mary  7065 0.07238359
+2   1880     F      Anna  2604 0.02667896
+3   1880     F      Emma  2003 0.02052149
+4   1880     F Elizabeth  1939 0.01986579
+5   1880     F    Minnie  1746 0.01788843
+6   1880     F  Margaret  1578 0.01616720
+7   1880     F       Ida  1472 0.01508119
+8   1880     F     Alice  1414 0.01448696
+9   1880     F    Bertha  1320 0.01352390
+10  1880     F     Sarah  1288 0.01319605
+# ... with 1,825,423 more rows
+#+end_example
+
+Now you can see that we have src_R[:exports results :results value]{group_by(babynames, name, sex) %>% n_groups()} groups, one for each unique combination of =name= and =sex=.
+
+** =summarise()=: calculating data summaries
+
+There is one main reason why we organize datasets into groups, and that is to apply other dplyr verbs at the group level rather than at the level of the entire dataset.  In other words, applying =arrange()=, =mutate()=, or =filter()= to a grouped dataset will apply the verb individually to each group.
+
+One verb that we haven't met yet that is particularly useful for grouped data is =summarise()=.  This function calculates summary values for each group.  For instance, you might want to know how many babies of each name and sex there are /in the entire dataset/, collapsing over year.  To this, we use =summarise()=.
+
+#+BEGIN_SRC R
+  gdat <- group_by(babynames, name, sex)
+  gsum <- summarise(gdat, total = sum(n))  
+  gsum
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+        name sex total
+1      Aaban   M    87
+2      Aabha   F    28
+3      Aabid   M     5
+4  Aabriella   F    15
+5       Aada   F     5
+6      Aadam   M   218
+7      Aadan   M   122
+8    Aadarsh   M   173
+9      Aaden   F     5
+10     Aaden   M  4213
+#+end_example
+
+Note that =summarise()= is like =mutate()=, in that it creates new variables in the dataset.  Some of the functions that are most useful for creating variables within =summarise()= are listed below (and are generally self explanatory; substitute for =x= the name of the variable you want to calculate over.
+
+| Function    | Description                                |
+|-------------+--------------------------------------------|
+| =sum(x)=    | sum                                        |
+| =mean(x)=   | mean                                       |
+| =min(x)=    | minimum                                    |
+| =max(x)=    | maximum                                    |
+| =median(x)= | median                                     |
+| =n()=       | count number of observations in each group |
+
+Also note that when you apply =summarise()= a table that you have organised into groups as the result of =group_by=, the only variables that appear in the result are the grouping variables (=name=, =sex=) and the new variables you calculated (=total=).  We defined =total= to equal =sum(n)=, the sum of the values of variable =n= for each group.  We stored the summarised dataset into a new object, =gsum= so that we can do more things with it; for instance, we can find the name given to the greatest number of babies since record keeping began in 1880.  We will do this using =filter()=.  However, we have to get rid of the groups in the =gsum= object first; otherwise, as noted above, whatever verb we use will apply to each group in the =gsum= dataset.  We can get rid of the groups using =ungroup()=.
+
+#+BEGIN_SRC R
+  gsum2 <- ungroup(gsum)
+#+END_SRC
+
+#+RESULTS:
+
+Now let's find out the most popular name in the entire database.
+
+#+BEGIN_SRC R
+  filter(gsum2, total == max(total))
+#+END_SRC
+
+#+BEGIN_SRC R :exports none
+  most_pop <- filter(gsum2, total == max(total))
+  most_pop
+#+END_SRC
+
+#+RESULTS:
+:    name sex   total
+: 1 James   M 5120990
+
+So the winner for most popular name of all time is src_R[:exports results :results value]{most_pop %>% `[[`("name")}, with src_R[:exports results :results value]{most_pop %>% `[[`("total")} baby Jameses!
+
+*** *Exercises* with =group_by()= and =summarise()=
+
+**** Calculate the total number of babies for each name in the dataset
+
+#+CALL: hide() :results html value
+
+#+begin_src R
+  grouped <- group_by(babynames, name)
+  summarise(grouped, total = sum(n))  
+#+end_src
+
+#+RESULTS:
+#+begin_example
+        name total
+1      Aaban    87
+2      Aabha    28
+3      Aabid     5
+4  Aabriella    15
+5       Aada     5
+6      Aadam   218
+7      Aadan   122
+8    Aadarsh   173
+9      Aaden  4218
+10    Aadesh    15
+#+end_example
+
+#+CALL: unhide() :results html value
+
+**** Create a new variable =century= that calculates the century, then calculate the total number of babies in each century broken down by sex
+
+#+CALL: hide() :results html value
+
+#+begin_src R
+  dat <- mutate(babynames, century = floor(year / 100) * 100)
+  grouped <- group_by(dat, century, sex)
+  summarise(grouped, total = sum(n))
+#+end_src
+
+#+RESULTS:
+:   century sex     total
+: 1    1800   F   3534256
+: 2    1800   M   2236386
+: 3    1900   F 136295592
+: 4    1900   M 138423040
+: 5    2000   F  29031733
+: 6    2000   M  31330905
+
+#+CALL: unhide() :results html value
+
+* Stringing verbs together to form 'paragraphs' in a pipeline
+
+You may have noticed that each of the Wickham Six functions introduced above has the same function syntax:
+
+: verb(tibble, ...)
+
+where =verb= is the name of the function, =tibble= is the name of a variable holding a tabular data object (tibble or data.frame), and =...= represent additional comma-separated arguments to the function (usually column names, logical expressions, or function calls to create new variables).
+
+To every analysis there is a logical 'pipeline', a sequence in which you apply operations.  You apply a verb to a tibble, pass the result onto another verb, pass this result onto yet another verb, and so on.  In the way we have been doing things up to now, our pipeline requires us to store the result of each verb in a new object.  For instance, when we just calculated the most popular name, we used the following steps:
+
+#+BEGIN_SRC R :exports code :eval never
+  gdat <- group_by(babynames, name, sex)  
+  gsum <- summarise(gdat, total = sum(n)) 
+  gsum2 <- ungroup(gsum)  
+  filter(gsum2, total == max(total))
+#+END_SRC
+
+so the result of =group_by()= was stored in =gdat=, and =gdat= was passed into =summarise()=, the result of which was stored in =gsum=, which in turn was passed as the first argument to =ungroup()=, and the result of this was stored in =gsum2= and then passed along to =filter()=.  But the objects we created along the way, =gdat= and =gsum=, are just intermediate by-products that we can forget about because we won't ever need to use them again.  It would be much nicer not to have to do all of this record keeping, and it would make the code much more readable, because we could then focus on the actions being performed and forget about the intermediate results.
+
+Recognising this, =dplyr= provides a new "pipe" operator =%>%=, which allows you to string functions along in a single /pipeline/.  This is extremely powerful and makes your code easier to follow.
+
+Pipes take the form =x %>% y(...)= or =x(...) %>% y(...)=, where the object or function results on the left hand side of the pipe is passed along as the first argument to the function on the right hand side of the pipe.  Because it is passed along implicitly, you don't have to store it an intermediate variable, and you don't mention the first argument in the function call; you start with the second argument.  This is best illustrated by an example.  Here is the same operation (=group_by()=) expressed with and without a pipe.
+
+#+BEGIN_SRC R :exports code :eval never
+  babynames %>% group_by(name, sex)   # pipe version
+  group_by(babynames, name, sex)      # non-pipe version
+#+END_SRC
+
+Note that in the first version, we don't name =babynames= as the first argument, because the pipe takes care of it for us; it puts the thing on the left as the first argument in the function on the right.  The two versions are completely equivalent.  However, with pipes, we can extend things a step further.
+
+#+BEGIN_SRC R
+  babynames %>% group_by(name, sex) %>% summarise(total = sum(n))
+#+END_SRC
+
+What we did here was pass babynames as the first argument to =group_by()=, then passed the result of =group_by()= as the first argument to =summarise()=.  Note that what appears as the first argument to =summarise()=, =total = sum(n)=, is actually the /second/ argument, because the first argument is "tacit" and not mentioned.
+
+You can string together as many function calls as you wish, but it is a good idea to never go beyond five or six.  When using pipes, it makes more readable code if you limit yourself to one function (i.e., verb) per line of code.  Also, indent each line two spaces and leave a blank line before and after so that you can easily see where the block begins and ends. So the code that we wrote above that calculated the most popular name might be written with pipes as follows:
+
+#+BEGIN_SRC R
+  ## calculate total number of babies for each name+sex combo
+  ## across all the years
+  name_totals <- babynames %>%
+    group_by(name, sex) %>%
+    summarise(total = sum(n)) %>%
+    ungroup()
+
+  ## most popular all-time names
+  name_totals %>%
+    group_by(sex) %>%
+    filter(total == max(total)) # find the 
+#+END_SRC
+
+#+RESULTS:
+:    name sex   total
+: 1 James   M 5120990
+: 2  Mary   F 4118058
+
+Note that because of judicious choice of verbs by Hadley Wickham, the above code is /self-documenting/: it tells you in plain English what is happening and what order, with no need for any explanatory comments.
+
+** ADVANCED: "windowed" operations with =group_by()=
+
+You can also perform operations other than =summarise()= on groups; most commonly, you can add variables using =mutate()= or filter rows using =filter()=.  It is important to note that when you apply either of these functions on a grouped data frame, the operations will apply separately to each group.  This is called a /windowed operation/.
+
+Let's demonstrate this using an example. Let's say you want to use the =top_n= function to pull out the top 5 names in 1971 *for each sex*. You could do this with two pipelines, like so:
+
+#+begin_src R
+  top_f <- babynames %>%
+    filter(sex == "F", year == 1971) %>%
+    top_n(5)
+
+  top_m <- babynames %>%
+    filter(sex == "M", year == 1971) %>%
+    top_n(5)
+
+  bind_rows(top_f, top_m)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+Selecting by prop
+Selecting by prop
+   year sex     name     n       prop
+1  1971   F Jennifer 56785 0.03240495
+2  1971   F Michelle 33157 0.01892138
+3  1971   F     Lisa 32907 0.01877872
+4  1971   F Kimberly 30695 0.01751642
+5  1971   F      Amy 26238 0.01497298
+6  1971   M  Michael 77606 0.04267278
+7  1971   M    James 54611 0.03002865
+8  1971   M    David 53133 0.02921595
+9  1971   M     John 51520 0.02832902
+10 1971   M   Robert 50653 0.02785228
+#+end_example
+
+But note that it took three separate steps to do this; once for females, once for males, and then combine the two results.  You could do this all at once in a windowed version like so:
+
+#+begin_src R
+  top5 <- babynames %>%
+    filter(year == 1971) %>%
+    group_by(sex) %>%
+    top_n(5)
+
+  top5
+#+end_src
+
+#+RESULTS:
+#+begin_example
+Selecting by prop
+   year sex     name     n       prop
+1  1971   F Jennifer 56785 0.03240495
+2  1971   F Michelle 33157 0.01892138
+3  1971   F     Lisa 32907 0.01877872
+4  1971   F Kimberly 30695 0.01751642
+5  1971   F      Amy 26238 0.01497298
+6  1971   M  Michael 77606 0.04267278
+7  1971   M    James 54611 0.03002865
+8  1971   M    David 53133 0.02921595
+9  1971   M     John 51520 0.02832902
+10 1971   M   Robert 50653 0.02785228
+#+end_example
+
+Note that any groups we created remain in the result =top5=.
+
+#+begin_src R
+  is.grouped_df(top5)
+#+end_src
+
+#+RESULTS:
+: [1] TRUE
+
+So any further operations we apply to that will also apply at the group level, including =mutate()=
+
+#+begin_src R
+  mutate(top5, rn = row_number())
+#+end_src
+
+#+RESULTS:
+#+begin_example
+   year sex     name     n       prop rn
+1  1971   F Jennifer 56785 0.03240495  1
+2  1971   F Michelle 33157 0.01892138  2
+3  1971   F     Lisa 32907 0.01877872  3
+4  1971   F Kimberly 30695 0.01751642  4
+5  1971   F      Amy 26238 0.01497298  5
+6  1971   M  Michael 77606 0.04267278  1
+7  1971   M    James 54611 0.03002865  2
+8  1971   M    David 53133 0.02921595  3
+9  1971   M     John 51520 0.02832902  4
+10 1971   M   Robert 50653 0.02785228  5
+#+end_example
+
+Note that this numbered the rows separately for females and males.
+
+* A few additional tips
+
+** A shortcut for counting with =count()=
+
+One last verb that is not part of the Wickham Six is =count()=, but is still useful, is =count()=.  This verb exists because it is a shortcut for a very common way of counting things using =group_by()= and =summarise()=.
+
+For instance, you might want to see how many entries you have for each name and sex:
+
+the following:
+
+#+BEGIN_SRC R
+  babynames %>% 
+    group_by(name, sex) %>%
+    summarize(n = n())
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+Source: local data frame [104,110 x 3]
+Groups: name [?]
+
+        name   sex     n
+       <chr> <chr> <int>
+1      Aaban     M     7
+2      Aabha     F     3
+3      Aabid     M     1
+4  Aabriella     F     2
+5      Aadam     M    23
+6      Aadan     M     9
+7    Aadarsh     M    14
+8      Aaden     F     1
+9      Aaden     M    14
+10    Aadesh     M     3
+# ... with 104,100 more rows
+#+end_example
+
+This can be expressed more conveniently using =count()=:
+
+#+BEGIN_SRC R
+	count(babynames, name, sex)
+	## pipe version:
+	##   babynames %>% count(name, sex)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+Source: local data frame [104,110 x 3]
+Groups: name [?]
+
+        name   sex    nn
+       <chr> <chr> <int>
+1      Aaban     M     7
+2      Aabha     F     3
+3      Aabid     M     1
+4  Aabriella     F     2
+5      Aadam     M    23
+6      Aadan     M     9
+7    Aadarsh     M    14
+8      Aaden     F     1
+9      Aaden     M    14
+10    Aadesh     M     3
+# ... with 104,100 more rows
+#+end_example
+
+Note that =count()= is counting the number of rows in the dataset for each unique combination of =name= and =sex=, which is different from summing up the =n= for each group that we did above.  Also note that the result of =count()= is a grouped tibble, and you might need to undo the grouping using =ungroup()= depending on what you want to do with the result.
+
+** Concatenating tibbles with =bind_rows()=
+
+Sometimes you might want to put together data from two separate tables into one bigger table.  You can do this using =bind_rows()=.
+
+#+BEGIN_SRC R
+  sonny <- babynames %>% filter(name == "Sonny")
+  cher <- babynames %>% filter(name == "Cher")
+
+  sonny_and_cher <- bind_rows(sonny, cher)
+#+END_SRC
+
+Each argument to =bind_rows()= is a tibble, and you can put in as many tibbles as you want to combine.
+
+** Slicing out rows with =slice()=
+
+You can take out a single row or a range of rows with =slice()=
+
+#+begin_src R
+  babynames %>% slice(1777:1779)
+#+end_src
+
+#+RESULTS:
+:   year sex name n        prop
+: 1 1880   M Cora 6 5.06761e-05
+: 2 1880   M  Coy 6 5.06761e-05
+: 3 1880   M Cruz 6 5.06761e-05
+
+
+** Converting a table to a vector with =pull()= and getting values with =pluck()=
+
+Sometimes you need to work with just a single column of your data. For this, you can use the dplyr verb =pull()=.
+
+#+begin_src R
+  babynames %>% pull(n) %>% max()
+#+end_src
+
+#+RESULTS:
+: [1] 99680
+
+To get the nth value within a vector, use =pluck(n)=.
+
+#+begin_src R
+  babynames %>% pull(name) %>% pluck(1079) # get element number 1079
+#+end_src
+
+#+RESULTS:
+: [1] "Gus"
+
+There are other ways to do these things in base R, but =pull()= and =pluck()= work especially well within pipelines.
+
+* Tidy data
+
+** Introduction: What is tidy data?
+
+#+begin_quote
+"Happy families are all alike; every unhappy family is unhappy in its own way." -Tolstoy
+#+end_quote
+
+This [[http://vita.had.co.nz/papers/tidy-data.html][influential paper by Hadley Wickham]] introduces the notion of tidy data. In this section, we will learn the basic principles of tidy data, why it is important, and what tools you need to get your data into tidy format.
+
+Tidy datasets conform to *a standarized way of linking data structure to data semantics (meaning)* based on the following three principles:
+
+1. Each variable forms a column
+2. Each observation forms a row
+3. Each type of observational unit forms a table
+
+These principles are best illustrated by example.
+
+Consider the dataset below, corresponding to an imaginary two-alternative forced choice lexical decision study, where you present four word stimuli in a row to each participant, with each stimulus being in one of two conditions (=Cond=: control, =C= or experimental, =E=) and you record response time (=RT= in milliseconds) and the participant's choice (=Choice=: =A= or =B=).  Here is an untidy representation of the data.
+
+#+CAPTION: Untidy representation.
+[[file:untidy.png]]
+
+If you think about the variables in the study--- =Cond=, =RT=, =Choice=, =SubjectID= --- this representation is clearly /untidy/.  The person who entered the data did it in such a way that they squeezed all of the observations for a single subject into one row.
+
+Tidyness can be a matter of degree.  Here is a more tidy version of the dataset.  This is better, but can you see the way that it is untidy?
+
+#+CAPTION: Tidy-ish representation.
+[[file:tidyish.png]]
+
+#+CALL: hide() :results html value
+
+This table violates the third principle; multiple observation units are represented in a single table.
+
+#+CALL: unhide() :results html value
+
+The observation units in this study can be broken down to Subject and Trial (and even Item, if we have information about each stimulus, such as whether it is high or low frequency).  Breaking these apart into separate tables eliminates redundancy.
+
+#+CAPTION: Tidy representation.
+[[file:tidy.png]]
+
+** Tidy tools: Why you should care about tidy data
+
+The tidy format is a clean, predictable data structure. We don't just make our data tidy because it looks nice, but because having tidy data allows us to work with *tidy tools*.  A *tidy tool* is a function to transform data that takes tidy data as input and returns tidy data as output.  All of the functions in the =tidyverse= packages have been designed as tidy tools, and thus are interoperable. In contrast, many of the older functions in base R do not yield tidy output, which impaires interoperability.
+
+** Example: Deriving a tidy table of babynames with =distinct()=
+
+Let's imagine you are a linguist interested in whether trends in babynames have a phonological basis; for example, do girls names ending with a vowel become popular at certain times in history?  You would need to derive information about the sound properties of each name in the babynames dataset.  A good place to start would be to derive a table containing all of the unique names in the dataset; once you've created the table then you could fill in the table with additional information, and later recombine it with the popularity data.  The =distinct()= function is the function you need to do this.
+
+#+begin_src R
+  name_table <- babynames %>% distinct(name) %>% arrange(name)
+
+  name_table
+#+end_src
+
+#+RESULTS:
+#+begin_example
+ 
+       name
+1      Aaban
+2      Aabha
+3      Aabid
+4  Aabriella
+5       Aada
+6      Aadam
+7      Aadan
+8    Aadarsh
+9      Aaden
+10    Aadesh
+#+end_example
+
+Now =name_table= is a table of the src_R{nrow(name_table)} distinct names in the dataset.  Let's determine whether the name ends with a vowel using the =substr()= function, which extracts a substring from a character value.
+
+#+begin_src R
+   name_table %>%
+     mutate(end_char = substr(name, nchar(name), nchar(name)),
+	    is_vowel = end_char %in% c("a", "e", "i", "o", "u"))
+#+end_src
+
+#+RESULTS:
+#+begin_example
+        name end_char is_vowel
+1      Aaban        n    FALSE
+2      Aabha        a     TRUE
+3      Aabid        d    FALSE
+4  Aabriella        a     TRUE
+5       Aada        a     TRUE
+6      Aadam        m    FALSE
+7      Aadan        n    FALSE
+8    Aadarsh        h    FALSE
+9      Aaden        n    FALSE
+10    Aadesh        h    FALSE
+#+end_example
+
+You could add further linguistic information into this table (e.g., number of syllables, etc.). Later on we will learn how you could re-combine this back with the original table using an =inner_join()=.
+
+*** *Exercise* (optional) with =distinct()=
+
+Create a table containing the distinct names for each sex in the table. (Note that you can use more than one argument to =distinct()=.)  Then pull out those names that are *not* androgynous, i.e., that *only* appear for boys and never for girls, or vice versa.
+
+#+CALL: hide("Hint") :results html value
+
+you can use a [[*ADVANCED: "windowed" operations with =group_by()=][windowed operation with =group_by()=]]
+
+#+CALL: unhide() :results html value
+
+#+CALL: hide() :results html value
+
+#+begin_src R
+  distinct(babynames, name, sex) %>%
+    group_by(name) %>%
+    filter(n() == 1)
+
+  ## alternative solution:
+  ## distinct(babynames, name, sex) %>%
+  ##   count(name) %>%
+  ##   filter(n == 1)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+   sex     name
+1    F     Lulu
+2    F    Belle
+3    F    Mayme
+4    F Mathilda
+5    F   Hettie
+6    F    Fanny
+7    F Adelaide
+8    F    Lelia
+9    F    Nelle
+10   F  Minerva
+#+end_example
+
+#+CALL: unhide() :results html value
+
+** The =tidyr= package: going from wide to long and back again
+
+The [[https://github.com/rstudio/cheatsheets/raw/master/data-import.pdf][RStudio Data Import cheatsheet]] may be useful for this part of the session.  Here is the key part of that cheatsheet that explains what we'll be learning.
+
+[[file:tidying.png]]
+
+The examples in the figure above are available to your session through the =tidyr= package.  Try them out in the console so that you get an understanding of how they work.
+
+The dataset we will be working with in the file [[file:personality.csv][=personality.csv=]].  The dataset is from a 5-factor (OCEAN) personality questionnaire (thanks to Lisa DeBruine). Each question is labelled with the domain (Op = openness, Co = concientiousness, Ex = extraversion, Ag = agreeableness, and Ne = neuroticism) and the question number.
+
+*** *Exercises*
+
+**** Load and look!
+
+ Load in the data from the csv file into the variable =big5= and look at it (use =glimpse()= and =View()=).
+
+ #+CALL: hide() :results html value
+
+ #+begin_src R
+   big5 <- read_csv("personality.csv")
+   glimpse(big5)
+ #+end_src
+
+ #+RESULTS:
+ #+begin_example
+ Parsed with column specification:
+ cols(
+   .default = col_integer(),
+   date = col_date(format = "")
+ )
+ See spec(...) for full column specifications.
+ Observations: 15,000
+ Variables: 43
+ $ user_id <int> 0, 1, 2, 5, 8, 108, 233, 298, 426, 436, 685, 807, 871, 881,...
+ $ date    <date> 2006-03-23, 2006-02-08, 2005-10-24, 2005-12-07, 2006-07-27...
+ $ Op1     <int> 3, 6, 6, 6, 6, 3, 3, 6, 6, 3, 4, 5, 5, 5, 6, 4, 1, 2, 5, 6,...
+ $ Ne1     <int> 4, 0, 0, 4, 1, 2, 3, 4, 0, 3, 3, 3, 2, 1, 1, 3, 4, 5, 2, 4,...
+ $ Ne2     <int> 0, 6, 6, 4, 2, 1, 2, 3, 1, 2, 5, 5, 3, 1, 1, 1, 1, 6, 1, 2,...
+ $ Op2     <int> 6, 0, 0, 4, 6, 4, 4, 0, 0, 3, 4, 3, 3, 4, 5, 3, 3, 4, 1, 6,...
+ $ Ex1     <int> 3, 0, 0, 2, 2, 4, 4, 3, 5, 4, 1, 1, 3, 3, 1, 3, 5, 1, 0, 4,...
+ $ Ex2     <int> 3, 0, 0, 3, 3, 4, 5, 2, 5, 3, 4, 1, 3, 2, 1, 6, 5, 3, 4, 4,...
+ $ Co1     <int> 3, 0, 0, 3, 5, 4, 3, 4, 5, 3, 3, 3, 1, 5, 5, 4, 4, 5, 6, 4,...
+ $ Co2     <int> 3, 0, 0, 3, 4, 3, 3, 4, 5, 3, 5, 3, 3, 4, 5, 1, 5, 4, 5, 2,...
+ $ Ne3     <int> 0, 0, 0, 1, 0, 1, 4, 4, 0, 4, 2, 5, 1, 2, 5, 5, 2, 2, 1, 2,...
+ $ Ag1     <int> 2, 0, 0, 4, 6, 5, 5, 4, 2, 5, 4, 3, 2, 4, 5, 3, 5, 5, 5, 4,...
+ $ Ag2     <int> 1, 6, 6, 0, 5, 4, 5, 3, 4, 3, 5, 1, 5, 4, 2, 6, 5, 5, 5, 5,...
+ $ Ne4     <int> 3, 6, 6, 2, 3, 2, 3, 3, 0, 4, 4, 5, 5, 4, 5, 3, 2, 5, 2, 4,...
+ $ Ex3     <int> 3, 6, 5, 5, 3, 3, 3, 0, 6, 1, 4, 2, 3, 2, 1, 2, 5, 1, 0, 5,...
+ $ Co3     <int> 2, 0, 1, 3, 4, 4, 5, 4, 5, 3, 4, 3, 4, 4, 5, 4, 2, 4, 5, 2,...
+ $ Op3     <int> 2, 6, 5, 5, 5, 4, 3, 2, 4, 3, 3, 6, 5, 5, 6, 5, 4, 4, 3, 6,...
+ $ Ex4     <int> 1, 0, 1, 3, 3, 3, 4, 3, 5, 3, 2, 0, 3, 3, 1, 2, NA, 4, 4, 4...
+ $ Op4     <int> 3, 0, 1, 6, 6, 3, 3, 0, 6, 3, 4, 5, 4, 5, 6, 6, 2, 2, 4, 5,...
+ $ Ex5     <int> 3, 0, 1, 6, 3, 3, 4, 2, 5, 2, 2, 4, 2, 3, 0, 4, 5, 2, 3, 1,...
+ $ Ag3     <int> 1, 0, 1, 1, 0, 4, 4, 4, 3, 3, 4, 4, 3, 4, 4, 5, 5, 4, 5, 3,...
+ $ Co4     <int> 3, 6, 5, 5, 5, 3, 2, 4, 3, 1, 4, 3, 1, 2, 4, 2, NA, 5, 6, 1...
+ $ Co5     <int> 0, 6, 5, 5, 5, 3, 3, 1, 5, 1, 2, 4, 4, 4, 2, 1, 6, 4, 3, 1,...
+ $ Ne5     <int> 3, 0, 1, 4, 1, 1, 4, 5, 0, 3, 4, 6, 2, 0, 1, 1, 0, 4, 3, 1,...
+ $ Op5     <int> 6, 6, 5, 2, 5, 4, 3, 2, 6, 6, 2, 4, 3, 4, 6, 6, 6, 5, 3, 3,...
+ $ Ag4     <int> 1, 0, 1, 4, 6, 5, 5, 6, 6, 6, 4, 2, 4, 5, 4, 5, 6, 4, 5, 6,...
+ $ Op6     <int> 0, 6, 5, 1, 6, 4, 6, 0, 0, 3, 5, 3, 5, 5, 5, 2, 5, 1, 1, 6,...
+ $ Co6     <int> 6, 0, 1, 4, 6, 5, 6, 5, 4, 3, 5, 5, 4, 6, 6, 1, 3, 4, 5, 4,...
+ $ Ex6     <int> 3, 6, 5, 3, 0, 4, 3, 1, 6, 3, 2, 1, 4, 2, 1, 5, 6, 2, 1, 2,...
+ $ Ne6     <int> 1, 6, 5, 1, 0, 1, 3, 4, 0, 4, 4, 5, 2, 1, 5, 6, 1, 2, 2, 3,...
+ $ Co7     <int> 3, 6, 5, 1, 3, 4, NA, 2, 3, 3, 2, 2, 4, 2, 5, 2, 5, 5, 3, 1...
+ $ Ag5     <int> 3, 6, 5, 0, 2, 5, 6, 2, 2, 3, 4, 1, 3, 5, 2, 6, 5, 6, 5, 3,...
+ $ Co8     <int> 3, 0, 1, 1, 3, 4, 3, 0, 1, 3, 2, 2, 1, 2, 4, 3, 2, 4, 5, 2,...
+ $ Ex7     <int> 3, 6, 5, 4, 1, 2, 5, 3, 6, 3, 4, 3, 5, 1, 1, 6, 6, 3, 1, 1,...
+ $ Ne7     <int> NA, 0, 1, 2, 0, 2, 4, 4, 0, 3, 2, 5, 1, 2, 5, 2, 2, 4, 1, 3...
+ $ Co9     <int> 3, 6, 5, 4, 3, 4, 5, 3, 5, 3, 4, 3, 4, 4, 2, 4, 6, 5, 5, 2,...
+ $ Op7     <int> 0, 6, 5, 5, 5, 4, 6, 2, 1, 3, 2, 4, 5, 5, 6, 3, 6, 5, 2, 6,...
+ $ Ne8     <int> 2, 0, 1, 1, 1, 1, 5, 4, 0, 4, 4, 5, 1, 2, 5, 2, 1, 5, 1, 2,...
+ $ Ag6     <int> NA, 6, 5, 2, 3, 4, 5, 6, 1, 3, 4, 2, 3, 5, 1, 6, 2, 6, 6, 5...
+ $ Ag7     <int> 3, 0, 1, 1, 1, 3, 3, 5, 0, 3, 2, 1, 2, 3, 5, 6, 4, 4, 6, 6,...
+ $ Co10    <int> 1, 6, 5, 5, 3, 5, 1, 2, 5, 2, 4, 3, 4, 4, 3, 2, 5, 5, 5, 2,...
+ $ Ex8     <int> 2, 0, 1, 4, 3, 4, 2, 4, 6, 2, 4, 0, 4, 4, 1, 3, 5, 4, 3, 1,...
+ $ Ex9     <int> 4, 6, 5, 5, 5, 2, 3, 3, 6, 3, 3, 4, 4, 3, 2, 5, 5, 4, 4, 0,...
+ #+end_example
+
+ #+CALL: unhide() :results html value
+
+**** Reshape from wide to long
+
+ The dataset is in wide format. Use the appropriate tidyr function to reshape it to long, with variables named =item= (which item, =Op1=, =Ne1=, etc) and =score= (3, 4, 0, 6, etc).  Store the long data in the variable =big5_long=
+
+ #+CALL: hide() :results html value
+
+ #+begin_src R
+   big5_long <- gather(big5, "item", "score", Op1:Ex9)  
+
+   big5_long
+ #+end_src
+
+ #+CALL: unhide() :results html value
+
+**** Split the =item= variable into two variables
+
+ Try to use the =separate()= function to make your table look like this:
+
+ #+begin_src R :exports results
+   big5_long %>% separate(item, c("trait", "question"), sep = 2, convert = TRUE)
+ #+end_src
+
+ See =?separate= to find out what argument you need to use to be able to separate based on position (rather than character).  Store the result in =big5_long2=.
+
+ #+CALL: hide() :results html value
+
+ #+begin_src R
+   big5_long2 <- big5_long %>%
+     separate(item, c("trait", "question"), sep = 2, convert = TRUE)
+ #+end_src
+
+ #+RESULTS:
+
+ #+CALL: unhide() :results html value
+
+**** Calculate scores for each =trait/user_id= combination
+
+ Now calculate trait scores for each =user_id= and =trait= by summing the scores.  Store the result in =big5_scores=.
+
+
+ #+CALL: hide() :results html value
+
+ #+begin_src R
+   big5_long2 %>%
+     group_by(user_id, trait) %>%
+     summarise(tot = sum(score, na.rm = FALSE))
+ #+end_src
+
+ #+RESULTS:
+ #+begin_example
+    user_id trait tot
+ 1        0    Ag  NA
+ 2        0    Co  27
+ 3        0    Ex  25
+ 4        0    Ne  NA
+ 5        0    Op  20
+ 6        1    Ag  18
+ 7        1    Co  30
+ 8        1    Ex  24
+ 9        1    Ne  18
+ 10       1    Op  30
+ #+end_example
+
+ #+CALL: unhide() :results html value
+
+
+**** EXTRA: string all the above commands in a single pipeline
+
+ #+CALL: hide() :results html value
+
+ #+begin_src R
+   big5 <- read_csv("personality.csv") %>%
+     gather("item", "score", Op1:Ex9) %>%
+     separate(item, c("trait", "question"), sep = 2, convert = TRUE) %>%
+     group_by(user_id, trait) %>%
+     summarise(tot = sum(score, na.rm = FALSE))
+
+   big5
+ #+end_src
+
+ #+RESULTS:
+ : Parsed with column specification:
+ : cols(
+ :   .default = col_integer(),
+ :   date = col_date(format = "")
+ : )
+ : See spec(...) for full column specifications.
+
+ #+CALL: unhide() :results html value
+
+* Combining information across tables: =dplyr= two-table verbs
+
+If you follow the principles of tidy data, you will end up with information scattered across different tables, since you'll have independent tables for each unit of observation. Often you will need to combine information from multiple tables. How do you put it back together? You do this using the various join functions from the =dplyr= package.
+
+There are two main types of join functions: /mutating/ joins and /filtering/ joins, called thus because their functions are analogous to what =mutate()= and =filter()= do for single tables.
+
+Mutating joins connect the information in two tables through linking variables or /keys/ that identify which rows go together. 
+
+Filtering joins allow you to decide which rows to keep or remove in one table based on the rows available in another table.  In the interest of time, we won't be covering filtering joins (=semi_join()= and =anti_join()=).
+
+** Mutating joins
+
+The two main mutating joins you should know about are =inner_join()= and =left_join()=.
+
+*** =inner_join()=
+
+A common situation where you might want to use an inner join is when you want to look up values in a /lookup table./   For instance, consider the situation where you have numerical scores for an exam and want to convert them to alphanumeric grades.  My university, the University of Glasgow, uses a 22 point scale that looks like this:
+
+#+NAME: mscale
+| score | mark |
+|-------+------|
+|    22 | A1   |
+|    21 | A2   |
+|    20 | A3   |
+|    19 | A4   |
+|    18 | A5   |
+|    17 | B1   |
+|    16 | B2   |
+|    15 | B3   |
+|    14 | C1   |
+|    13 | C2   |
+|    12 | C3   |
+|    11 | D1   |
+|    10 | D2   |
+|     9 | D3   |
+|     8 | E1   |
+|     7 | E2   |
+|     6 | E3   |
+|     5 | F1   |
+|     4 | F2   |
+|     3 | F3   |
+|     2 | G1   |
+|     1 | G2   |
+|     0 | H    |
+
+Let's say this is stored in the variable =mscale=. You also have a table of scores called =exam= like the one below, and you want to assign each 0-22 score the =mark= that appears in =mscale=. 
+
+#+begin_src R :exports results :results output
+  sids <- replicate(10, paste(sample(0:9, 7, replace = TRUE), collapse = ""))
+  exam <- tibble(student_id = sids,
+	 score = c(18L, 14L, sample(0:22, length(sids) - 3, replace = TRUE),
+		   23L))
+  exam
+#+end_src
+
+#+RESULTS:
+#+begin_example
+ 
+  student_id score
+1     5991580    18
+2     3729372    14
+3     7650559     6
+4     7225471     4
+5     7564571     1
+6     0355968     3
+7     1091919    18
+8     0136029    16
+9     6920652    17
+10    4430681    23
+#+end_example
+
+So student src_R{sids[1]} who got an 18 should be given an A5, the student who got a 14 should get a C1, etc. You could do this by hand, but it would be tedious and error-prone. What you could do instead would be to join the two tables on the /key/ field of =score=, like so:
+
+#+begin_src R :var mscale=mscale
+  result <- inner_join(exam, mscale, "score")
+  result
+#+end_src
+
+#+RESULTS:
+#+begin_example
+ 
+ student_id score mark
+1    5991580    18   A5
+2    3729372    14   C1
+3    7650559     6   E3
+4    7225471     4   F2
+5    7564571     1   G2
+6    0355968     3   F3
+7    1091919    18   A5
+8    0136029    16   B2
+9    6920652    17   B1
+#+end_example
+
+*** =left_join()=
+
+Note that the one student who had an =23= for their score (error? extra credit?) got thrown out from the result table.  A =left_join(x, y)= keeps all of the data in table =x= even if it lacks a match in table =y=, and the missing variable values get filled in with =NAs=.  Compare this result to the one above.
+
+#+begin_src R
+  left_join(exam, mscale, "score")
+#+end_src
+
+#+RESULTS:
+#+begin_example
+   student_id score mark
+1     5991580    18   A5
+2     3729372    14   C1
+3     7650559     6   E3
+4     7225471     4   F2
+5     7564571     1   G2
+6     0355968     3   F3
+7     1091919    18   A5
+8     0136029    16   B2
+9     6920652    17   B1
+10    4430681    23 <NA>
+#+end_example
+
+* 
+  :PROPERTIES:
+  :NOTOC:    t
+  :END:
+  
+#+begin_export html
+ <script>
+
+ /* update total correct if #total_correct exists */
+ update_total_correct = function() {
+   if (t = document.getElementById("total_correct")) {
+     t.innerHTML =
+       document.getElementsByClassName("correct").length + " of " +
+       document.getElementsByClassName("solveme").length + " correct";
+   }
+ }
+
+ /* solution button toggling function */
+ b_func = function() {
+   var cl = this.parentElement.classList;
+   if (cl.contains('open')) {
+     cl.remove("open");
+   } else {
+     cl.add("open");
+   }
+ }
+
+ /* function for checking solveme answers */
+ solveme_func = function(e) {
+   var real_answers = JSON.parse(this.dataset.answer);
+   var my_answer = this.value;
+   var cl = this.classList;
+   if (cl.contains("ignorecase")) {
+     my_answer = my_answer.toLowerCase();
+   }
+   if (cl.contains("nospaces")) {
+     my_answer = my_answer.replace(/ /g, "");
+   }
+  
+   if (my_answer !== "" & real_answers.includes(my_answer)) {
+     cl.add("correct");
+   } else {
+     cl.remove("correct");
+   }
+   update_total_correct();
+ }
+
+ window.onload = function() {
+   /* set up solution buttons */
+   var buttons = document.getElementsByTagName("button");
+
+   for (var i = 0; i < buttons.length; i++) {
+     if (buttons[i].parentElement.classList.contains('solution')) {
+       buttons[i].onclick = b_func;
+     }
+   }
+  
+   /* set up solveme inputs */
+   var solveme = document.getElementsByClassName("solveme");
+
+   for (var i = 0; i < solveme.length; i++) {
+     /* make sure input boxes don't auto-anything */
+     solveme[i].setAttribute("autocomplete","off");
+     solveme[i].setAttribute("autocorrect", "off");
+     solveme[i].setAttribute("autocapitalize", "off"); 
+     solveme[i].setAttribute("spellcheck", "false");
+     solveme[i].value = "";
+    
+     /* adjust answer for ignorecase or nospaces */
+     var cl = solveme[i].classList;
+     var real_answer = solveme[i].dataset.answer;
+     if (cl.contains("ignorecase")) {
+       real_answer = real_answer.toLowerCase();
+     }
+     if (cl.contains("nospaces")) {
+       real_answer = real_answer.replace(/ /g, "");
+     }
+     solveme[i].dataset.answer = real_answer;
+    
+     /* attach checking function */
+     solveme[i].onkeyup = solveme_func;
+     solveme[i].onchange = solveme_func;
+   }
+  
+   update_total_correct();
+ }
+
+ </script>
+#+end_export
