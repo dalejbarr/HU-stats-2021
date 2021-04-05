@@ -617,22 +617,25 @@ filter(babynames, prop >= .05)
 #+CALL: hide() :results html value
 
 #+begin_src R
-filter(babynames, name %in% c("Dale", "Luc", "Oliver"))
+filter(babynames, name %in% c("Dale", "Mary", "Klaus"))
 #+end_src
 
 #+RESULTS:
 #+begin_example
-   year sex   name   n         prop
-1  1880   M Oliver 234 1.976368e-03
-2  1881   M Oliver 238 2.197965e-03
-3  1881   M   Dale   6 5.541087e-05
-4  1882   M Oliver 244 1.999492e-03
-5  1882   M   Dale   7 5.736247e-05
-6  1883   M Oliver 219 1.947047e-03
-7  1883   M   Dale  11 9.779690e-05
-8  1884   M Oliver 245 1.996106e-03
-9  1884   M   Dale  10 8.147370e-05
-10 1885   M Oliver 258 2.225174e-03
+# A tibble: 593 x 5
+    year sex   name      n      prop
+   <dbl> <chr> <chr> <int>     <dbl>
+ 1  1880 F     Mary   7065 0.0724   
+ 2  1880 M     Mary     27 0.000228 
+ 3  1881 F     Mary   6919 0.0700   
+ 4  1881 M     Mary     29 0.000268 
+ 5  1881 M     Dale      6 0.0000554
+ 6  1882 F     Mary   8148 0.0704   
+ 7  1882 M     Mary     30 0.000246 
+ 8  1882 M     Dale      7 0.0000574
+ 9  1883 F     Mary   8012 0.0667   
+10  1883 M     Mary     32 0.000284 
+# … with 583 more rows
 #+end_example
 
 #+CALL: unhide() :results html value
@@ -949,35 +952,35 @@ Note that because of judicious choice of verbs by Hadley Wickham, the above code
 
 You can also perform operations other than =summarise()= on groups; most commonly, you can add variables using =mutate()= or filter rows using =filter()=.  It is important to note that when you apply either of these functions on a grouped data frame, the operations will apply separately to each group.  This is called a /windowed operation/.
 
-Let's demonstrate this using an example. Let's say you want to use the =top_n= function to pull out the top 5 names in 1971 *for each sex*. You could do this with two pipelines, like so:
+Let's demonstrate this using an example. Let's say you want to use the =slice_max= function from ={dplyr}= to pull out the top 5 names in 1971 *for each sex*. You could do this with two pipelines, like so:
 
 #+begin_src R
   top_f <- babynames %>%
     filter(sex == "F", year == 1971) %>%
-    top_n(5)
+    slice_max(prop, n = 5)
 
   top_m <- babynames %>%
     filter(sex == "M", year == 1971) %>%
-    top_n(5)
+    slice_max(prop, n = 5)
 
   bind_rows(top_f, top_m)
 #+end_src
 
 #+RESULTS:
 #+begin_example
-Selecting by prop
-Selecting by prop
-   year sex     name     n       prop
-1  1971   F Jennifer 56785 0.03240495
-2  1971   F Michelle 33157 0.01892138
-3  1971   F     Lisa 32907 0.01877872
-4  1971   F Kimberly 30695 0.01751642
-5  1971   F      Amy 26238 0.01497298
-6  1971   M  Michael 77606 0.04267278
-7  1971   M    James 54611 0.03002865
-8  1971   M    David 53133 0.02921595
-9  1971   M     John 51520 0.02832902
-10 1971   M   Robert 50653 0.02785228
+# A tibble: 10 x 5
+    year sex   name         n   prop
+   <dbl> <chr> <chr>    <int>  <dbl>
+ 1  1971 F     Jennifer 56784 0.0324
+ 2  1971 F     Michelle 33159 0.0189
+ 3  1971 F     Lisa     32909 0.0188
+ 4  1971 F     Kimberly 30695 0.0175
+ 5  1971 F     Amy      26238 0.0150
+ 6  1971 M     Michael  77591 0.0427
+ 7  1971 M     James    54622 0.0300
+ 8  1971 M     David    53121 0.0292
+ 9  1971 M     John     51516 0.0283
+10  1971 M     Robert   50655 0.0279
 #+end_example
 
 But note that it took three separate steps to do this; once for females, once for males, and then combine the two results.  You could do this all at once in a windowed version like so:
@@ -986,25 +989,27 @@ But note that it took three separate steps to do this; once for females, once fo
   top5 <- babynames %>%
     filter(year == 1971) %>%
     group_by(sex) %>%
-    top_n(5)
+    slice_max(prop, n = 5)
 
   top5
 #+end_src
 
 #+RESULTS:
 #+begin_example
-Selecting by prop
-   year sex     name     n       prop
-1  1971   F Jennifer 56785 0.03240495
-2  1971   F Michelle 33157 0.01892138
-3  1971   F     Lisa 32907 0.01877872
-4  1971   F Kimberly 30695 0.01751642
-5  1971   F      Amy 26238 0.01497298
-6  1971   M  Michael 77606 0.04267278
-7  1971   M    James 54611 0.03002865
-8  1971   M    David 53133 0.02921595
-9  1971   M     John 51520 0.02832902
-10 1971   M   Robert 50653 0.02785228
+# A tibble: 10 x 5
+# Groups:   sex [2]
+    year sex   name         n   prop
+   <dbl> <chr> <chr>    <int>  <dbl>
+ 1  1971 F     Jennifer 56784 0.0324
+ 2  1971 F     Michelle 33159 0.0189
+ 3  1971 F     Lisa     32909 0.0188
+ 4  1971 F     Kimberly 30695 0.0175
+ 5  1971 F     Amy      26238 0.0150
+ 6  1971 M     Michael  77591 0.0427
+ 7  1971 M     James    54622 0.0300
+ 8  1971 M     David    53121 0.0292
+ 9  1971 M     John     51516 0.0283
+10  1971 M     Robert   50655 0.0279
 #+end_example
 
 Note that any groups we created remain in the result =top5=.
@@ -1261,7 +1266,7 @@ you can use a [[*ADVANCED: "windowed" operations with =group_by()=][windowed ope
 
 #+CALL: unhide() :results html value
 
-#+CALL: hide() :results html value
+#+HTML: <div class='solution'><button>Solution</button>
 
 #+begin_src R
   distinct(babynames, name, sex) %>%
@@ -1289,7 +1294,7 @@ you can use a [[*ADVANCED: "windowed" operations with =group_by()=][windowed ope
 10   F  Minerva
 #+end_example
 
-#+CALL: unhide() :results html value
+#+HTML: </div>
 
 ** The =tidyr= package: going from wide to long and back again
 
@@ -1305,122 +1310,64 @@ The dataset we will be working with in the file [[file:personality.csv][=persona
 
 **** Load and look!
 
- Load in the data from the csv file into the variable =big5= and look at it (use =glimpse()= and =View()=).
+Load in the data from the csv file into the variable =big5= and look at it (use =glimpse()= and =View()=).
 
- #+CALL: hide() :results html value
+#+HTML: <div class='solution'><button>Solution</button>
 
- #+begin_src R
+#+begin_src R
    big5 <- read_csv("personality.csv")
    glimpse(big5)
- #+end_src
+#+end_src
 
- #+RESULTS:
- #+begin_example
- Parsed with column specification:
- cols(
-   .default = col_integer(),
-   date = col_date(format = "")
- )
- See spec(...) for full column specifications.
- Observations: 15,000
- Variables: 43
- $ user_id <int> 0, 1, 2, 5, 8, 108, 233, 298, 426, 436, 685, 807, 871, 881,...
- $ date    <date> 2006-03-23, 2006-02-08, 2005-10-24, 2005-12-07, 2006-07-27...
- $ Op1     <int> 3, 6, 6, 6, 6, 3, 3, 6, 6, 3, 4, 5, 5, 5, 6, 4, 1, 2, 5, 6,...
- $ Ne1     <int> 4, 0, 0, 4, 1, 2, 3, 4, 0, 3, 3, 3, 2, 1, 1, 3, 4, 5, 2, 4,...
- $ Ne2     <int> 0, 6, 6, 4, 2, 1, 2, 3, 1, 2, 5, 5, 3, 1, 1, 1, 1, 6, 1, 2,...
- $ Op2     <int> 6, 0, 0, 4, 6, 4, 4, 0, 0, 3, 4, 3, 3, 4, 5, 3, 3, 4, 1, 6,...
- $ Ex1     <int> 3, 0, 0, 2, 2, 4, 4, 3, 5, 4, 1, 1, 3, 3, 1, 3, 5, 1, 0, 4,...
- $ Ex2     <int> 3, 0, 0, 3, 3, 4, 5, 2, 5, 3, 4, 1, 3, 2, 1, 6, 5, 3, 4, 4,...
- $ Co1     <int> 3, 0, 0, 3, 5, 4, 3, 4, 5, 3, 3, 3, 1, 5, 5, 4, 4, 5, 6, 4,...
- $ Co2     <int> 3, 0, 0, 3, 4, 3, 3, 4, 5, 3, 5, 3, 3, 4, 5, 1, 5, 4, 5, 2,...
- $ Ne3     <int> 0, 0, 0, 1, 0, 1, 4, 4, 0, 4, 2, 5, 1, 2, 5, 5, 2, 2, 1, 2,...
- $ Ag1     <int> 2, 0, 0, 4, 6, 5, 5, 4, 2, 5, 4, 3, 2, 4, 5, 3, 5, 5, 5, 4,...
- $ Ag2     <int> 1, 6, 6, 0, 5, 4, 5, 3, 4, 3, 5, 1, 5, 4, 2, 6, 5, 5, 5, 5,...
- $ Ne4     <int> 3, 6, 6, 2, 3, 2, 3, 3, 0, 4, 4, 5, 5, 4, 5, 3, 2, 5, 2, 4,...
- $ Ex3     <int> 3, 6, 5, 5, 3, 3, 3, 0, 6, 1, 4, 2, 3, 2, 1, 2, 5, 1, 0, 5,...
- $ Co3     <int> 2, 0, 1, 3, 4, 4, 5, 4, 5, 3, 4, 3, 4, 4, 5, 4, 2, 4, 5, 2,...
- $ Op3     <int> 2, 6, 5, 5, 5, 4, 3, 2, 4, 3, 3, 6, 5, 5, 6, 5, 4, 4, 3, 6,...
- $ Ex4     <int> 1, 0, 1, 3, 3, 3, 4, 3, 5, 3, 2, 0, 3, 3, 1, 2, NA, 4, 4, 4...
- $ Op4     <int> 3, 0, 1, 6, 6, 3, 3, 0, 6, 3, 4, 5, 4, 5, 6, 6, 2, 2, 4, 5,...
- $ Ex5     <int> 3, 0, 1, 6, 3, 3, 4, 2, 5, 2, 2, 4, 2, 3, 0, 4, 5, 2, 3, 1,...
- $ Ag3     <int> 1, 0, 1, 1, 0, 4, 4, 4, 3, 3, 4, 4, 3, 4, 4, 5, 5, 4, 5, 3,...
- $ Co4     <int> 3, 6, 5, 5, 5, 3, 2, 4, 3, 1, 4, 3, 1, 2, 4, 2, NA, 5, 6, 1...
- $ Co5     <int> 0, 6, 5, 5, 5, 3, 3, 1, 5, 1, 2, 4, 4, 4, 2, 1, 6, 4, 3, 1,...
- $ Ne5     <int> 3, 0, 1, 4, 1, 1, 4, 5, 0, 3, 4, 6, 2, 0, 1, 1, 0, 4, 3, 1,...
- $ Op5     <int> 6, 6, 5, 2, 5, 4, 3, 2, 6, 6, 2, 4, 3, 4, 6, 6, 6, 5, 3, 3,...
- $ Ag4     <int> 1, 0, 1, 4, 6, 5, 5, 6, 6, 6, 4, 2, 4, 5, 4, 5, 6, 4, 5, 6,...
- $ Op6     <int> 0, 6, 5, 1, 6, 4, 6, 0, 0, 3, 5, 3, 5, 5, 5, 2, 5, 1, 1, 6,...
- $ Co6     <int> 6, 0, 1, 4, 6, 5, 6, 5, 4, 3, 5, 5, 4, 6, 6, 1, 3, 4, 5, 4,...
- $ Ex6     <int> 3, 6, 5, 3, 0, 4, 3, 1, 6, 3, 2, 1, 4, 2, 1, 5, 6, 2, 1, 2,...
- $ Ne6     <int> 1, 6, 5, 1, 0, 1, 3, 4, 0, 4, 4, 5, 2, 1, 5, 6, 1, 2, 2, 3,...
- $ Co7     <int> 3, 6, 5, 1, 3, 4, NA, 2, 3, 3, 2, 2, 4, 2, 5, 2, 5, 5, 3, 1...
- $ Ag5     <int> 3, 6, 5, 0, 2, 5, 6, 2, 2, 3, 4, 1, 3, 5, 2, 6, 5, 6, 5, 3,...
- $ Co8     <int> 3, 0, 1, 1, 3, 4, 3, 0, 1, 3, 2, 2, 1, 2, 4, 3, 2, 4, 5, 2,...
- $ Ex7     <int> 3, 6, 5, 4, 1, 2, 5, 3, 6, 3, 4, 3, 5, 1, 1, 6, 6, 3, 1, 1,...
- $ Ne7     <int> NA, 0, 1, 2, 0, 2, 4, 4, 0, 3, 2, 5, 1, 2, 5, 2, 2, 4, 1, 3...
- $ Co9     <int> 3, 6, 5, 4, 3, 4, 5, 3, 5, 3, 4, 3, 4, 4, 2, 4, 6, 5, 5, 2,...
- $ Op7     <int> 0, 6, 5, 5, 5, 4, 6, 2, 1, 3, 2, 4, 5, 5, 6, 3, 6, 5, 2, 6,...
- $ Ne8     <int> 2, 0, 1, 1, 1, 1, 5, 4, 0, 4, 4, 5, 1, 2, 5, 2, 1, 5, 1, 2,...
- $ Ag6     <int> NA, 6, 5, 2, 3, 4, 5, 6, 1, 3, 4, 2, 3, 5, 1, 6, 2, 6, 6, 5...
- $ Ag7     <int> 3, 0, 1, 1, 1, 3, 3, 5, 0, 3, 2, 1, 2, 3, 5, 6, 4, 4, 6, 6,...
- $ Co10    <int> 1, 6, 5, 5, 3, 5, 1, 2, 5, 2, 4, 3, 4, 4, 3, 2, 5, 5, 5, 2,...
- $ Ex8     <int> 2, 0, 1, 4, 3, 4, 2, 4, 6, 2, 4, 0, 4, 4, 1, 3, 5, 4, 3, 1,...
- $ Ex9     <int> 4, 6, 5, 5, 5, 2, 3, 3, 6, 3, 3, 4, 4, 3, 2, 5, 5, 4, 4, 0,...
- #+end_example
-
- #+CALL: unhide() :results html value
+#+HTML: </div>
 
 **** Reshape from wide to long
 
- The dataset is in wide format. Use the appropriate tidyr function to reshape it to long, with variables named =item= (which item, =Op1=, =Ne1=, etc) and =score= (3, 4, 0, 6, etc).  Store the long data in the variable =big5_long=
+The dataset is in wide format. Use the appropriate tidyr function to reshape it to long, with variables named =item= (which item, =Op1=, =Ne1=, etc) and =score= (3, 4, 0, 6, etc).  Store the long data in the variable =big5_long=
 
- #+CALL: hide() :results html value
+#+HTML: <div class='solution'><button>Solution</button>
 
- #+begin_src R
+#+begin_src R
    big5_long <- gather(big5, "item", "score", Op1:Ex9)  
 
    big5_long
- #+end_src
+#+end_src
 
- #+CALL: unhide() :results html value
+#+HTML: </div>
 
 **** Split the =item= variable into two variables
 
- Try to use the =separate()= function to make your table look like this:
+Try to use the =separate()= function to make your table look like this:
 
- #+begin_src R :exports results
+#+begin_src R :exports results
    big5_long %>% separate(item, c("trait", "question"), sep = 2, convert = TRUE)
- #+end_src
+#+end_src
 
- See =?separate= to find out what argument you need to use to be able to separate based on position (rather than character).  Store the result in =big5_long2=.
+See =?separate= to find out what argument you need to use to be able to separate based on position (rather than character).  Store the result in =big5_long2=.
 
- #+CALL: hide() :results html value
+#+HTML: <div class='solution'><button>Solution</button>
 
- #+begin_src R
+#+begin_src R
    big5_long2 <- big5_long %>%
      separate(item, c("trait", "question"), sep = 2, convert = TRUE)
- #+end_src
+#+end_src
 
- #+RESULTS:
-
- #+CALL: unhide() :results html value
+#+HTML: </div>
 
 **** Calculate scores for each =trait/user_id= combination
 
- Now calculate trait scores for each =user_id= and =trait= by summing the scores.  Store the result in =big5_scores=.
+Now calculate trait scores for each =user_id= and =trait= by summing the scores.  Store the result in =big5_scores=.
 
+#+HTML: <div class='solution'><button>Solution</button>
 
- #+CALL: hide() :results html value
-
- #+begin_src R
+#+begin_src R
    big5_long2 %>%
      group_by(user_id, trait) %>%
      summarise(tot = sum(score, na.rm = FALSE))
- #+end_src
+#+end_src
 
- #+RESULTS:
- #+begin_example
+#+RESULTS:
+#+begin_example
     user_id trait tot
  1        0    Ag  NA
  2        0    Co  27
@@ -1432,16 +1379,15 @@ The dataset we will be working with in the file [[file:personality.csv][=persona
  8        1    Ex  24
  9        1    Ne  18
  10       1    Op  30
- #+end_example
+#+end_example
 
- #+CALL: unhide() :results html value
-
+#+HTML: </div>
 
 **** EXTRA: string all the above commands in a single pipeline
 
- #+CALL: hide() :results html value
+#+CALL: hide() :results html value
 
- #+begin_src R
+#+begin_src R
    big5 <- read_csv("personality.csv") %>%
      gather("item", "score", Op1:Ex9) %>%
      separate(item, c("trait", "question"), sep = 2, convert = TRUE) %>%
@@ -1449,9 +1395,9 @@ The dataset we will be working with in the file [[file:personality.csv][=persona
      summarise(tot = sum(score, na.rm = FALSE))
 
    big5
- #+end_src
+#+end_src
 
- #+RESULTS:
+#+RESULTS:
  : Parsed with column specification:
  : cols(
  :   .default = col_integer(),
@@ -1459,7 +1405,7 @@ The dataset we will be working with in the file [[file:personality.csv][=persona
  : )
  : See spec(...) for full column specifications.
 
- #+CALL: unhide() :results html value
+#+CALL: unhide() :results html value
 
 * Combining information across tables: =dplyr= two-table verbs
 

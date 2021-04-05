@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-04-04 Sun 17:56 -->
+<!-- 2021-04-05 Mon 17:39 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Introduction to Statistics (4SWS), HU-Berlin 2021</title>
@@ -371,11 +371,15 @@ for the JavaScript code in this tag.
 <h2 id="org2c44bd1">Getting access to R / RStudio software</h2>
 <div class="outline-text-2" id="text-org2c44bd1">
 <p>
-For this course, you will need access to R and RStudio. In the best case, you should install it on your own laptop or desktop computer. To do so, please <a href="00_installation/installation.html">follow these instructions</a>.
+For this course, you will need access to R and RStudio. In the best case, you should install it on your own laptop or desktop computer. To do so, please <a href="00_installation/installation.html">follow these instructions</a>. 
 </p>
 
 <p>
-If this is not possible, because (1) you are using a laptop with outdated software or limited capabilities (such as Google Chromebook) (2) you experience insurmountable installation problems, here are two fallback options that allow you to run R/RStudio through a web browser.
+If you already have R and RStudio installed, please upgrade to the latest versions (R 4.0.3 and RStudio Desktop 1.4.1103). TIP: Upgrade R first, then RStudio Desktop, then your R packages. <a href="https://bootstrappers.umassmed.edu/bootstrappers-courses/courses/rCourse/Additional_Resources/Updating_R.html">Here are some instructions that work for this</a>.
+</p>
+
+<p>
+If installing R/RStudio is not possible, because (1) you are using a laptop with outdated software or limited capabilities (such as Google Chromebook) (2) you experience insurmountable installation problems (such as lack of admin privileges), here are two fallback options that allow you to run R/RStudio through a web browser.
 </p>
 
 <ul class="org-ul">
@@ -383,30 +387,6 @@ If this is not possible, because (1) you are using a laptop with outdated softwa
 
 <li>Fallback 2: <a href="https://towardsdatascience.com/how-to-use-r-in-google-colab-b6e02d736497">Google Colab</a>. I haven&rsquo;t used this myself, but apparently it is possible to run R, and you will not face any usage limits. However, the interface is different and it will probably be difficult to get help if you get stuck.</li>
 </ul>
-</div>
-</div>
-
-<div id="outline-container-org5880315" class="outline-2">
-<h2 id="org5880315">Extra materials</h2>
-<div class="outline-text-2" id="text-org5880315">
-</div>
-<div id="outline-container-org8ec244e" class="outline-3">
-<h3 id="org8ec244e">Model specification</h3>
-<div class="outline-text-3" id="text-org8ec244e">
-<ul class="org-ul">
-<li><a href="https://talklab.psy.gla.ac.uk/tvw/catpred">Coding categorical predictors in factorial designs</a></li>
-</ul>
-</div>
-</div>
-
-<div id="outline-container-org03a1f92" class="outline-3">
-<h3 id="org03a1f92">Data wrangling practice</h3>
-<div class="outline-text-3" id="text-org03a1f92">
-<ul class="org-ul">
-<li><a href="01_monday/afternoon_scoring_the_AQ/index.html">Scoring the AQ-10</a></li>
-<li><a href="02_tuesday/afternoon_joins/index.html">More data tidying and joins: The <code>disgust</code> dataset</a></li>
-</ul>
-</div>
 </div>
 </div>
 
@@ -418,7 +398,7 @@ If this is not possible, because (1) you are using a laptop with outdated softwa
 <h3 id="orgd1a9d00">RMarkdown</h3>
 <div class="outline-text-3" id="text-orgd1a9d00">
 <ul class="org-ul">
-<li>Blog post from The R Graph Gallery: <a href="https://www.r-graph-gallery.com/pimp-my-rmd-a-few-tips-for-r-markdown/">Pimp my Rmd: A few tips for RMarkdown</a></li>
+<li>Blog post from The R Graph Gallery: <a href="https://holtzy.github.io/Pimp-my-rmd/">Pimp my Rmd: A few tips for RMarkdown</a></li>
 </ul>
 </div>
 </div>
@@ -456,8 +436,7 @@ If this is not possible, because (1) you are using a laptop with outdated softwa
 <li>Lindeløv, J. K. (blog post). <a href="https://lindeloev.github.io/tests-as-linear/">Common statistical tests are linear models.</a></li>
 <li>Schielzeth, H. (2010). <a href="https://besjournals.onlinelibrary.wiley.com/doi/abs/10.1111/j.2041-210X.2010.00012.x">Simple means to improve the interpretability of regression coefficients</a>. <i>Methods in Ecology and Evolution</i>, <i>1</i>, 103&#x2013;113.</li>
 <li>Blog post by Dale: <a href="http://talklab.psy.gla.ac.uk/tvw/catpred/">Coding categorical variables when analyzing factorial experiments with regression</a></li>
-<li>Morrissey and Ruxton (2018), <a href="http://dx.doi.org/10.3998/ptpbio.16039257.0010.003">Multiple regression is not multiple regressions</a></li>
-<li>Lawton and Pratchet (2012), <a href="https://doi.org/10.1002/ece3.253">Influence of dietary specialization and resource availability on geographic specialization in abundance of butterflyfish</a></li>
+<li>Jan Vanhove, <a href="https://janhove.github.io/analysis/2019/09/11/collinearity">Collinearity isn&rsquo;t a disease that needs curing</a></li>
 <li>Jan Vanhove, <a href="https://janhove.github.io/analysis/2018/04/25/graphical-model-checking">Checking model assumptions without getting paranoid</a></li>
 </ul>
 </div>
@@ -468,6 +447,49 @@ If this is not possible, because (1) you are using a laptop with outdated softwa
 <div class="outline-text-3" id="text-orga01dda9">
 <ul class="org-ul">
 <li>Blog post by Henrik Singmann: <a href="http://singmann.org/anova-in-r-afex-may-be-the-solution-you-are-looking-for/">ANOVA in R: afex may be the solution you are looking for</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgbdf8f5e" class="outline-3">
+<h3 id="orgbdf8f5e">Mixed-effects modeling</h3>
+<div class="outline-text-3" id="text-orgbdf8f5e">
+<ul class="org-ul">
+<li>Baayen, R. H., Davidson, D. J., Bates, D. M. (2008). <a href="https://www.sciencedirect.com/science/article/pii/S0749596X07001398">Mixed-effects modeling with crossed random effects for subjects and items</a>. <i>59</i>, 390&#x2013;412.</li>
+
+<li>Barr, D. J. (2018). Generalizing over encounters: Statistical and theoretical considerations. S-A. Rueschemeyer and G. Gaskell (Eds.), <i>Oxford Handbook of Psycholinguistics</i>. (<a href="https://osf.io/u8yxs/download">preprint</a>)</li>
+
+<li>Barr, D. J. (2013). <a href="https://www.frontiersin.org/articles/10.3389/fpsyg.2013.00328/full">Random effects structure for testing interactions in linear mixed-effects models</a>. <i>Frontiers in Psychology</i>, 328.</li>
+
+<li>Barr, D. J., Levy, R., Scheepers, C., &amp; Tily, H. (2013). <a href="http://dx.doi.org/10.1016/j.jml.2012.11.001">Random effects structure for confirmatory hypothesis testing: Keep it maximal</a>. <i>Journal of Memory and Language</i>, <i>68</i>, 255&#x2013;278.</li>
+
+<li>Bates, D. M., Mächler, M., Bolker, B. M., Walker S. C. (2014). Fitting linear mixed-effects models using lme4. <a href="http://arxiv.org/pdf/1406.5823.pdf">http://arxiv.org/pdf/1406.5823.pdf</a> (technical)</li>
+
+<li>Bolker, B. M., et al. (2009). <a href="https://www.sciencedirect.com/science/article/pii/S0169534709000196">Generalized linear mixed models: A practical guide for ecology and evolution</a>. <i>Trends in Ecology &amp; Evolution</i>, <i>24</i>, 127&#x2013;135.</li>
+
+<li>Brauer, M. &amp; Curtin, J. J. (2018). <a href="https://psycnet.apa.org/doiLanding?doi=10.1037%2Fmet0000159">Linear mixed-effects models and the analysis of nonindependent data: A unified framework to analyze categorical and continuous independent variables that vary within-subjects and/or within-items.</a></li>
+
+<li>DeBruine, L. &amp; Barr, D. J. (2021). <a href="https://psyarxiv.com/xp5cy/">Understanding Mixed-Effects Models Through Data Simulation (preprint)</a> <a href="https://journals.sagepub.com/doi/full/10.1177/2515245920965119">(published version)</a></li>
+
+<li>Halekoh, U., and Hoejsgaard, S. (2014). <a href="https://www.jstatsoft.org/article/view/v059i09">A Kenward-Roger Approximation and Parametric Bootstrap Methods for Tests in Linear Mixed Models The R Package pbkrtest</a>.</li>
+
+<li>Judd, C. M., Westfall, J., Kenny, D. A. (2012). <a href="http://jakewestfall.org/publications/JWK.pdf">Treating stimuli as a random factor in social psychology: A new and comprehensive solution to a pervasive but largely ignored problem</a>. <i>Journal of Personality and Social Psychology</i>, <i>103</i>, 54&#x2013;69.</li>
+
+<li>Luke, S. G. (2016) <a href="https://link.springer.com/article/10.3758/s13428-016-0809-y">Evaluating significance in linear mixed-effects models</a>.</li>
+
+<li>Mahr, T., <a href="https://tjmahr.github.io/plotting-partial-pooling-in-mixed-effects-models/">Plotting partial pooling in mixed-effects models</a></li>
+
+<li>Matuschek, H., Kliegl, R., Vasishth, S., Baayen, H., Bates, D. (2017). <a href="https://www.sciencedirect.com/science/article/pii/S0749596X17300013">Balancing Type I error and power in linear mixed models</a></li>
+
+<li>Meteyard, L. &amp; Davies, R. A. I. (2020). <a href="https://www.sciencedirect.com/science/article/pii/S0749596X20300061">Best practice guidance for linear mixed-effects models in psychological science</a>.</li>
+
+<li>Westfall, J., Kenny, D. A., and Judd, C. M. (2014), <a href="http://psych.colorado.edu/~westfaja/crossed_power_JEPG.pdf">Statistical power and optimal design in experiments where participants respond to samples of stimuli</a>. <i>Journal of Experimental Psychology: General</i>, <i>143</i>.</li>
+
+<li><code>r-lang</code> and <code>r-sig-mixed-models</code> mailing lists</li>
+
+<li><code>r-sig-mixed-models</code> FAQ <a href="http://glmm.wikidot.com/faq">http://glmm.wikidot.com/faq</a></li>
+
+<li>blog post by Doug Bates on <a href="https://rpubs.com/dmbates/377897">running MixedModels from the Julia programming language in R</a> (faster than <code>lme4::lmer()</code>)</li>
 </ul>
 </div>
 </div>
@@ -483,33 +505,17 @@ If this is not possible, because (1) you are using a laptop with outdated softwa
 </div>
 </div>
 
-<div id="outline-container-orgbdf8f5e" class="outline-3">
-<h3 id="orgbdf8f5e">Mixed-effects modeling</h3>
-<div class="outline-text-3" id="text-orgbdf8f5e">
+<div id="outline-container-org541f19a" class="outline-3">
+<h3 id="org541f19a">Generalized Additive Mixed Models (Advanced)</h3>
+<div class="outline-text-3" id="text-org541f19a">
 <ul class="org-ul">
-<li>Baayen, R. H., Davidson, D. J., Bates, D. M. (2008). <a href="https://www.sciencedirect.com/science/article/pii/S0749596X07001398">Mixed-effects modeling with crossed random effects for subjects and items</a>. <i>59</i>, 390&#x2013;412.</li>
-<li>Barr, D. J. (2018). Generalizing over encounters: Statistical and theoretical considerations. S-A. Rueschemeyer and G. Gaskell (Eds.), <i>Oxford Handbook of Psycholinguistics</i>. (<a href="https://osf.io/u8yxs/download">preprint</a>)</li>
-<li>Barr, D. J. (2013). <a href="https://www.frontiersin.org/articles/10.3389/fpsyg.2013.00328/full">Random effects structure for testing interactions in linear mixed-effects models</a>. <i>Frontiers in Psychology</i>, 328.</li>
-<li>Barr, D. J., Levy, R., Scheepers, C., &amp; Tily, H. (2013). <a href="http://dx.doi.org/10.1016/j.jml.2012.11.001">Random effects structure for confirmatory hypothesis testing: Keep it maximal</a>. <i>Journal of Memory and Language</i>, <i>68</i>, 255&#x2013;278.</li>
-<li>blog post by Tristan Mahr, <a href="https://tjmahr.github.io/plotting-partial-pooling-in-mixed-effects-models/">Plotting partial pooling in mixed-effects models</a></li>
+<li>Thul, R., Conklin, K., Barr, D. J. (2021). <a href="https://psyarxiv.com/ywkeq/">Using GAMMs to model trial-by-trial fluctuations in experimental data: More risks but hardly any benefit.</a></li>
 
-<li>Bates, D. M., Mächler, M., Bolker, B. M., Walker S. C. (2014). Fitting linear mixed-effects models using lme4. <a href="http://arxiv.org/pdf/1406.5823.pdf">http://arxiv.org/pdf/1406.5823.pdf</a> (technical)</li>
+<li>Sóskuthy, M. (2021). <a href="https://www.sciencedirect.com/science/article/pii/S009544702030108X">Evaluating generalised additive mixed modelling strategies for dynamic speech analysis</a></li>
 
-<li>Bolker, B. M., et al. (2009). <a href="https://www.sciencedirect.com/science/article/pii/S0169534709000196">Generalized linear mixed models: A practical guide for ecology and evolution</a>. <i>Trends in Ecology &amp; Evolution</i>, <i>24</i>, 127&#x2013;135.</li>
+<li>Winter, B., Wieling,</li>
 
-<li>DeBruine, L. &amp; Barr, D. J. (2021). <a href="https://psyarxiv.com/xp5cy/">Understanding Mixed-Effects Models Through Data Simulation (preprint)</a> <a href="https://journals.sagepub.com/doi/full/10.1177/2515245920965119">(published version)</a></li>
-
-<li>Halekoh, U., and Hoejsgaard, S. (2014). <a href="https://www.jstatsoft.org/article/view/v059i09">A Kenward-Roger Approximation and Parametric Bootstrap Methods for Tests in Linear Mixed Models The R Package pbkrtest</a>.</li>
-
-<li>Harrison, X., et al. (2018). <a href="https://peerj.com/articles/4794/">A brief introduction to mixed effects modelling and multi-model inference in ecology</a>.</li>
-
-<li>Judd, C. M., Westfall, J., Kenny, D. A. (2012). <a href="http://jakewestfall.org/publications/JWK.pdf">Treating stimuli as a random factor in social psychology: A new and comprehensive solution to a pervasive but largely ignored problem</a>. <i>Journal of Personality and Social Psychology</i>, <i>103</i>, 54&#x2013;69.</li>
-
-<li>Westfall, J., Kenny, D. A., and Judd, C. M. (2014), <a href="http://psych.colorado.edu/~westfaja/crossed_power_JEPG.pdf">Statistical power and optimal design in experiments where participants respond to samples of stimuli</a>. <i>Journal of Experimental Psychology: General</i>, <i>143</i>.</li>
-
-<li><code>r-lang</code> and <code>r-sig-mixed-models</code> mailing lists</li>
-<li><code>r-sig-mixed-models</code> FAQ <a href="http://glmm.wikidot.com/faq">http://glmm.wikidot.com/faq</a></li>
-<li>blog post by Doug Bates on <a href="https://rpubs.com/dmbates/377897">running MixedModels from the Julia programming language in R</a> (faster than <code>lme4::lmer()</code>)</li>
+<li>Wood, S. (2017). <a href="https://www.taylorfrancis.com/books/mono/10.1201/9781315370279/generalized-additive-models-simon-wood">Generalized Additive Mixed Models.</a></li>
 </ul>
 </div>
 </div>
@@ -517,7 +523,7 @@ If this is not possible, because (1) you are using a laptop with outdated softwa
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Dale Barr</p>
-<p class="date">Created: 2021-04-04 Sun 17:56</p>
+<p class="date">Created: 2021-04-05 Mon 17:39</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -19,10 +19,10 @@ h3 {
     font-family: sans-serif;
 }
 ul {
-    font-family: sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
 }
 li {
-    font-family: sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
 }
 .title  { text-align: center;
           margin-bottom: .2em; 
@@ -137,4 +137,69 @@ textarea { overflow-x: auto; }
 }
 .solution pre.sourceCode {
     border-color: green;
+}
+
+.org-string {
+    /* font-lock-string-face */
+    color: #223fbf;
+}
+
+.org-ess-XopX {
+    /* ess-%op%-face */
+    color: #0000bb;
+}
+
+.org-comment {
+    /* font-lock-comment-face */
+    color: #70A070;
+}
+.org-comment-delimiter {
+    /* font-lock-comment-delimiter-face */
+    color: #70A070;
+}
+
+.org-ess-assignment {
+    /* ess-assignment-face */
+    color: #0000bb;
+}
+
+.org-ess-constant {
+    /* ess-constant-face */
+    color: #8f0075;
+}
+
+.org-ess-function-call {
+    /* ess-function-call-face */
+    color: #721045;
+}
+
+.org-ess-matrix {
+    /* ess-matrix-face */
+    color: #0000bb;
+}
+.org-ess-modifiers {
+    /* ess-modifiers-face */
+    color: #0000bb;
+}
+.org-ess-numbers {
+    /* ess-numbers-face */
+    color: #8f0075;
+}
+.org-ess-operator {
+    /* ess-operator-face */
+    color: #0000bb;
+}
+.org-ess-paren {
+    /* ess-paren-face */
+    color: #0000bb;
+}
+
+.org-ess-r-control-flow-keyword {
+    /* ess-r-control-flow-keyword-face */
+    color: #5317ac;
+}
+
+.org-function-name {
+    /* font-lock-function-name-face */
+    color: #721045;
 }

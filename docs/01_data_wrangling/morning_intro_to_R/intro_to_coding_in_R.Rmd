@@ -95,7 +95,9 @@ Another tweak that we recommend for beginners is to turn off **inline results** 
 
 The instructor will now go through a live coding exercise that will give you a basic overview of developing an R script using the RStudio IDE.
 
-Feel free to just watch or to follow along by typing into your own script. This demo makes use of the Scottish Babynames dataset which you can download from [National Records Scotland](https://www.nrscotland.gov.uk/statistics-and-data/statistics/statistics-by-theme/vital-events/names/babies-first-names/babies-first-names-summary-records-comma-separated-value-csv-format).
+Feel free to just watch or to follow along by typing into your own script. 
+
+This demonstration will make use of a dataset of Berlin Babynames from 2012-2020 provided by [Berliner Landesamt für Bürger- und Ordnungsangelegenheiten (LABO) / BerlinOnline Stadtportal GmbH & Co. KG](https://github.com/berlinonline/haeufige-vornamen-berlin). You will need to download my version of the data, which has all of the info in one big file: [berlin-babynamen.csv](berlin-babynamen.csv) (CSV format)
 
 An R script is the most basic type of document you can work with. It is simply a plain-text file containing a set of commands to be executed in sequence, from top to bottom.
 
@@ -113,19 +115,21 @@ Here is an example (the live-coding script may differ):
 ```{r demo-script, eval = FALSE}
 # load add-on packages that we need
 library("tidyverse")
-library("babynames") # has the data we need
 library("cowsay")
 
-who <- c("Dale", "Luc", "Oliver")
+bbnames <- read_csv("berlin-babynamen.csv", col_types = "ficif")
 
-dat <- babynames %>%
-  filter(name %in% who) %>%
-  group_by(year, name) %>%
-  summarise(tot = sum(prop))
+who <- c("Dale", "Juliane", "Pia")
 
-g <- ggplot(dat, aes(year, tot)) +
+dat <- bbnames %>%
+  filter(vorname %in% who) %>%
+  mutate(vorname = factor(vorname)) %>%
+  group_by(jahr, vorname, .drop = FALSE) %>%
+  summarise(tot = sum(anzahl), .groups = "drop")
+
+g <- ggplot(dat, aes(jahr, tot)) +
   geom_line() +
-  facet_wrap(~ name, scales = "free_y")
+  facet_wrap(~ vorname, scales = "free_y")
 
 ggsave("names.png", g)
 
