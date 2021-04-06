@@ -70,7 +70,7 @@ In this lesson you will see how data science skills will allow you to efficientl
 
 Load in the packages by typing the following lines at the top of a new R script.  Don't forget to send the commands to the console window using Ctrl-Enter, or the rest of the commands in this lesson will fail!
 
- #+BEGIN_SRC R :exports none :results silent
+ #+BEGIN_SRC R :exports code :results silent
    library("tidyverse")
    library("babynames")
  #+END_SRC

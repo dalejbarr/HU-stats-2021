@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-04-06 Tue 11:23 -->
+<!-- 2021-04-06 Tue 15:01 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Introduction to data wrangling with the tidyverse</title>
@@ -357,6 +357,12 @@ To demonstrate the power of these <code>dplyr</code> verbs, we will work with th
 Load in the packages by typing the following lines at the top of a new R script.  Don&rsquo;t forget to send the commands to the console window using Ctrl-Enter, or the rest of the commands in this lesson will fail!
 </p>
 
+<div class="org-src-container">
+<pre class="src src-R"><span style="font-weight: bold; text-decoration: underline;">library</span>(<span style="font-style: italic;">"tidyverse"</span>)
+<span style="font-weight: bold; text-decoration: underline;">library</span>(<span style="font-style: italic;">"babynames"</span>)
+</pre>
+</div>
+
 <p>
 The package <code>babynames</code> contains an object of the same name which we can get information about by printing it to the console:
 </p>
@@ -367,10 +373,7 @@ The package <code>babynames</code> contains an object of the same name which we 
 </div>
 
 <pre class="example">
-# A
-#   tibble:
-#   1,924,665
-#   x 5
+# A tibble: 1,924,665 x 5
     year sex   name          n   prop
    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt;
  1  1880 F     Mary       7065 0.0724
@@ -383,11 +386,7 @@ The package <code>babynames</code> contains an object of the same name which we 
  8  1880 F     Alice      1414 0.0145
  9  1880 F     Bertha     1320 0.0135
 10  1880 F     Sarah      1288 0.0132
-# …
-#   with
-#   1,924,655
-#   more
-#   rows
+# … with 1,924,655 more rows
 </pre>
 
 <p>
@@ -564,10 +563,7 @@ Now, of the two numeric measurements of name popularity, <code>prop</code> is pr
 </div>
 
 <pre class="example">
-# A
-#   tibble:
-#   1,924,665
-#   x 4
+# A tibble: 1,924,665 x 4
     year sex   name        prop
    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;      &lt;dbl&gt;
  1  1880 F     Mary      0.0724
@@ -580,11 +576,7 @@ Now, of the two numeric measurements of name popularity, <code>prop</code> is pr
  8  1880 F     Alice     0.0145
  9  1880 F     Bertha    0.0135
 10  1880 F     Sarah     0.0132
-# …
-#   with
-#   1,924,655
-#   more
-#   rows
+# … with 1,924,655 more rows
 </pre>
 
 <p>
@@ -597,10 +589,7 @@ The first argument to the <code>select()</code> function is a tibble, and furthe
 </div>
 
 <pre class="example">
-# A
-#   tibble:
-#   1,924,665
-#   x 4
+# A tibble: 1,924,665 x 4
     year sex   name        prop
    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;      &lt;dbl&gt;
  1  1880 F     Mary      0.0724
@@ -613,11 +602,7 @@ The first argument to the <code>select()</code> function is a tibble, and furthe
  8  1880 F     Alice     0.0145
  9  1880 F     Bertha    0.0135
 10  1880 F     Sarah     0.0132
-# …
-#   with
-#   1,924,655
-#   more
-#   rows
+# … with 1,924,655 more rows
 </pre>
 
 <p>
@@ -634,10 +619,7 @@ Another trick is to select columns by column number (i.e., ordinal <i>position</
 </div>
 
 <pre class="example">
-# A
-#   tibble:
-#   1,924,665
-#   x 1
+# A tibble: 1,924,665 x 1
    name     
    &lt;chr&gt;    
  1 Mary     
@@ -650,11 +632,7 @@ Another trick is to select columns by column number (i.e., ordinal <i>position</
  8 Alice    
  9 Bertha   
 10 Sarah    
-# …
-#   with
-#   1,924,655
-#   more
-#   rows
+# … with 1,924,655 more rows
 </pre>
 
 <p>
@@ -688,10 +666,7 @@ You can use the colon with select to select a range. You can even use <code>:</c
 </div>
 
 <pre class="example">
-# A
-#   tibble:
-#   1,924,665
-#   x 3
+# A tibble: 1,924,665 x 3
    name          n   prop
    &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt;
  1 Mary       7065 0.0724
@@ -704,11 +679,7 @@ You can use the colon with select to select a range. You can even use <code>:</c
  8 Alice      1414 0.0145
  9 Bertha     1320 0.0135
 10 Sarah      1288 0.0132
-# …
-#   with
-#   1,924,655
-#   more
-#   rows
+# … with 1,924,655 more rows
 </pre>
 
 <p>
@@ -721,10 +692,7 @@ gives the same thing as
 </div>
 
 <pre class="example">
-# A
-#   tibble:
-#   1,924,665
-#   x 3
+# A tibble: 1,924,665 x 3
    name          n   prop
    &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt;
  1 Mary       7065 0.0724
@@ -737,11 +705,7 @@ gives the same thing as
  8 Alice      1414 0.0145
  9 Bertha     1320 0.0135
 10 Sarah      1288 0.0132
-# …
-#   with
-#   1,924,655
-#   more
-#   rows
+# … with 1,924,655 more rows
 </pre>
 </div>
 </li>
@@ -769,10 +733,7 @@ You can rename columns &rsquo;on the fly&rsquo; during select using the syntax <
 
 <pre class="example">
 
-# A
-#   tibble:
-#   1,924,665
-#   x 5
+# A tibble: 1,924,665 x 5
    birth_year sex   child_name number_of_babies proportion
         &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;                 &lt;int&gt;      &lt;dbl&gt;
  1       1880 F     Mary                   7065     0.0724
@@ -785,11 +746,7 @@ You can rename columns &rsquo;on the fly&rsquo; during select using the syntax <
  8       1880 F     Alice                  1414     0.0145
  9       1880 F     Bertha                 1320     0.0135
 10       1880 F     Sarah                  1288     0.0132
-# …
-#   with
-#   1,924,655
-#   more
-#   rows
+# … with 1,924,655 more rows
 </pre>
 
 <p>
@@ -802,10 +759,7 @@ or, if you want to select all columns while renaming one or more, use <code>rena
 </div>
 
 <pre class="example">
-# A
-#   tibble:
-#   1,924,665
-#   x 5
+# A tibble: 1,924,665 x 5
    birth_year sex   name      number_of_babies   prop
         &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;                &lt;int&gt;  &lt;dbl&gt;
  1       1880 F     Mary                  7065 0.0724
@@ -818,11 +772,7 @@ or, if you want to select all columns while renaming one or more, use <code>rena
  8       1880 F     Alice                 1414 0.0145
  9       1880 F     Bertha                1320 0.0135
 10       1880 F     Sarah                 1288 0.0132
-# …
-#   with
-#   1,924,655
-#   more
-#   rows
+# … with 1,924,655 more rows
 </pre>
 </div>
 </li>
@@ -844,10 +794,7 @@ select(babynames, prop, everything())
 
 <pre class="example">
 
-# A
-#   tibble:
-#   1,924,665
-#   x 5
+# A tibble: 1,924,665 x 5
      prop  year sex   name          n
     &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;     &lt;int&gt;
  1 0.0724  1880 F     Mary       7065
@@ -860,11 +807,7 @@ select(babynames, prop, everything())
  8 0.0145  1880 F     Alice      1414
  9 0.0135  1880 F     Bertha     1320
 10 0.0132  1880 F     Sarah      1288
-# …
-#   with
-#   1,924,655
-#   more
-#   rows
+# … with 1,924,655 more rows
 </pre>
 
 <p>
@@ -883,10 +826,7 @@ See <code>?select</code> for more helper functions (e.g., <code>starts_with()</c
 <li><a id="org192d9af"></a>Use <code>select()</code> to make a table that looks like this from the built-in <code>starwars</code> dataset<br />
 <div class="outline-text-5" id="text-org192d9af">
 <pre class="example">
-# A
-#   tibble:
-#   87
-#   x 4
+# A tibble: 87 x 4
    name               eyes      home     species
    &lt;chr&gt;              &lt;chr&gt;     &lt;chr&gt;    &lt;chr&gt;  
  1 Luke Skywalker     blue      Tatooine Human  
@@ -899,11 +839,7 @@ See <code>?select</code> for more helper functions (e.g., <code>starts_with()</c
  8 R5-D4              red       Tatooine Droid  
  9 Biggs Darklighter  brown     Tatooine Human  
 10 Obi-Wan Kenobi     blue-gray Stewjon  Human  
-# …
-#   with
-#   77
-#   more
-#   rows
+# … with 77 more rows
 </pre>
 
 
@@ -950,14 +886,35 @@ rename(infmort, IMR = <span style="color: #000000; background-color: #ffffff;">`
 </div>
 
 <pre class="example">
-Error: 'infmort.csv' does not exist in current working directory ('/mnt/data/Tresors/priv/HU-stats-2021/public/02_more_wrangling/morning_tidydata').
 
-Error in glimpse(infmort) : object 'infmort' not found
+── Column specification ────────────────────────────────────────────────────────
+cols(
+  Country = col_character(),
+  Year = col_double(),
+  `Infant mortality rate (probability of dying between birth and age 1 per 1000 live births)` = col_character()
+)
 
-Error in rename(infmort, IMR = `Infant mortality rate (probability of dying between birth and age 1 per 1000 live births)`) : 
-  object 'infmort' not found
+Rows: 5,044
+Columns: 3
+$ Country                                                                                     &lt;chr&gt; …
+$ Year                                                                                        &lt;dbl&gt; …
+$ `Infant mortality rate (probability of dying between birth and age 1 per 1000 live births)` &lt;chr&gt; …
+
+# A tibble: 5,044 x 3
+   Country      Year IMR             
+   &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;           
+ 1 Afghanistan  2015 66.3 [52.7-83.9]
+ 2 Afghanistan  2014 68.1 [55.7-83.6]
+ 3 Afghanistan  2013 69.9 [58.7-83.5]
+ 4 Afghanistan  2012 71.7 [61.6-83.7]
+ 5 Afghanistan  2011 73.4 [64.4-84.2]
+ 6 Afghanistan  2010 75.1 [66.9-85.1]
+ 7 Afghanistan  2009 76.8 [69.0-86.1]
+ 8 Afghanistan  2008 78.6 [71.2-87.3]
+ 9 Afghanistan  2007 80.4 [73.4-88.9]
+10 Afghanistan  2006 82.3 [75.5-90.7]
+# … with 5,034 more rows
 </pre>
-
 
 
 </div>
@@ -980,10 +937,7 @@ The dplyr verb <code>arrange()</code> will sort the rows in the table according 
 </div>
 
 <pre class="example">
-# A
-#   tibble:
-#   1,924,665
-#   x 5
+# A tibble: 1,924,665 x 5
     year sex   name      n       prop
    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; &lt;int&gt;      &lt;dbl&gt;
  1  2007 M     Aaban     5 0.00000226
@@ -996,11 +950,7 @@ The dplyr verb <code>arrange()</code> will sort the rows in the table according 
  8  2015 M     Aaban    15 0.00000736
  9  2016 M     Aaban     9 0.00000446
 10  2017 M     Aaban    11 0.0000056 
-# …
-#   with
-#   1,924,655
-#   more
-#   rows
+# … with 1,924,655 more rows
 </pre>
 
 <p>
@@ -1013,10 +963,7 @@ The data are now sorted in ascending alphabetical order by name.  The default is
 </div>
 
 <pre class="example">
-# A
-#   tibble:
-#   1,924,665
-#   x 5
+# A tibble: 1,924,665 x 5
     year sex   name          n    prop
    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;     &lt;int&gt;   &lt;dbl&gt;
  1  2017 F     Emma      19738 0.0105 
@@ -1029,11 +976,7 @@ The data are now sorted in ascending alphabetical order by name.  The default is
  8  2017 F     Amelia    11800 0.00629
  9  2017 F     Evelyn    10675 0.00569
 10  2017 F     Abigail   10551 0.00563
-# …
-#   with
-#   1,924,655
-#   more
-#   rows
+# … with 1,924,655 more rows
 </pre>
 
 <p>
@@ -1057,10 +1000,7 @@ We can sort by more than one column.  <code>arrange(dat, varname1, varname2, var
 </div>
 
 <pre class="example">
-# A
-#   tibble:
-#   1,924,665
-#   x 5
+# A tibble: 1,924,665 x 5
     year sex   name         n    prop
    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;    &lt;int&gt;   &lt;dbl&gt;
  1  2017 F     Emma     19738 0.0105 
@@ -1073,11 +1013,7 @@ We can sort by more than one column.  <code>arrange(dat, varname1, varname2, var
  8  2017 F     Sophia   14831 0.00791
  9  2017 M     James    14232 0.00725
 10  2017 M     Logan    13974 0.00712
-# …
-#   with
-#   1,924,655
-#   more
-#   rows
+# … with 1,924,655 more rows
 </pre>
 
 
@@ -1102,10 +1038,7 @@ say, only babies born after some year, or only babies named &ldquo;Mary&rdquo;. 
 </div>
 
 <pre class="example">
-# A
-#   tibble:
-#   562,156
-#   x 5
+# A tibble: 562,156 x 5
     year sex   name          n    prop
    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;     &lt;int&gt;   &lt;dbl&gt;
  1  2001 F     Emily     25055 0.0127 
@@ -1118,11 +1051,7 @@ say, only babies born after some year, or only babies named &ldquo;Mary&rdquo;. 
  8  2001 F     Abigail   14807 0.00748
  9  2001 F     Elizabeth 14784 0.00747
 10  2001 F     Olivia    13978 0.00706
-# …
-#   with
-#   562,146
-#   more
-#   rows
+# … with 562,146 more rows
 </pre>
 
 <p>
@@ -1225,10 +1154,7 @@ If you want only those observations for a specific name (e.g., Mary), you use th
 </div>
 
 <pre class="example">
-# A
-#   tibble:
-#   268
-#   x 5
+# A tibble: 268 x 5
     year sex   name      n     prop
    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; &lt;int&gt;    &lt;dbl&gt;
  1  1880 F     Mary   7065 0.0724  
@@ -1241,11 +1167,7 @@ If you want only those observations for a specific name (e.g., Mary), you use th
  8  1883 M     Mary     32 0.000284
  9  1884 F     Mary   9217 0.0670  
 10  1884 M     Mary     36 0.000293
-# …
-#   with
-#   258
-#   more
-#   rows
+# … with 258 more rows
 </pre>
 
 <p>
@@ -1258,10 +1180,7 @@ If you wanted all the names <i>except</i> Mary, you use the &rsquo;not equals&rs
 </div>
 
 <pre class="example">
-# A
-#   tibble:
-#   1,924,397
-#   x 5
+# A tibble: 1,924,397 x 5
     year sex   name          n   prop
    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt;
  1  1880 F     Anna       2604 0.0267
@@ -1274,11 +1193,7 @@ If you wanted all the names <i>except</i> Mary, you use the &rsquo;not equals&rs
  8  1880 F     Bertha     1320 0.0135
  9  1880 F     Sarah      1288 0.0132
 10  1880 F     Annie      1258 0.0129
-# …
-#   with
-#   1,924,387
-#   more
-#   rows
+# … with 1,924,387 more rows
 </pre>
 
 <p>
@@ -1292,10 +1207,7 @@ queens&#x2014;you can use <code>%in%</code>:
 </div>
 
 <pre class="example">
-# A
-#   tibble:
-#   772
-#   x 5
+# A tibble: 772 x 5
     year sex   name          n      prop
    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;     &lt;int&gt;     &lt;dbl&gt;
  1  1880 F     Mary       7065 0.0724   
@@ -1308,11 +1220,7 @@ queens&#x2014;you can use <code>%in%</code>:
  8  1881 F     Victoria    117 0.00118  
  9  1881 M     Mary         29 0.000268 
 10  1882 F     Mary       8148 0.0704   
-# …
-#   with
-#   762
-#   more
-#   rows
+# … with 762 more rows
 </pre>
 
 <p>
@@ -1325,10 +1233,7 @@ This gives you data for the names in the vector on the right hand side of <code>
 </div>
 
 <pre class="example">
-# A
-#   tibble:
-#   1,923,893
-#   x 5
+# A tibble: 1,923,893 x 5
     year sex   name         n   prop
    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;    &lt;int&gt;  &lt;dbl&gt;
  1  1880 F     Anna      2604 0.0267
@@ -1341,11 +1246,7 @@ This gives you data for the names in the vector on the right hand side of <code>
  8  1880 F     Sarah     1288 0.0132
  9  1880 F     Annie     1258 0.0129
 10  1880 F     Clara     1226 0.0126
-# …
-#   with
-#   1,923,883
-#   more
-#   rows
+# … with 1,923,883 more rows
 </pre>
 
 <p>
@@ -1369,10 +1270,7 @@ You can include as many expressions as you like as additional arguments to <code
 </div>
 
 <pre class="example">
-# A
-#   tibble:
-#   168
-#   x 5
+# A tibble: 168 x 5
     year sex   name        n   prop
    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;   &lt;int&gt;  &lt;dbl&gt;
  1  1880 F     Mary     7065 0.0724
@@ -1385,11 +1283,7 @@ You can include as many expressions as you like as additional arguments to <code
  8  1881 M     James    5441 0.0502
  9  1882 F     Mary     8148 0.0704
 10  1882 M     John     9557 0.0783
-# …
-#   with
-#   158
-#   more
-#   rows
+# … with 158 more rows
 </pre>
 
 
@@ -1408,10 +1302,7 @@ You can include as many expressions as you like as additional arguments to <code
 </div>
 
 <pre class="example">
-# A
-#   tibble:
-#   593
-#   x 5
+# A tibble: 593 x 5
     year sex   name      n      prop
    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; &lt;int&gt;     &lt;dbl&gt;
  1  1880 F     Mary   7065 0.0724   
@@ -1424,11 +1315,7 @@ You can include as many expressions as you like as additional arguments to <code
  8  1882 M     Dale      7 0.0000574
  9  1883 F     Mary   8012 0.0667   
 10  1883 M     Mary     32 0.000284 
-# …
-#   with
-#   583
-#   more
-#   rows
+# … with 583 more rows
 </pre>
 
 
@@ -1453,10 +1340,7 @@ Sometimes we find we need to create a new variable that doesn&rsquo;t exist in o
 </div>
 
 <pre class="example">
-# A
-#   tibble:
-#   1,924,665
-#   x 6
+# A tibble: 1,924,665 x 6
     year sex   name          n   prop decade
    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt;  &lt;dbl&gt;
  1  1880 F     Mary       7065 0.0724   1880
@@ -1469,11 +1353,7 @@ Sometimes we find we need to create a new variable that doesn&rsquo;t exist in o
  8  1880 F     Alice      1414 0.0145   1880
  9  1880 F     Bertha     1320 0.0135   1880
 10  1880 F     Sarah      1288 0.0132   1880
-# …
-#   with
-#   1,924,655
-#   more
-#   rows
+# … with 1,924,655 more rows
 </pre>
 </div>
 
@@ -1493,10 +1373,7 @@ Sometimes we find we need to create a new variable that doesn&rsquo;t exist in o
 </div>
 
 <pre class="example">
-# A
-#   tibble:
-#   1,924,665
-#   x 6
+# A tibble: 1,924,665 x 6
     year sex   name          n   prop century
    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt;   &lt;dbl&gt;
  1  1880 F     Mary       7065 0.0724    1800
@@ -1509,11 +1386,7 @@ Sometimes we find we need to create a new variable that doesn&rsquo;t exist in o
  8  1880 F     Alice      1414 0.0145    1800
  9  1880 F     Bertha     1320 0.0135    1800
 10  1880 F     Sarah      1288 0.0132    1800
-# …
-#   with
-#   1,924,655
-#   more
-#   rows
+# … with 1,924,655 more rows
 </pre>
 
 
@@ -1532,10 +1405,7 @@ Sometimes we find we need to create a new variable that doesn&rsquo;t exist in o
 </div>
 
 <pre class="example">
-# A
-#   tibble:
-#   1,924,665
-#   x 6
+# A tibble: 1,924,665 x 6
     year sex   name          n   prop name_length
    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt;       &lt;int&gt;
  1  1880 F     Mary       7065 0.0724           4
@@ -1548,11 +1418,7 @@ Sometimes we find we need to create a new variable that doesn&rsquo;t exist in o
  8  1880 F     Alice      1414 0.0145           5
  9  1880 F     Bertha     1320 0.0135           6
 10  1880 F     Sarah      1288 0.0132           5
-# …
-#   with
-#   1,924,655
-#   more
-#   rows
+# … with 1,924,655 more rows
 </pre>
 
 
@@ -1578,13 +1444,8 @@ Sometimes you might want to ask a question whose answer requires calculating som
 </div>
 
 <pre class="example">
-# A
-#   tibble:
-#   1,924,665
-#   x 5
-# Groups:  
-#   name
-#   [97,310]
+# A tibble: 1,924,665 x 5
+# Groups:   name [97,310]
     year sex   name          n   prop
    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt;
  1  1880 F     Mary       7065 0.0724
@@ -1597,11 +1458,7 @@ Sometimes you might want to ask a question whose answer requires calculating som
  8  1880 F     Alice      1414 0.0145
  9  1880 F     Bertha     1320 0.0135
 10  1880 F     Sarah      1288 0.0132
-# …
-#   with
-#   1,924,655
-#   more
-#   rows
+# … with 1,924,655 more rows
 </pre>
 
 <p>
@@ -1614,14 +1471,9 @@ Note that the table that results from <code>group_by()</code> is the same as the
 </div>
 
 <pre class="example">
-# A
-#   tibble:
-#   1,924,665
-#   x 5
-# Groups:  
-#   name,
-#   sex
-#   [107,973]
+
+# A tibble: 1,924,665 x 5
+# Groups:   name, sex [107,973]
     year sex   name          n   prop
    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt;
  1  1880 F     Mary       7065 0.0724
@@ -1634,11 +1486,7 @@ Note that the table that results from <code>group_by()</code> is the same as the
  8  1880 F     Alice      1414 0.0145
  9  1880 F     Bertha     1320 0.0135
 10  1880 F     Sarah      1288 0.0132
-# …
-#   with
-#   1,924,655
-#   more
-#   rows
+# … with 1,924,655 more rows
 </pre>
 
 <p>
@@ -1669,13 +1517,8 @@ gsum
 
 `summarise()` has grouped output by 'name'. You can override using the `.groups` argument.
 
-# A
-#   tibble:
-#   107,973
-#   x 3
-# Groups:  
-#   name
-#   [97,310]
+# A tibble: 107,973 x 3
+# Groups:   name [97,310]
    name      sex   total
    &lt;chr&gt;     &lt;chr&gt; &lt;int&gt;
  1 Aaban     M       107
@@ -1688,11 +1531,7 @@ gsum
  8 Aadan     M       130
  9 Aadarsh   M       199
 10 Aaden     F         5
-# …
-#   with
-#   107,963
-#   more
-#   rows
+# … with 107,963 more rows
 </pre>
 
 <p>
@@ -1765,10 +1604,7 @@ Now let&rsquo;s find out the most popular name in the entire database.
 </div>
 
 <pre class="example">
-# A
-#   tibble:
-#   1 x
-#   3
+# A tibble: 1 x 3
   name  sex     total
   &lt;chr&gt; &lt;chr&gt;   &lt;int&gt;
 1 James M     5150472
@@ -1798,10 +1634,7 @@ summarise(grouped, total = sum(n))
 
 <pre class="example">
 
-# A
-#   tibble:
-#   97,310
-#   x 2
+# A tibble: 97,310 x 2
    name      total
    &lt;chr&gt;     &lt;int&gt;
  1 Aaban       107
@@ -1814,11 +1647,7 @@ summarise(grouped, total = sum(n))
  8 Aadan       130
  9 Aadarsh     199
 10 Aaden      4658
-# …
-#   with
-#   97,300
-#   more
-#   rows
+# … with 97,300 more rows
 </pre>
 
 
@@ -1841,13 +1670,8 @@ summarise(grouped, total = sum(n))
 <pre class="example">
 
 `summarise()` has grouped output by 'century'. You can override using the `.groups` argument.
-# A
-#   tibble:
-#   6 x
-#   3
-# Groups:  
-#   century
-#   [3]
+# A tibble: 6 x 3
+# Groups:   century [3]
   century sex       total
     &lt;dbl&gt; &lt;chr&gt;     &lt;int&gt;
 1    1800 F       3534247
@@ -1924,13 +1748,8 @@ Note that in the first version, we don&rsquo;t name <code>babynames</code> as th
 
 <pre class="example">
 `summarise()` has grouped output by 'name'. You can override using the `.groups` argument.
-# A
-#   tibble:
-#   107,973
-#   x 3
-# Groups:  
-#   name
-#   [97,310]
+# A tibble: 107,973 x 3
+# Groups:   name [97,310]
    name      sex   total
    &lt;chr&gt;     &lt;chr&gt; &lt;int&gt;
  1 Aaban     M       107
@@ -1943,11 +1762,7 @@ Note that in the first version, we don&rsquo;t name <code>babynames</code> as th
  8 Aadan     M       130
  9 Aadarsh   M       199
 10 Aaden     F         5
-# …
-#   with
-#   107,963
-#   more
-#   rows
+# … with 107,963 more rows
 </pre>
 
 <p>
@@ -1977,18 +1792,14 @@ name_totals <span style="font-weight: bold; text-decoration: underline;">%&gt;%<
 
 `summarise()` has grouped output by 'name'. You can override using the `.groups` argument.
 
-# A
-#   tibble:
-#   2 x
-#   3
-# Groups:  
-#   sex
-#   [2]
+# A tibble: 2 x 3
+# Groups:   sex [2]
   name  sex     total
   &lt;chr&gt; &lt;chr&gt;   &lt;int&gt;
 1 James M     5150472
 2 Mary  F     4123200
 </pre>
+
 
 <p>
 Note that because of judicious choice of verbs by Hadley Wickham, the above code is <i>self-documenting</i>: it tells you in plain English what is happening and what order, with no need for any explanatory comments.
@@ -2021,10 +1832,7 @@ bind_rows(top_f, top_m)
 
 <pre class="example">
 
-# A
-#   tibble:
-#   10
-#   x 5
+# A tibble: 10 x 5
     year sex   name         n   prop
    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;    &lt;int&gt;  &lt;dbl&gt;
  1  1971 F     Jennifer 56784 0.0324
@@ -2055,13 +1863,8 @@ top5
 
 <pre class="example">
 
-# A
-#   tibble:
-#   10
-#   x 5
-# Groups:  
-#   sex
-#   [2]
+# A tibble: 10 x 5
+# Groups:   sex [2]
     year sex   name         n   prop
    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;    &lt;int&gt;  &lt;dbl&gt;
  1  1971 F     Jennifer 56784 0.0324
@@ -2100,13 +1903,8 @@ So any further operations we apply to that will also apply at the group level, i
 </div>
 
 <pre class="example">
-# A
-#   tibble:
-#   10
-#   x 6
-# Groups:  
-#   sex
-#   [2]
+# A tibble: 10 x 6
+# Groups:   sex [2]
     year sex   name         n   prop    rn
    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;    &lt;int&gt;  &lt;dbl&gt; &lt;int&gt;
  1  1971 F     Jennifer 56784 0.0324     1
@@ -2157,13 +1955,8 @@ the following:
 <pre class="example">
 
 `summarise()` has grouped output by 'name'. You can override using the `.groups` argument.
-# A
-#   tibble:
-#   107,973
-#   x 3
-# Groups:  
-#   name
-#   [97,310]
+# A tibble: 107,973 x 3
+# Groups:   name [97,310]
    name      sex       n
    &lt;chr&gt;     &lt;chr&gt; &lt;int&gt;
  1 Aaban     M        10
@@ -2176,11 +1969,7 @@ the following:
  8 Aadan     M        11
  9 Aadarsh   M        17
 10 Aaden     F         1
-# …
-#   with
-#   107,963
-#   more
-#   rows
+# … with 107,963 more rows
 </pre>
 
 <p>
@@ -2195,10 +1984,7 @@ This can be expressed more conveniently using <code>count()</code>:
 </div>
 
 <pre class="example">
-# A
-#   tibble:
-#   107,973
-#   x 3
+# A tibble: 107,973 x 3
    name      sex       n
    &lt;chr&gt;     &lt;chr&gt; &lt;int&gt;
  1 Aaban     M        10
@@ -2211,11 +1997,7 @@ This can be expressed more conveniently using <code>count()</code>:
  8 Aadan     M        11
  9 Aadarsh   M        17
 10 Aaden     F         1
-# …
-#   with
-#   107,963
-#   more
-#   rows
+# … with 107,963 more rows
 </pre>
 
 <p>
@@ -2258,10 +2040,7 @@ You can take out a single row or a range of rows with <code>slice()</code>
 </div>
 
 <pre class="example">
-# A
-#   tibble:
-#   3 x
-#   5
+# A tibble: 3 x 5
    year sex   name      n      prop
   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; &lt;int&gt;     &lt;dbl&gt;
 1  1880 M     Cora      6 0.0000507
@@ -2412,7 +2191,7 @@ window.onload = function() {
 </div>
 </div></div>
 <div id="postamble" class="status">
-<p class="date">Created: 2021-04-06 Tue 11:23</p>
+<p class="date">Created: 2021-04-06 Tue 15:01</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

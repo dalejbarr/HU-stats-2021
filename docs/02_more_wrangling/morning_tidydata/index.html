@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-04-06 Tue 11:22 -->
+<!-- 2021-04-06 Tue 11:42 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Tidy data</title>
@@ -277,6 +277,7 @@ for the JavaScript code in this tag.
 </li>
 </ul>
 </li>
+<li><a href="#orgca987b0"></a></li>
 </ul>
 </div>
 </div>
@@ -385,14 +386,25 @@ name_table
 </div>
 
 <pre class="example">
-Error in distinct(., name) : object 'babynames' not found
 
-Error: object 'name_table' not found
+# A tibble: 97,310 x 1
+   name     
+   &lt;chr&gt;    
+ 1 Aaban    
+ 2 Aabha    
+ 3 Aabid    
+ 4 Aabir    
+ 5 Aabriella
+ 6 Aada     
+ 7 Aadam    
+ 8 Aadan    
+ 9 Aadarsh  
+10 Aaden    
+# … with 97,300 more rows
 </pre>
 
-
 <p>
-Now <code>name_table</code> is a table of the <code class="src src-R">nrow(name_table)</code> <code>Error in nrow(name_table) : object 'name_table' not found</code> distinct names in the dataset.  Let&rsquo;s determine whether the name ends with a vowel using the <code>substr()</code> function, which extracts a substring from a character value.
+Now <code>name_table</code> is a table of the <code class="src src-R">nrow(name_table)</code> <code>[1] 97310</code> distinct names in the dataset.  Let&rsquo;s determine whether the name ends with a vowel using the <code>substr()</code> function, which extracts a substring from a character value.
 </p>
 
 <div class="org-src-container">
@@ -404,10 +416,21 @@ Now <code>name_table</code> is a table of the <code class="src src-R">nrow(name_
 
 <pre class="example">
 
-Error in mutate(., end_char = substr(name, nchar(name), nchar(name)),  : 
-  object 'name_table' not found
+# A tibble: 97,310 x 3
+   name      end_char is_vowel
+   &lt;chr&gt;     &lt;chr&gt;    &lt;lgl&gt;   
+ 1 Aaban     n        FALSE   
+ 2 Aabha     a        TRUE    
+ 3 Aabid     d        FALSE   
+ 4 Aabir     r        FALSE   
+ 5 Aabriella a        TRUE    
+ 6 Aada      a        TRUE    
+ 7 Aadam     m        FALSE   
+ 8 Aadan     n        FALSE   
+ 9 Aadarsh   h        FALSE   
+10 Aaden     n        FALSE   
+# … with 97,300 more rows
 </pre>
-
 
 <p>
 You could add further linguistic information into this table (e.g., number of syllables, etc.). Later on we will learn how you could re-combine this back with the original table using an <code>inner_join()</code>.
@@ -425,7 +448,7 @@ Create a table containing the distinct names for each sex in the table. (Note th
 <div class='solution'><button>Hint</button>
 
 <p>
-you can use a 
+you can use a windowed operation with <code>group_by()</code>
 </p>
 
 
@@ -447,9 +470,22 @@ you can use a
 
 <pre class="example">
 
-Error in distinct(babynames, name, sex) : object 'babynames' not found
+# A tibble: 86,647 x 2
+# Groups:   name [86,647]
+   sex   name    
+   &lt;chr&gt; &lt;chr&gt;   
+ 1 F     Lulu    
+ 2 F     Belle   
+ 3 F     Mayme   
+ 4 F     Mathilda
+ 5 F     Hettie  
+ 6 F     Fanny   
+ 7 F     Adelaide
+ 8 F     Lelia   
+ 9 F     Nelle   
+10 F     Minerva 
+# … with 86,637 more rows
 </pre>
-
 
 </div>
 </div>
@@ -498,11 +534,60 @@ glimpse(big5)
 </div>
 
 <pre class="example">
-Error: 'personality.csv' does not exist in current working directory ('/mnt/data/Tresors/priv/HU-stats-2021/public/02_more_wrangling/morning_tidydata').
 
-Error in glimpse(big5) : object 'big5' not found
+── Column specification ────────────────────────────────────────────────────────
+cols(
+  .default = col_double(),
+  date = col_date(format = "")
+)
+ℹ Use `spec()` for the full column specifications.
+
+Rows: 15,000
+Columns: 43
+$ user_id &lt;dbl&gt; 0, 1, 2, 5, 8, 108, 233, 298, 426, 436, 685, 807, 871, 881, 94…
+$ date    &lt;date&gt; 2006-03-23, 2006-02-08, 2005-10-24, 2005-12-07, 2006-07-27, 2…
+$ Op1     &lt;dbl&gt; 3, 6, 6, 6, 6, 3, 3, 6, 6, 3, 4, 5, 5, 5, 6, 4, 1, 2, 5, 6, 4,…
+$ Ne1     &lt;dbl&gt; 4, 0, 0, 4, 1, 2, 3, 4, 0, 3, 3, 3, 2, 1, 1, 3, 4, 5, 2, 4, 5,…
+$ Ne2     &lt;dbl&gt; 0, 6, 6, 4, 2, 1, 2, 3, 1, 2, 5, 5, 3, 1, 1, 1, 1, 6, 1, 2, 5,…
+$ Op2     &lt;dbl&gt; 6, 0, 0, 4, 6, 4, 4, 0, 0, 3, 4, 3, 3, 4, 5, 3, 3, 4, 1, 6, 6,…
+$ Ex1     &lt;dbl&gt; 3, 0, 0, 2, 2, 4, 4, 3, 5, 4, 1, 1, 3, 3, 1, 3, 5, 1, 0, 4, 1,…
+$ Ex2     &lt;dbl&gt; 3, 0, 0, 3, 3, 4, 5, 2, 5, 3, 4, 1, 3, 2, 1, 6, 5, 3, 4, 4, 1,…
+$ Co1     &lt;dbl&gt; 3, 0, 0, 3, 5, 4, 3, 4, 5, 3, 3, 3, 1, 5, 5, 4, 4, 5, 6, 4, 2,…
+$ Co2     &lt;dbl&gt; 3, 0, 0, 3, 4, 3, 3, 4, 5, 3, 5, 3, 3, 4, 5, 1, 5, 4, 5, 2, 5,…
+$ Ne3     &lt;dbl&gt; 0, 0, 0, 1, 0, 1, 4, 4, 0, 4, 2, 5, 1, 2, 5, 5, 2, 2, 1, 2, 5,…
+$ Ag1     &lt;dbl&gt; 2, 0, 0, 4, 6, 5, 5, 4, 2, 5, 4, 3, 2, 4, 5, 3, 5, 5, 5, 4, 4,…
+$ Ag2     &lt;dbl&gt; 1, 6, 6, 0, 5, 4, 5, 3, 4, 3, 5, 1, 5, 4, 2, 6, 5, 5, 5, 5, 2,…
+$ Ne4     &lt;dbl&gt; 3, 6, 6, 2, 3, 2, 3, 3, 0, 4, 4, 5, 5, 4, 5, 3, 2, 5, 2, 4, 5,…
+$ Ex3     &lt;dbl&gt; 3, 6, 5, 5, 3, 3, 3, 0, 6, 1, 4, 2, 3, 2, 1, 2, 5, 1, 0, 5, 5,…
+$ Co3     &lt;dbl&gt; 2, 0, 1, 3, 4, 4, 5, 4, 5, 3, 4, 3, 4, 4, 5, 4, 2, 4, 5, 2, 2,…
+$ Op3     &lt;dbl&gt; 2, 6, 5, 5, 5, 4, 3, 2, 4, 3, 3, 6, 5, 5, 6, 5, 4, 4, 3, 6, 5,…
+$ Ex4     &lt;dbl&gt; 1, 0, 1, 3, 3, 3, 4, 3, 5, 3, 2, 0, 3, 3, 1, 2, NA, 4, 4, 4, 1…
+$ Op4     &lt;dbl&gt; 3, 0, 1, 6, 6, 3, 3, 0, 6, 3, 4, 5, 4, 5, 6, 6, 2, 2, 4, 5, 5,…
+$ Ex5     &lt;dbl&gt; 3, 0, 1, 6, 3, 3, 4, 2, 5, 2, 2, 4, 2, 3, 0, 4, 5, 2, 3, 1, 1,…
+$ Ag3     &lt;dbl&gt; 1, 0, 1, 1, 0, 4, 4, 4, 3, 3, 4, 4, 3, 4, 4, 5, 5, 4, 5, 3, 4,…
+$ Co4     &lt;dbl&gt; 3, 6, 5, 5, 5, 3, 2, 4, 3, 1, 4, 3, 1, 2, 4, 2, NA, 5, 6, 1, 1…
+$ Co5     &lt;dbl&gt; 0, 6, 5, 5, 5, 3, 3, 1, 5, 1, 2, 4, 4, 4, 2, 1, 6, 4, 3, 1, 3,…
+$ Ne5     &lt;dbl&gt; 3, 0, 1, 4, 1, 1, 4, 5, 0, 3, 4, 6, 2, 0, 1, 1, 0, 4, 3, 1, 5,…
+$ Op5     &lt;dbl&gt; 6, 6, 5, 2, 5, 4, 3, 2, 6, 6, 2, 4, 3, 4, 6, 6, 6, 5, 3, 3, 5,…
+$ Ag4     &lt;dbl&gt; 1, 0, 1, 4, 6, 5, 5, 6, 6, 6, 4, 2, 4, 5, 4, 5, 6, 4, 5, 6, 5,…
+$ Op6     &lt;dbl&gt; 0, 6, 5, 1, 6, 4, 6, 0, 0, 3, 5, 3, 5, 5, 5, 2, 5, 1, 1, 6, 2,…
+$ Co6     &lt;dbl&gt; 6, 0, 1, 4, 6, 5, 6, 5, 4, 3, 5, 5, 4, 6, 6, 1, 3, 4, 5, 4, 6,…
+$ Ex6     &lt;dbl&gt; 3, 6, 5, 3, 0, 4, 3, 1, 6, 3, 2, 1, 4, 2, 1, 5, 6, 2, 1, 2, 1,…
+$ Ne6     &lt;dbl&gt; 1, 6, 5, 1, 0, 1, 3, 4, 0, 4, 4, 5, 2, 1, 5, 6, 1, 2, 2, 3, 5,…
+$ Co7     &lt;dbl&gt; 3, 6, 5, 1, 3, 4, NA, 2, 3, 3, 2, 2, 4, 2, 5, 2, 5, 5, 3, 1, 1…
+$ Ag5     &lt;dbl&gt; 3, 6, 5, 0, 2, 5, 6, 2, 2, 3, 4, 1, 3, 5, 2, 6, 5, 6, 5, 3, 3,…
+$ Co8     &lt;dbl&gt; 3, 0, 1, 1, 3, 4, 3, 0, 1, 3, 2, 2, 1, 2, 4, 3, 2, 4, 5, 2, 6,…
+$ Ex7     &lt;dbl&gt; 3, 6, 5, 4, 1, 2, 5, 3, 6, 3, 4, 3, 5, 1, 1, 6, 6, 3, 1, 1, 3,…
+$ Ne7     &lt;dbl&gt; NA, 0, 1, 2, 0, 2, 4, 4, 0, 3, 2, 5, 1, 2, 5, 2, 2, 4, 1, 3, 5…
+$ Co9     &lt;dbl&gt; 3, 6, 5, 4, 3, 4, 5, 3, 5, 3, 4, 3, 4, 4, 2, 4, 6, 5, 5, 2, 2,…
+$ Op7     &lt;dbl&gt; 0, 6, 5, 5, 5, 4, 6, 2, 1, 3, 2, 4, 5, 5, 6, 3, 6, 5, 2, 6, 5,…
+$ Ne8     &lt;dbl&gt; 2, 0, 1, 1, 1, 1, 5, 4, 0, 4, 4, 5, 1, 2, 5, 2, 1, 5, 1, 2, 5,…
+$ Ag6     &lt;dbl&gt; NA, 6, 5, 2, 3, 4, 5, 6, 1, 3, 4, 2, 3, 5, 1, 6, 2, 6, 6, 5, 3…
+$ Ag7     &lt;dbl&gt; 3, 0, 1, 1, 1, 3, 3, 5, 0, 3, 2, 1, 2, 3, 5, 6, 4, 4, 6, 6, 2,…
+$ Co10    &lt;dbl&gt; 1, 6, 5, 5, 3, 5, 1, 2, 5, 2, 4, 3, 4, 4, 3, 2, 5, 5, 5, 2, 2,…
+$ Ex8     &lt;dbl&gt; 2, 0, 1, 4, 3, 4, 2, 4, 6, 2, 4, 0, 4, 4, 1, 3, 5, 4, 3, 1, 1,…
+$ Ex9     &lt;dbl&gt; 4, 6, 5, 5, 5, 2, 3, 3, 6, 3, 3, 4, 4, 3, 2, 5, 5, 4, 4, 0, 4,…
 </pre>
-
 
 </div>
 </div>
@@ -524,11 +609,22 @@ big5_long
 </div>
 
 <pre class="example">
-Error in gather(big5, "item", "score", Op1:Ex9) : object 'big5' not found
 
-Error: object 'big5_long' not found
+# A tibble: 615,000 x 4
+   user_id date       item  score
+     &lt;dbl&gt; &lt;date&gt;     &lt;chr&gt; &lt;dbl&gt;
+ 1       0 2006-03-23 Op1       3
+ 2       1 2006-02-08 Op1       6
+ 3       2 2005-10-24 Op1       6
+ 4       5 2005-12-07 Op1       6
+ 5       8 2006-07-27 Op1       6
+ 6     108 2006-02-28 Op1       3
+ 7     233 2006-11-08 Op1       3
+ 8     298 2005-11-08 Op1       6
+ 9     426 2006-09-05 Op1       6
+10     436 2006-05-31 Op1       3
+# … with 614,990 more rows
 </pre>
-
 
 </div>
 </div>
@@ -541,10 +637,21 @@ Try to use the <code>separate()</code> function to make your table look like thi
 </p>
 
 <pre class="example">
-Error in separate(., item, c("trait", "question"), sep = 2, convert = TRUE) : 
-  object 'big5_long' not found
+# A tibble: 615,000 x 5
+   user_id date       trait question score
+     &lt;dbl&gt; &lt;date&gt;     &lt;chr&gt;    &lt;int&gt; &lt;dbl&gt;
+ 1       0 2006-03-23 Op           1     3
+ 2       1 2006-02-08 Op           1     6
+ 3       2 2005-10-24 Op           1     6
+ 4       5 2005-12-07 Op           1     6
+ 5       8 2006-07-27 Op           1     6
+ 6     108 2006-02-28 Op           1     3
+ 7     233 2006-11-08 Op           1     3
+ 8     298 2005-11-08 Op           1     6
+ 9     426 2006-09-05 Op           1     6
+10     436 2006-05-31 Op           1     3
+# … with 614,990 more rows
 </pre>
-
 
 <p>
 See <code>?separate</code> to find out what argument you need to use to be able to separate based on position (rather than character).  Store the result in <code>big5_long2</code>.
@@ -557,13 +664,6 @@ See <code>?separate</code> to find out what argument you need to use to be able 
   separate(item, c(<span style="font-style: italic;">"trait"</span>, <span style="font-style: italic;">"question"</span>), sep = 2, convert = <span style="font-weight: bold; text-decoration: underline;">TRUE</span>)
 </pre>
 </div>
-
-<pre class="example">
-
-Error in separate(., item, c("trait", "question"), sep = 2, convert = TRUE) : 
-  object 'big5_long' not found
-</pre>
-
 
 </div>
 </div>
@@ -586,9 +686,23 @@ Now calculate trait scores for each <code>user_id</code> and <code>trait</code> 
 
 <pre class="example">
 
-Error in group_by(., user_id, trait) : object 'big5_long2' not found
+`summarise()` has grouped output by 'user_id'. You can override using the `.groups` argument.
+# A tibble: 75,000 x 3
+# Groups:   user_id [15,000]
+   user_id trait   tot
+     &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt;
+ 1       0 Ag       NA
+ 2       0 Co       27
+ 3       0 Ex       25
+ 4       0 Ne       NA
+ 5       0 Op       20
+ 6       1 Ag       18
+ 7       1 Co       30
+ 8       1 Ex       24
+ 9       1 Ne       18
+10       1 Op       30
+# … with 74,990 more rows
 </pre>
-
 
 </div>
 </div>
@@ -612,11 +726,33 @@ big5
 
 <pre class="example">
 
-Error: 'personality.csv' does not exist in current working directory ('/mnt/data/Tresors/priv/HU-stats-2021/public/02_more_wrangling/morning_tidydata').
 
-Error: object 'big5' not found
+── Column specification ────────────────────────────────────────────────────────
+cols(
+  .default = col_double(),
+  date = col_date(format = "")
+)
+ℹ Use `spec()` for the full column specifications.
+
+|======                                                                    | 9%|=======                                                                  | 10%|=========                                                                | 12%|==========                                                               | 13%|===========                                                              | 15%|============                                                             | 16%|=============                                                            | 18%|==============                                                           | 19%|===============                                                          | 21%|=================                                                        | 22%|==================                                                       | 24%|===================                                                      | 26%|====================                                                     | 27%|=====================                                                    | 29%|======================                                                   | 30%|=======================                                                  | 32%|========================                                                 | 33%|==========================                                               | 35%|===========================                                              | 36%|============================                                             | 38%|=============================                                            | 39%|==============================                                           | 41%|===============================                                          | 43%|================================                                         | 44%|==================================                                       | 46%|===================================                                      | 47%|====================================                                     | 49%|=====================================                                    | 50%|======================================                                   | 52%|=======================================                                  | 53%|=========================================                                | 55%|==========================================                               | 57%|===========================================                              | 58%|============================================                             | 60%|=============================================                            | 61%|==============================================                           | 63%|===============================================                          | 64%|=================================================                        | 66%|==================================================                       | 67%|===================================================                      | 69%|====================================================                     | 70%|==================================================                  | 72% 1 MB|===================================================                 | 74% 1 MB|====================================================                | 75% 1 MB|=====================================================               | 77% 1 MB|======================================================              | 78% 1 MB|=======================================================             | 80% 1 MB|========================================================            | 81% 1 MB|=========================================================           | 83% 1 MB|==========================================================          | 85% 1 MB|===========================================================         | 86% 1 MB|============================================================        | 88% 1 MB|=============================================================       | 89% 1 MB|===============================================================     | 91% 1 MB|================================================================    | 92% 1 MB|=================================================================   | 94% 1 MB|==================================================================  | 96% 1 MB|=================================================================== | 97% 1 MB|====================================================================| 99% 1 MB|====================================================================| 100% 1 MB
+`summarise()` has grouped output by 'user_id'. You can override using the `.groups` argument.
+
+# A tibble: 75,000 x 3
+# Groups:   user_id [15,000]
+   user_id trait   tot
+     &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt;
+ 1       0 Ag       NA
+ 2       0 Co       27
+ 3       0 Ex       25
+ 4       0 Ne       NA
+ 5       0 Op       20
+ 6       1 Ag       18
+ 7       1 Co       30
+ 8       1 Ex       24
+ 9       1 Ne       18
+10       1 Op       30
+# … with 74,990 more rows
 </pre>
-
 
 
 </div>
@@ -800,26 +936,23 @@ Let&rsquo;s say this is stored in the variable <code>mscale</code>. You also hav
 
 <pre class="example">
 
-# A
-#   tibble:
-#   10
-#   x 2
+# A tibble: 10 x 2
    student_id score
    &lt;chr&gt;      &lt;int&gt;
- 1 0184516       18
- 2 3690890       14
- 3 3114109       19
- 4 4757801        0
- 5 4025279       18
- 6 6525528       10
- 7 1130308       18
- 8 3710406       14
- 9 1558715        1
-10 5046586       23
+ 1 9946066       18
+ 2 6961020       14
+ 3 7507515       19
+ 4 5738734        4
+ 5 8386784       10
+ 6 9179981        9
+ 7 3031865       22
+ 8 0437182        8
+ 9 9688205        5
+10 9509488       23
 </pre>
 
 <p>
-So student <code class="src src-R">sids[1]</code> <code>[1] "0184516"</code> who got an 18 should be given an A5, the student who got a 14 should get a C1, etc. You could do this by hand, but it would be tedious and error-prone. What you could do instead would be to join the two tables on the <i>key</i> field of <code>score</code>, like so:
+So student <code class="src src-R">sids[1]</code> <code>[1] "9946066"</code> who got an 18 should be given an A5, the student who got a 14 should get a C1, etc. You could do this by hand, but it would be tedious and error-prone. What you could do instead would be to join the two tables on the <i>key</i> field of <code>score</code>, like so:
 </p>
 
 <div class="org-src-container">
@@ -830,21 +963,18 @@ result
 
 <pre class="example">
 
-# A
-#   tibble:
-#   9 x
-#   3
+# A tibble: 9 x 3
   student_id score mark 
   &lt;chr&gt;      &lt;int&gt; &lt;chr&gt;
-1 0184516       18 A5   
-2 3690890       14 C1   
-3 3114109       19 A4   
-4 4757801        0 H    
-5 4025279       18 A5   
-6 6525528       10 D2   
-7 1130308       18 A5   
-8 3710406       14 C1   
-9 1558715        1 G2
+1 9946066       18 A5   
+2 6961020       14 C1   
+3 7507515       19 A4   
+4 5738734        4 F2   
+5 8386784       10 D2   
+6 9179981        9 D3   
+7 3031865       22 A1   
+8 0437182        8 E1   
+9 9688205        5 F1
 </pre>
 </div>
 </div>
@@ -862,30 +992,115 @@ Note that the one student who had an <code>23</code> for their score (error? ext
 </div>
 
 <pre class="example">
-# A
-#   tibble:
-#   10
-#   x 3
+# A tibble: 10 x 3
    student_id score mark 
    &lt;chr&gt;      &lt;int&gt; &lt;chr&gt;
- 1 0184516       18 A5   
- 2 3690890       14 C1   
- 3 3114109       19 A4   
- 4 4757801        0 H    
- 5 4025279       18 A5   
- 6 6525528       10 D2   
- 7 1130308       18 A5   
- 8 3710406       14 C1   
- 9 1558715        1 G2   
-10 5046586       23 &lt;NA&gt;
+ 1 9946066       18 A5   
+ 2 6961020       14 C1   
+ 3 7507515       19 A4   
+ 4 5738734        4 F2   
+ 5 8386784       10 D2   
+ 6 9179981        9 D3   
+ 7 3031865       22 A1   
+ 8 0437182        8 E1   
+ 9 9688205        5 F1   
+10 9509488       23 &lt;NA&gt;
 </pre>
 </div>
 </div>
 </div>
 </div>
+
+<div id="outline-container-orgca987b0" class="outline-2">
+<h2 id="orgca987b0"></h2>
+<div class="outline-text-2" id="text-orgca987b0">
+<script>
+
+/* update total correct if #total_correct exists */
+update_total_correct = function() {
+  if (t = document.getElementById("total_correct")) {
+    t.innerHTML =
+      document.getElementsByClassName("correct").length + " of " +
+      document.getElementsByClassName("solveme").length + " correct";
+  }
+}
+
+/* solution button toggling function */
+b_func = function() {
+  var cl = this.parentElement.classList;
+  if (cl.contains('open')) {
+    cl.remove("open");
+  } else {
+    cl.add("open");
+  }
+}
+
+/* function for checking solveme answers */
+solveme_func = function(e) {
+  var real_answers = JSON.parse(this.dataset.answer);
+  var my_answer = this.value;
+  var cl = this.classList;
+  if (cl.contains("ignorecase")) {
+    my_answer = my_answer.toLowerCase();
+  }
+  if (cl.contains("nospaces")) {
+    my_answer = my_answer.replace(/ /g, "");
+  }
+
+  if (my_answer !== "" & real_answers.includes(my_answer)) {
+    cl.add("correct");
+  } else {
+    cl.remove("correct");
+  }
+  update_total_correct();
+}
+
+window.onload = function() {
+  /* set up solution buttons */
+  var buttons = document.getElementsByTagName("button");
+
+  for (var i = 0; i < buttons.length; i++) {
+    if (buttons[i].parentElement.classList.contains('solution')) {
+      buttons[i].onclick = b_func;
+    }
+  }
+
+  /* set up solveme inputs */
+  var solveme = document.getElementsByClassName("solveme");
+
+  for (var i = 0; i < solveme.length; i++) {
+    /* make sure input boxes don't auto-anything */
+    solveme[i].setAttribute("autocomplete","off");
+    solveme[i].setAttribute("autocorrect", "off");
+    solveme[i].setAttribute("autocapitalize", "off"); 
+    solveme[i].setAttribute("spellcheck", "false");
+    solveme[i].value = "";
+
+    /* adjust answer for ignorecase or nospaces */
+    var cl = solveme[i].classList;
+    var real_answer = solveme[i].dataset.answer;
+    if (cl.contains("ignorecase")) {
+      real_answer = real_answer.toLowerCase();
+    }
+    if (cl.contains("nospaces")) {
+      real_answer = real_answer.replace(/ /g, "");
+    }
+    solveme[i].dataset.answer = real_answer;
+
+    /* attach checking function */
+    solveme[i].onkeyup = solveme_func;
+    solveme[i].onchange = solveme_func;
+  }
+
+  update_total_correct();
+}
+
+</script>
+</div>
+</div>
 </div>
 <div id="postamble" class="status">
-<p class="date">Created: 2021-04-06 Tue 11:22</p>
+<p class="date">Created: 2021-04-06 Tue 11:42</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

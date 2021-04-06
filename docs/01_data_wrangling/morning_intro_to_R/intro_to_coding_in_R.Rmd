@@ -747,7 +747,7 @@ library("cowsay")
     ```
     </div>
 
-6. Define a variable creature and assign to it the value of one of the types of creatures accepted by the say() function. Then use the variable to output the current time.
+6. Define a variable named `creature` and assign to it the value of one of the types of creatures accepted by the say() function. Then use the variable to output the current time.
 
     <div class="solution"><button>Solution</button>
     ```{r spider}
@@ -757,7 +757,7 @@ library("cowsay")
     ```
     </div>
 
-7. Change the value of the variable creature to some other thing, and make it display the time.
+7. Change the value of the variable `creature` to some other thing, and make it display the time.
 
     <div class="solution"><button>Solution</button>
     ```{r ex7}
