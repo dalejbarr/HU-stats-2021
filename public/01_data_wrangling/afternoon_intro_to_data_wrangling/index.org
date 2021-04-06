@@ -66,14 +66,13 @@ In this lesson you will see how data science skills will allow you to efficientl
 
 ** The =babynames= database
 
- To demonstrate the power of these =dplyr= verbs, we will work with the =babynames= data from the =babynames= add-on package.  The babynames dataset has historical information about births of babies in the U.S.  (For more local color check out the [[https://github.com/leeper/ukbabynames][=ukbabynames=]] package, which has babynames from the UK.) We will also need the =ggplot2= package so that we can make some cool graphs.
+ To demonstrate the power of these =dplyr= verbs, we will work with the =babynames= data from the =babynames= add-on package.  The babynames dataset has historical information about births of babies in the U.S.  (For more local color check out the [[https://github.com/leeper/ukbabynames][=ukbabynames=]] package, which has babynames from the UK.) We will also need the =ggplot2= package so that we can make some cool graphs. Note that these packages are already included in the meta-package =tidyverse=, so if we load that in, we don't need to load in the subpackages =dplyr= and =ggplot2=.
 
 Load in the packages by typing the following lines at the top of a new R script.  Don't forget to send the commands to the console window using Ctrl-Enter, or the rest of the commands in this lesson will fail!
 
  #+BEGIN_SRC R :exports none :results silent
-   library(dplyr)
-   library(ggplot2)
-   library(babynames)
+   library("tidyverse")
+   library("babynames")
  #+END_SRC
 
  The package =babynames= contains an object of the same name which we can get information about by printing it to the console:
@@ -99,7 +98,7 @@ Load in the packages by typing the following lines at the top of a new R script.
 
  The table we are looking at is a =tibble= with information on five variables over 1.8 million rows. Yes, this dataset contains *1.8 million* observations.  Interested in analyzing these data by hand?
 
- Fortunately, the =print()= rules for tibbles means that only the first 10 rows of this dataset will be displayed.[fn:: *NOTE: if you print the object =babynames= without first loading in the package =dplyr=, you will see R attempt to print out the /entire/ babynames dataset, though fortunately it gives up before printing all 1,825,433 observations.*  Printing out the data in its entirety is the default print behavior for data.frames.  Base R doesn't know about tibbles, only data.frames, and so treates =babynames= as a data.frame.  The =tibble= package is imported when you load =dplyr=.]
+ Fortunately, the =print()= rules for tibbles means that only the first 10 rows of this dataset will be displayed.[fn:: *NOTE: if you print the object =babynames= without first loading in the package =tidyverse=, you will see R attempt to print out the /entire/ babynames dataset, though fortunately it gives up before printing all 1,825,433 observations.*  Printing out the data in its entirety is the default print behavior for data.frames.  Base R doesn't know about tibbles, only data.frames, and so treates =babynames= as a data.frame.  The =tibble= package is imported when you load =tidyverse=.]
 
  Each row in the table represents data about births for a given name and sex in a given year.  The variables are:
 
@@ -121,7 +120,7 @@ Load in the packages by typing the following lines at the top of a new R script.
 
 ** A motivating example
 
-The snippet of code below won't make sense to you at this point, so don't worry about not understanding it yet!  The point is just to motivate you by showing how much you can accomplish with very little code.  The code below creates a graph showing the popularity of four girl babynames---Emma, Olivia, Sophia, and Hannah---from 1880 to 2014.  Cut and paste the code into a new R script and run it yourself.  Make sure you have the =dplyr=, =ggplot2= and =babynames= packages installed on your system.  You can plug in different names if you like and see how the plot changes.
+The snippet of code below won't make sense to you at this point, so don't worry about not understanding it yet!  The point is just to motivate you by showing how much you can accomplish with very little code.  The code below creates a graph showing the popularity of four girl babynames---Emma, Olivia, Sophia, and Hannah---from 1880 to 2014.  Cut and paste the code into a new R script and run it yourself.  Make sure you have the =tidyverse= and =babynames= packages installed on your system, if you haven't already.  You can plug in different names if you like and see how the plot changes.
 
 #+BEGIN_SRC R :exports both :results output graphics file :file motivating_example.png :width 600 :height 400
   library("tidyverse")
@@ -149,7 +148,7 @@ Hadley Wickham (@hadleywickham), a world-famous data scientist and the primary f
 | =group_by()=  | Organize the observations into groups                 |
 | =summarise()= | Derive aggregate variables for groups of observations |
 
-These six verbs are also the names of functions in Wickham's brilliant =dplyr= add-on package.  They are known as 'single table verbs' because they only operate on one table at a time.  In your next lab, you will learn two-table verbs that you can use to merge tables together.  Although the operations of these functions may seem very simplistic, it's amazing what you can accomplish when you string them together.
+These six verbs are also the names of functions in Wickham's brilliant =dplyr= add-on package which is part of the [[https://tidyverse.org]["tidyverse"]].  They are known as 'single table verbs' because they only operate on one table at a time.  In your next lab, you will learn two-table verbs that you can use to merge tables together.  Although the operations of these functions may seem very simplistic, it's amazing what you can accomplish when you string them together.
 
 ** =select()=: choosing which variables to keep
 
@@ -1160,368 +1159,6 @@ To get the nth value within a vector, use =pluck(n)=.
 
 There are other ways to do these things in base R, but =pull()= and =pluck()= work especially well within pipelines.
 
-* Tidy data
-
-** Introduction: What is tidy data?
-
-#+begin_quote
-"Happy families are all alike; every unhappy family is unhappy in its own way." -Tolstoy
-#+end_quote
-
-This [[http://vita.had.co.nz/papers/tidy-data.html][influential paper by Hadley Wickham]] introduces the notion of tidy data. In this section, we will learn the basic principles of tidy data, why it is important, and what tools you need to get your data into tidy format.
-
-Tidy datasets conform to *a standarized way of linking data structure to data semantics (meaning)* based on the following three principles:
-
-1. Each variable forms a column
-2. Each observation forms a row
-3. Each type of observational unit forms a table
-
-These principles are best illustrated by example.
-
-Consider the dataset below, corresponding to an imaginary two-alternative forced choice lexical decision study, where you present four word stimuli in a row to each participant, with each stimulus being in one of two conditions (=Cond=: control, =C= or experimental, =E=) and you record response time (=RT= in milliseconds) and the participant's choice (=Choice=: =A= or =B=).  Here is an untidy representation of the data.
-
-#+CAPTION: Untidy representation.
-[[file:untidy.png]]
-
-If you think about the variables in the study--- =Cond=, =RT=, =Choice=, =SubjectID= --- this representation is clearly /untidy/.  The person who entered the data did it in such a way that they squeezed all of the observations for a single subject into one row.
-
-Tidyness can be a matter of degree.  Here is a more tidy version of the dataset.  This is better, but can you see the way that it is untidy?
-
-#+CAPTION: Tidy-ish representation.
-[[file:tidyish.png]]
-
-#+CALL: hide() :results html value
-
-This table violates the third principle; multiple observation units are represented in a single table.
-
-#+CALL: unhide() :results html value
-
-The observation units in this study can be broken down to Subject and Trial (and even Item, if we have information about each stimulus, such as whether it is high or low frequency).  Breaking these apart into separate tables eliminates redundancy.
-
-#+CAPTION: Tidy representation.
-[[file:tidy.png]]
-
-** Tidy tools: Why you should care about tidy data
-
-The tidy format is a clean, predictable data structure. We don't just make our data tidy because it looks nice, but because having tidy data allows us to work with *tidy tools*.  A *tidy tool* is a function to transform data that takes tidy data as input and returns tidy data as output.  All of the functions in the =tidyverse= packages have been designed as tidy tools, and thus are interoperable. In contrast, many of the older functions in base R do not yield tidy output, which impaires interoperability.
-
-** Example: Deriving a tidy table of babynames with =distinct()=
-
-Let's imagine you are a linguist interested in whether trends in babynames have a phonological basis; for example, do girls names ending with a vowel become popular at certain times in history?  You would need to derive information about the sound properties of each name in the babynames dataset.  A good place to start would be to derive a table containing all of the unique names in the dataset; once you've created the table then you could fill in the table with additional information, and later recombine it with the popularity data.  The =distinct()= function is the function you need to do this.
-
-#+begin_src R
-  name_table <- babynames %>% distinct(name) %>% arrange(name)
-
-  name_table
-#+end_src
-
-#+RESULTS:
-#+begin_example
- 
-       name
-1      Aaban
-2      Aabha
-3      Aabid
-4  Aabriella
-5       Aada
-6      Aadam
-7      Aadan
-8    Aadarsh
-9      Aaden
-10    Aadesh
-#+end_example
-
-Now =name_table= is a table of the src_R{nrow(name_table)} distinct names in the dataset.  Let's determine whether the name ends with a vowel using the =substr()= function, which extracts a substring from a character value.
-
-#+begin_src R
-   name_table %>%
-     mutate(end_char = substr(name, nchar(name), nchar(name)),
-	    is_vowel = end_char %in% c("a", "e", "i", "o", "u"))
-#+end_src
-
-#+RESULTS:
-#+begin_example
-        name end_char is_vowel
-1      Aaban        n    FALSE
-2      Aabha        a     TRUE
-3      Aabid        d    FALSE
-4  Aabriella        a     TRUE
-5       Aada        a     TRUE
-6      Aadam        m    FALSE
-7      Aadan        n    FALSE
-8    Aadarsh        h    FALSE
-9      Aaden        n    FALSE
-10    Aadesh        h    FALSE
-#+end_example
-
-You could add further linguistic information into this table (e.g., number of syllables, etc.). Later on we will learn how you could re-combine this back with the original table using an =inner_join()=.
-
-*** *Exercise* (optional) with =distinct()=
-
-Create a table containing the distinct names for each sex in the table. (Note that you can use more than one argument to =distinct()=.)  Then pull out those names that are *not* androgynous, i.e., that *only* appear for boys and never for girls, or vice versa.
-
-#+CALL: hide("Hint") :results html value
-
-you can use a [[*ADVANCED: "windowed" operations with =group_by()=][windowed operation with =group_by()=]]
-
-#+CALL: unhide() :results html value
-
-#+HTML: <div class='solution'><button>Solution</button>
-
-#+begin_src R
-  distinct(babynames, name, sex) %>%
-    group_by(name) %>%
-    filter(n() == 1)
-
-  ## alternative solution:
-  ## distinct(babynames, name, sex) %>%
-  ##   count(name) %>%
-  ##   filter(n == 1)
-#+end_src
-
-#+RESULTS:
-#+begin_example
-   sex     name
-1    F     Lulu
-2    F    Belle
-3    F    Mayme
-4    F Mathilda
-5    F   Hettie
-6    F    Fanny
-7    F Adelaide
-8    F    Lelia
-9    F    Nelle
-10   F  Minerva
-#+end_example
-
-#+HTML: </div>
-
-** The =tidyr= package: going from wide to long and back again
-
-The [[https://github.com/rstudio/cheatsheets/raw/master/data-import.pdf][RStudio Data Import cheatsheet]] may be useful for this part of the session.  Here is the key part of that cheatsheet that explains what we'll be learning.
-
-[[file:tidying.png]]
-
-The examples in the figure above are available to your session through the =tidyr= package.  Try them out in the console so that you get an understanding of how they work.
-
-The dataset we will be working with in the file [[file:personality.csv][=personality.csv=]].  The dataset is from a 5-factor (OCEAN) personality questionnaire (thanks to Lisa DeBruine). Each question is labelled with the domain (Op = openness, Co = concientiousness, Ex = extraversion, Ag = agreeableness, and Ne = neuroticism) and the question number.
-
-*** *Exercises*
-
-**** Load and look!
-
-Load in the data from the csv file into the variable =big5= and look at it (use =glimpse()= and =View()=).
-
-#+HTML: <div class='solution'><button>Solution</button>
-
-#+begin_src R
-   big5 <- read_csv("personality.csv")
-   glimpse(big5)
-#+end_src
-
-#+HTML: </div>
-
-**** Reshape from wide to long
-
-The dataset is in wide format. Use the appropriate tidyr function to reshape it to long, with variables named =item= (which item, =Op1=, =Ne1=, etc) and =score= (3, 4, 0, 6, etc).  Store the long data in the variable =big5_long=
-
-#+HTML: <div class='solution'><button>Solution</button>
-
-#+begin_src R
-   big5_long <- gather(big5, "item", "score", Op1:Ex9)  
-
-   big5_long
-#+end_src
-
-#+HTML: </div>
-
-**** Split the =item= variable into two variables
-
-Try to use the =separate()= function to make your table look like this:
-
-#+begin_src R :exports results
-   big5_long %>% separate(item, c("trait", "question"), sep = 2, convert = TRUE)
-#+end_src
-
-See =?separate= to find out what argument you need to use to be able to separate based on position (rather than character).  Store the result in =big5_long2=.
-
-#+HTML: <div class='solution'><button>Solution</button>
-
-#+begin_src R
-   big5_long2 <- big5_long %>%
-     separate(item, c("trait", "question"), sep = 2, convert = TRUE)
-#+end_src
-
-#+HTML: </div>
-
-**** Calculate scores for each =trait/user_id= combination
-
-Now calculate trait scores for each =user_id= and =trait= by summing the scores.  Store the result in =big5_scores=.
-
-#+HTML: <div class='solution'><button>Solution</button>
-
-#+begin_src R
-   big5_long2 %>%
-     group_by(user_id, trait) %>%
-     summarise(tot = sum(score, na.rm = FALSE))
-#+end_src
-
-#+RESULTS:
-#+begin_example
-    user_id trait tot
- 1        0    Ag  NA
- 2        0    Co  27
- 3        0    Ex  25
- 4        0    Ne  NA
- 5        0    Op  20
- 6        1    Ag  18
- 7        1    Co  30
- 8        1    Ex  24
- 9        1    Ne  18
- 10       1    Op  30
-#+end_example
-
-#+HTML: </div>
-
-**** EXTRA: string all the above commands in a single pipeline
-
-#+CALL: hide() :results html value
-
-#+begin_src R
-   big5 <- read_csv("personality.csv") %>%
-     gather("item", "score", Op1:Ex9) %>%
-     separate(item, c("trait", "question"), sep = 2, convert = TRUE) %>%
-     group_by(user_id, trait) %>%
-     summarise(tot = sum(score, na.rm = FALSE))
-
-   big5
-#+end_src
-
-#+RESULTS:
- : Parsed with column specification:
- : cols(
- :   .default = col_integer(),
- :   date = col_date(format = "")
- : )
- : See spec(...) for full column specifications.
-
-#+CALL: unhide() :results html value
-
-* Combining information across tables: =dplyr= two-table verbs
-
-If you follow the principles of tidy data, you will end up with information scattered across different tables, since you'll have independent tables for each unit of observation. Often you will need to combine information from multiple tables. How do you put it back together? You do this using the various join functions from the =dplyr= package.
-
-There are two main types of join functions: /mutating/ joins and /filtering/ joins, called thus because their functions are analogous to what =mutate()= and =filter()= do for single tables.
-
-Mutating joins connect the information in two tables through linking variables or /keys/ that identify which rows go together. 
-
-Filtering joins allow you to decide which rows to keep or remove in one table based on the rows available in another table.  In the interest of time, we won't be covering filtering joins (=semi_join()= and =anti_join()=).
-
-** Mutating joins
-
-The two main mutating joins you should know about are =inner_join()= and =left_join()=.
-
-*** =inner_join()=
-
-A common situation where you might want to use an inner join is when you want to look up values in a /lookup table./   For instance, consider the situation where you have numerical scores for an exam and want to convert them to alphanumeric grades.  My university, the University of Glasgow, uses a 22 point scale that looks like this:
-
-#+NAME: mscale
-| score | mark |
-|-------+------|
-|    22 | A1   |
-|    21 | A2   |
-|    20 | A3   |
-|    19 | A4   |
-|    18 | A5   |
-|    17 | B1   |
-|    16 | B2   |
-|    15 | B3   |
-|    14 | C1   |
-|    13 | C2   |
-|    12 | C3   |
-|    11 | D1   |
-|    10 | D2   |
-|     9 | D3   |
-|     8 | E1   |
-|     7 | E2   |
-|     6 | E3   |
-|     5 | F1   |
-|     4 | F2   |
-|     3 | F3   |
-|     2 | G1   |
-|     1 | G2   |
-|     0 | H    |
-
-Let's say this is stored in the variable =mscale=. You also have a table of scores called =exam= like the one below, and you want to assign each 0-22 score the =mark= that appears in =mscale=. 
-
-#+begin_src R :exports results :results output
-  sids <- replicate(10, paste(sample(0:9, 7, replace = TRUE), collapse = ""))
-  exam <- tibble(student_id = sids,
-	 score = c(18L, 14L, sample(0:22, length(sids) - 3, replace = TRUE),
-		   23L))
-  exam
-#+end_src
-
-#+RESULTS:
-#+begin_example
- 
-  student_id score
-1     5991580    18
-2     3729372    14
-3     7650559     6
-4     7225471     4
-5     7564571     1
-6     0355968     3
-7     1091919    18
-8     0136029    16
-9     6920652    17
-10    4430681    23
-#+end_example
-
-So student src_R{sids[1]} who got an 18 should be given an A5, the student who got a 14 should get a C1, etc. You could do this by hand, but it would be tedious and error-prone. What you could do instead would be to join the two tables on the /key/ field of =score=, like so:
-
-#+begin_src R :var mscale=mscale
-  result <- inner_join(exam, mscale, "score")
-  result
-#+end_src
-
-#+RESULTS:
-#+begin_example
- 
- student_id score mark
-1    5991580    18   A5
-2    3729372    14   C1
-3    7650559     6   E3
-4    7225471     4   F2
-5    7564571     1   G2
-6    0355968     3   F3
-7    1091919    18   A5
-8    0136029    16   B2
-9    6920652    17   B1
-#+end_example
-
-*** =left_join()=
-
-Note that the one student who had an =23= for their score (error? extra credit?) got thrown out from the result table.  A =left_join(x, y)= keeps all of the data in table =x= even if it lacks a match in table =y=, and the missing variable values get filled in with =NAs=.  Compare this result to the one above.
-
-#+begin_src R
-  left_join(exam, mscale, "score")
-#+end_src
-
-#+RESULTS:
-#+begin_example
-   student_id score mark
-1     5991580    18   A5
-2     3729372    14   C1
-3     7650559     6   E3
-4     7225471     4   F2
-5     7564571     1   G2
-6     0355968     3   F3
-7     1091919    18   A5
-8     0136029    16   B2
-9     6920652    17   B1
-10    4430681    23 <NA>
-#+end_example
 
 * 
   :PROPERTIES:

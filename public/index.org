@@ -129,6 +129,8 @@ These materials are not required; some are reference materials, others allow you
 - [[https://psyteachr.github.io/ug3-stats/][Undergraduate Statistics Year 3 Materials]] (Statistical Models)
 - [[https://psyteachr.github.io/msc-data-skills/][MSc course: Data Skills for Reproducible Science]] (Data Wrangling & Visualization)
 
+- [[https://psyteachr.github.io/hack-your-data/][Hack Your Data Beautiful workshop]] (a summer workshop for postgrads by postgrads)
+
 ** Data visualization
 
 - Kelleher, C., & Wagener, T. (2011). [[https://www.sciencedirect.com/science/article/pii/S1364815210003270][Ten guidelines for effective data visualization in scientific publications]]. /Environmental Modeling & Software/.

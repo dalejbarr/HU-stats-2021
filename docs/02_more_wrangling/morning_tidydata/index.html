@@ -1,0 +1,892 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2021-04-06 Tue 11:22 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tidy data</title>
+<meta name="generator" content="Org mode" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<link rel="stylesheet" type="text/css" href="../../css/my_css.css" />
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2019 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="org-div-home-and-up">
+ <a accesskey="h" href="../../index.html"> UP </a>
+ |
+ <a accesskey="H" href="../../index.html"> HOME </a>
+</div><div id="content">
+<h1 class="title">Tidy data</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org38eda07">Tidy data</a>
+<ul>
+<li><a href="#org4e7fed9">Introduction: What is tidy data?</a></li>
+<li><a href="#org8868820">Tidy tools: Why you should care about tidy data</a></li>
+<li><a href="#org30f7b83">Example: Deriving a tidy table of babynames with <code>distinct()</code></a>
+<ul>
+<li><a href="#org93870ad"><b>Exercise</b> (optional) with <code>distinct()</code></a></li>
+</ul>
+</li>
+<li><a href="#org28003ad">The <code>tidyr</code> package: going from wide to long and back again</a>
+<ul>
+<li><a href="#orgb375989"><b>Exercises</b></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org6c1eb23">Combining information across tables: <code>dplyr</code> two-table verbs</a>
+<ul>
+<li><a href="#org4337fac">Mutating joins</a>
+<ul>
+<li><a href="#orge06a762"><code>inner_join()</code></a></li>
+<li><a href="#orgec93d8e"><code>left_join()</code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org38eda07" class="outline-2">
+<h2 id="org38eda07">Tidy data</h2>
+<div class="outline-text-2" id="text-org38eda07">
+</div>
+<div id="outline-container-org4e7fed9" class="outline-3">
+<h3 id="org4e7fed9">Introduction: What is tidy data?</h3>
+<div class="outline-text-3" id="text-org4e7fed9">
+<blockquote>
+<p>
+&ldquo;Happy families are all alike; every unhappy family is unhappy in its own way.&rdquo; -Tolstoy
+</p>
+</blockquote>
+
+<p>
+This <a href="http://vita.had.co.nz/papers/tidy-data.html">influential paper by Hadley Wickham</a> introduces the notion of tidy data. In this section, we will learn the basic principles of tidy data, why it is important, and what tools you need to get your data into tidy format.
+</p>
+
+<p>
+Tidy datasets conform to <b>a standarized way of linking data structure to data semantics (meaning)</b> based on the following three principles:
+</p>
+
+<ol class="org-ol">
+<li>Each variable forms a column</li>
+<li>Each observation forms a row</li>
+<li>Each type of observational unit forms a table</li>
+</ol>
+
+<p>
+These principles are best illustrated by example.
+</p>
+
+<p>
+Consider the dataset below, corresponding to an imaginary two-alternative forced choice lexical decision study, where you present four word stimuli in a row to each participant, with each stimulus being in one of two conditions (<code>Cond</code>: control, <code>C</code> or experimental, <code>E</code>) and you record response time (<code>RT</code> in milliseconds) and the participant&rsquo;s choice (<code>Choice</code>: <code>A</code> or <code>B</code>).  Here is an untidy representation of the data.
+</p>
+
+
+<div class="figure">
+<p><img src="untidy.png" alt="untidy.png" />
+</p>
+<p><span class="figure-number">Figure 1: </span>Untidy representation.</p>
+</div>
+
+<p>
+If you think about the variables in the study&#x2014; <code>Cond</code>, <code>RT</code>, <code>Choice</code>, <code>SubjectID</code> &#x2014; this representation is clearly <i>untidy</i>.  The person who entered the data did it in such a way that they squeezed all of the observations for a single subject into one row.
+</p>
+
+<p>
+Tidyness can be a matter of degree.  Here is a more tidy version of the dataset.  This is better, but can you see the way that it is untidy?
+</p>
+
+
+<div class="figure">
+<p><img src="tidyish.png" alt="tidyish.png" />
+</p>
+<p><span class="figure-number">Figure 2: </span>Tidy-ish representation.</p>
+</div>
+
+
+<div class='solution'><button>Solution</button>
+
+<p>
+This table violates the third principle; multiple observation units are represented in a single table.
+</p>
+
+
+</div>
+
+<p>
+The observation units in this study can be broken down to Subject and Trial (and even Item, if we have information about each stimulus, such as whether it is high or low frequency).  Breaking these apart into separate tables eliminates redundancy.
+</p>
+
+
+<div class="figure">
+<p><img src="tidy.png" alt="tidy.png" />
+</p>
+<p><span class="figure-number">Figure 3: </span>Tidy representation.</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org8868820" class="outline-3">
+<h3 id="org8868820">Tidy tools: Why you should care about tidy data</h3>
+<div class="outline-text-3" id="text-org8868820">
+<p>
+The tidy format is a clean, predictable data structure. We don&rsquo;t just make our data tidy because it looks nice, but because having tidy data allows us to work with <b>tidy tools</b>.  A <b>tidy tool</b> is a function to transform data that takes tidy data as input and returns tidy data as output.  All of the functions in the <code>tidyverse</code> packages have been designed as tidy tools, and thus are interoperable. In contrast, many of the older functions in base R do not yield tidy output, which impaires interoperability.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org30f7b83" class="outline-3">
+<h3 id="org30f7b83">Example: Deriving a tidy table of babynames with <code>distinct()</code></h3>
+<div class="outline-text-3" id="text-org30f7b83">
+<p>
+Let&rsquo;s imagine you are a linguist interested in whether trends in babynames have a phonological basis; for example, do girls names ending with a vowel become popular at certain times in history?  You would need to derive information about the sound properties of each name in the babynames dataset.  A good place to start would be to derive a table containing all of the unique names in the dataset; once you&rsquo;ve created the table then you could fill in the table with additional information, and later recombine it with the popularity data.  The <code>distinct()</code> function is the function you need to do this.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">name_table <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> babynames <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span> distinct(name) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span> arrange(name)
+
+name_table
+</pre>
+</div>
+
+<pre class="example">
+Error in distinct(., name) : object 'babynames' not found
+
+Error: object 'name_table' not found
+</pre>
+
+
+<p>
+Now <code>name_table</code> is a table of the <code class="src src-R">nrow(name_table)</code> <code>Error in nrow(name_table) : object 'name_table' not found</code> distinct names in the dataset.  Let&rsquo;s determine whether the name ends with a vowel using the <code>substr()</code> function, which extracts a substring from a character value.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">name_table <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  mutate(end_char = substr(name, nchar(name), nchar(name)),
+         is_vowel = end_char <span style="font-weight: bold; text-decoration: underline;">%in%</span> c(<span style="font-style: italic;">"a"</span>, <span style="font-style: italic;">"e"</span>, <span style="font-style: italic;">"i"</span>, <span style="font-style: italic;">"o"</span>, <span style="font-style: italic;">"u"</span>))
+</pre>
+</div>
+
+<pre class="example">
+
+Error in mutate(., end_char = substr(name, nchar(name), nchar(name)),  : 
+  object 'name_table' not found
+</pre>
+
+
+<p>
+You could add further linguistic information into this table (e.g., number of syllables, etc.). Later on we will learn how you could re-combine this back with the original table using an <code>inner_join()</code>.
+</p>
+</div>
+
+<div id="outline-container-org93870ad" class="outline-4">
+<h4 id="org93870ad"><b>Exercise</b> (optional) with <code>distinct()</code></h4>
+<div class="outline-text-4" id="text-org93870ad">
+<p>
+Create a table containing the distinct names for each sex in the table. (Note that you can use more than one argument to <code>distinct()</code>.)  Then pull out those names that are <b>not</b> androgynous, i.e., that <b>only</b> appear for boys and never for girls, or vice versa.
+</p>
+
+
+<div class='solution'><button>Hint</button>
+
+<p>
+you can use a 
+</p>
+
+
+</div>
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">distinct(babynames, name, sex) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  group_by(name) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  filter(n() == 1)
+
+<span style="font-weight: bold; font-style: italic;">## </span><span style="font-weight: bold; font-style: italic;">alternative solution:</span>
+<span style="font-weight: bold; font-style: italic;">## </span><span style="font-weight: bold; font-style: italic;">distinct(babynames, name, sex) %&gt;%</span>
+<span style="font-weight: bold; font-style: italic;">##   </span><span style="font-weight: bold; font-style: italic;">count(name) %&gt;%</span>
+<span style="font-weight: bold; font-style: italic;">##   </span><span style="font-weight: bold; font-style: italic;">filter(n == 1)</span>
+</pre>
+</div>
+
+<pre class="example">
+
+Error in distinct(babynames, name, sex) : object 'babynames' not found
+</pre>
+
+
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org28003ad" class="outline-3">
+<h3 id="org28003ad">The <code>tidyr</code> package: going from wide to long and back again</h3>
+<div class="outline-text-3" id="text-org28003ad">
+<p>
+The <a href="https://github.com/rstudio/cheatsheets/raw/master/data-import.pdf">RStudio Data Import cheatsheet</a> may be useful for this part of the session.  Here is the key part of that cheatsheet that explains what we&rsquo;ll be learning.
+</p>
+
+
+<div class="figure">
+<p><img src="tidying.png" alt="tidying.png" />
+</p>
+</div>
+
+<p>
+The examples in the figure above are available to your session through the <code>tidyr</code> package.  Try them out in the console so that you get an understanding of how they work.
+</p>
+
+<p>
+The dataset we will be working with in the file <a href="personality.csv"><code>personality.csv</code></a>.  The dataset is from a 5-factor (OCEAN) personality questionnaire (thanks to Lisa DeBruine). Each question is labelled with the domain (Op = openness, Co = concientiousness, Ex = extraversion, Ag = agreeableness, and Ne = neuroticism) and the question number.
+</p>
+</div>
+
+<div id="outline-container-orgb375989" class="outline-4">
+<h4 id="orgb375989"><b>Exercises</b></h4>
+<div class="outline-text-4" id="text-orgb375989">
+</div>
+<ul class="org-ul">
+<li><a id="org3b55ca3"></a>Load and look!<br />
+<div class="outline-text-5" id="text-org3b55ca3">
+<p>
+Load in the data from the csv file into the variable <code>big5</code> and look at it (use <code>glimpse()</code> and <code>View()</code>).
+</p>
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">big5 <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> read_csv(<span style="font-style: italic;">"personality.csv"</span>)
+glimpse(big5)
+</pre>
+</div>
+
+<pre class="example">
+Error: 'personality.csv' does not exist in current working directory ('/mnt/data/Tresors/priv/HU-stats-2021/public/02_more_wrangling/morning_tidydata').
+
+Error in glimpse(big5) : object 'big5' not found
+</pre>
+
+
+</div>
+</div>
+</li>
+
+<li><a id="org25d6932"></a>Reshape from wide to long<br />
+<div class="outline-text-5" id="text-org25d6932">
+<p>
+The dataset is in wide format. Use the appropriate tidyr function to reshape it to long, with variables named <code>item</code> (which item, <code>Op1</code>, <code>Ne1</code>, etc) and <code>score</code> (3, 4, 0, 6, etc).  Store the long data in the variable <code>big5_long</code>
+</p>
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">big5_long <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> gather(big5, <span style="font-style: italic;">"item"</span>, <span style="font-style: italic;">"score"</span>, Op1:Ex9)  
+
+big5_long
+</pre>
+</div>
+
+<pre class="example">
+Error in gather(big5, "item", "score", Op1:Ex9) : object 'big5' not found
+
+Error: object 'big5_long' not found
+</pre>
+
+
+</div>
+</div>
+</li>
+
+<li><a id="org85a74a2"></a>Split the <code>item</code> variable into two variables<br />
+<div class="outline-text-5" id="text-org85a74a2">
+<p>
+Try to use the <code>separate()</code> function to make your table look like this:
+</p>
+
+<pre class="example">
+Error in separate(., item, c("trait", "question"), sep = 2, convert = TRUE) : 
+  object 'big5_long' not found
+</pre>
+
+
+<p>
+See <code>?separate</code> to find out what argument you need to use to be able to separate based on position (rather than character).  Store the result in <code>big5_long2</code>.
+</p>
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">big5_long2 <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> big5_long <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  separate(item, c(<span style="font-style: italic;">"trait"</span>, <span style="font-style: italic;">"question"</span>), sep = 2, convert = <span style="font-weight: bold; text-decoration: underline;">TRUE</span>)
+</pre>
+</div>
+
+<pre class="example">
+
+Error in separate(., item, c("trait", "question"), sep = 2, convert = TRUE) : 
+  object 'big5_long' not found
+</pre>
+
+
+</div>
+</div>
+</li>
+
+<li><a id="orgd3ebf4b"></a>Calculate scores for each <code>trait/user_id</code> combination<br />
+<div class="outline-text-5" id="text-orgd3ebf4b">
+<p>
+Now calculate trait scores for each <code>user_id</code> and <code>trait</code> by summing the scores.  Store the result in <code>big5_scores</code>.
+</p>
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">big5_long2 <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  group_by(user_id, trait) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  summarise(tot = sum(score, na.rm = <span style="font-weight: bold; text-decoration: underline;">FALSE</span>))
+</pre>
+</div>
+
+<pre class="example">
+
+Error in group_by(., user_id, trait) : object 'big5_long2' not found
+</pre>
+
+
+</div>
+</div>
+</li>
+
+<li><a id="org9205e92"></a>EXTRA: string all the above commands in a single pipeline<br />
+<div class="outline-text-5" id="text-org9205e92">
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">big5 <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> read_csv(<span style="font-style: italic;">"personality.csv"</span>) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  gather(<span style="font-style: italic;">"item"</span>, <span style="font-style: italic;">"score"</span>, Op1:Ex9) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  separate(item, c(<span style="font-style: italic;">"trait"</span>, <span style="font-style: italic;">"question"</span>), sep = 2, convert = <span style="font-weight: bold; text-decoration: underline;">TRUE</span>) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  group_by(user_id, trait) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  summarise(tot = sum(score, na.rm = <span style="font-weight: bold; text-decoration: underline;">FALSE</span>))
+
+big5
+</pre>
+</div>
+
+<pre class="example">
+
+Error: 'personality.csv' does not exist in current working directory ('/mnt/data/Tresors/priv/HU-stats-2021/public/02_more_wrangling/morning_tidydata').
+
+Error: object 'big5' not found
+</pre>
+
+
+
+</div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org6c1eb23" class="outline-2">
+<h2 id="org6c1eb23">Combining information across tables: <code>dplyr</code> two-table verbs</h2>
+<div class="outline-text-2" id="text-org6c1eb23">
+<p>
+If you follow the principles of tidy data, you will end up with information scattered across different tables, since you&rsquo;ll have independent tables for each unit of observation. Often you will need to combine information from multiple tables. How do you put it back together? You do this using the various join functions from the <code>dplyr</code> package.
+</p>
+
+<p>
+There are two main types of join functions: <i>mutating</i> joins and <i>filtering</i> joins, called thus because their functions are analogous to what <code>mutate()</code> and <code>filter()</code> do for single tables.
+</p>
+
+<p>
+Mutating joins connect the information in two tables through linking variables or <i>keys</i> that identify which rows go together. 
+</p>
+
+<p>
+Filtering joins allow you to decide which rows to keep or remove in one table based on the rows available in another table.  In the interest of time, we won&rsquo;t be covering filtering joins (<code>semi_join()</code> and <code>anti_join()</code>).
+</p>
+</div>
+
+<div id="outline-container-org4337fac" class="outline-3">
+<h3 id="org4337fac">Mutating joins</h3>
+<div class="outline-text-3" id="text-org4337fac">
+<p>
+The two main mutating joins you should know about are <code>inner_join()</code> and <code>left_join()</code>.
+</p>
+</div>
+
+<div id="outline-container-orge06a762" class="outline-4">
+<h4 id="orge06a762"><code>inner_join()</code></h4>
+<div class="outline-text-4" id="text-orge06a762">
+<p>
+A common situation where you might want to use an inner join is when you want to look up values in a <i>lookup table.</i>   For instance, consider the situation where you have numerical scores for an exam and want to convert them to alphanumeric grades.  My university, the University of Glasgow, uses a 22 point scale that looks like this:
+</p>
+
+<table id="org9453b11" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-right" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">score</th>
+<th scope="col" class="org-left">mark</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">22</td>
+<td class="org-left">A1</td>
+</tr>
+
+<tr>
+<td class="org-right">21</td>
+<td class="org-left">A2</td>
+</tr>
+
+<tr>
+<td class="org-right">20</td>
+<td class="org-left">A3</td>
+</tr>
+
+<tr>
+<td class="org-right">19</td>
+<td class="org-left">A4</td>
+</tr>
+
+<tr>
+<td class="org-right">18</td>
+<td class="org-left">A5</td>
+</tr>
+
+<tr>
+<td class="org-right">17</td>
+<td class="org-left">B1</td>
+</tr>
+
+<tr>
+<td class="org-right">16</td>
+<td class="org-left">B2</td>
+</tr>
+
+<tr>
+<td class="org-right">15</td>
+<td class="org-left">B3</td>
+</tr>
+
+<tr>
+<td class="org-right">14</td>
+<td class="org-left">C1</td>
+</tr>
+
+<tr>
+<td class="org-right">13</td>
+<td class="org-left">C2</td>
+</tr>
+
+<tr>
+<td class="org-right">12</td>
+<td class="org-left">C3</td>
+</tr>
+
+<tr>
+<td class="org-right">11</td>
+<td class="org-left">D1</td>
+</tr>
+
+<tr>
+<td class="org-right">10</td>
+<td class="org-left">D2</td>
+</tr>
+
+<tr>
+<td class="org-right">9</td>
+<td class="org-left">D3</td>
+</tr>
+
+<tr>
+<td class="org-right">8</td>
+<td class="org-left">E1</td>
+</tr>
+
+<tr>
+<td class="org-right">7</td>
+<td class="org-left">E2</td>
+</tr>
+
+<tr>
+<td class="org-right">6</td>
+<td class="org-left">E3</td>
+</tr>
+
+<tr>
+<td class="org-right">5</td>
+<td class="org-left">F1</td>
+</tr>
+
+<tr>
+<td class="org-right">4</td>
+<td class="org-left">F2</td>
+</tr>
+
+<tr>
+<td class="org-right">3</td>
+<td class="org-left">F3</td>
+</tr>
+
+<tr>
+<td class="org-right">2</td>
+<td class="org-left">G1</td>
+</tr>
+
+<tr>
+<td class="org-right">1</td>
+<td class="org-left">G2</td>
+</tr>
+
+<tr>
+<td class="org-right">0</td>
+<td class="org-left">H</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Let&rsquo;s say this is stored in the variable <code>mscale</code>. You also have a table of scores called <code>exam</code> like the one below, and you want to assign each 0-22 score the <code>mark</code> that appears in <code>mscale</code>. 
+</p>
+
+<pre class="example">
+
+# A
+#   tibble:
+#   10
+#   x 2
+   student_id score
+   &lt;chr&gt;      &lt;int&gt;
+ 1 0184516       18
+ 2 3690890       14
+ 3 3114109       19
+ 4 4757801        0
+ 5 4025279       18
+ 6 6525528       10
+ 7 1130308       18
+ 8 3710406       14
+ 9 1558715        1
+10 5046586       23
+</pre>
+
+<p>
+So student <code class="src src-R">sids[1]</code> <code>[1] "0184516"</code> who got an 18 should be given an A5, the student who got a 14 should get a C1, etc. You could do this by hand, but it would be tedious and error-prone. What you could do instead would be to join the two tables on the <i>key</i> field of <code>score</code>, like so:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">result <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> inner_join(exam, mscale, <span style="font-style: italic;">"score"</span>)
+result
+</pre>
+</div>
+
+<pre class="example">
+
+# A
+#   tibble:
+#   9 x
+#   3
+  student_id score mark 
+  &lt;chr&gt;      &lt;int&gt; &lt;chr&gt;
+1 0184516       18 A5   
+2 3690890       14 C1   
+3 3114109       19 A4   
+4 4757801        0 H    
+5 4025279       18 A5   
+6 6525528       10 D2   
+7 1130308       18 A5   
+8 3710406       14 C1   
+9 1558715        1 G2
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgec93d8e" class="outline-4">
+<h4 id="orgec93d8e"><code>left_join()</code></h4>
+<div class="outline-text-4" id="text-orgec93d8e">
+<p>
+Note that the one student who had an <code>23</code> for their score (error? extra credit?) got thrown out from the result table.  A <code>left_join(x, y)</code> keeps all of the data in table <code>x</code> even if it lacks a match in table <code>y</code>, and the missing variable values get filled in with <code>NAs</code>.  Compare this result to the one above.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">left_join(exam, mscale, <span style="font-style: italic;">"score"</span>)
+</pre>
+</div>
+
+<pre class="example">
+# A
+#   tibble:
+#   10
+#   x 3
+   student_id score mark 
+   &lt;chr&gt;      &lt;int&gt; &lt;chr&gt;
+ 1 0184516       18 A5   
+ 2 3690890       14 C1   
+ 3 3114109       19 A4   
+ 4 4757801        0 H    
+ 5 4025279       18 A5   
+ 6 6525528       10 D2   
+ 7 1130308       18 A5   
+ 8 3710406       14 C1   
+ 9 1558715        1 G2   
+10 5046586       23 &lt;NA&gt;
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Created: 2021-04-06 Tue 11:22</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
