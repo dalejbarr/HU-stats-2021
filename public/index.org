@@ -23,8 +23,8 @@
 | Tue 06-Apr | 10:00-13:00 | Getting started with R/RStudio ([[file:01_data_wrangling/morning_intro_to_R/intro_to_coding_in_R.html][walkthrough]])                  |
 |            | 14:00-17:00 | Introduction to data wrangling and the tidyverse ([[file:01_data_wrangling/afternoon_intro_to_data_wrangling/index.org][walkthough]]) |
 |------------+-------------+---------------------------------------------------------------|
-| Wed 07-Apr | 10:00-13:00 | Further wrangling & visualization I                           |
-|            | 14:00-17:00 | Further wrangling & visualization II                          |
+| Wed 07-Apr | 10:00-13:00 | Tidy data ([[file:02_more_wrangling/morning_tidydata/index.org][walkthrough]]) ([[file:02_more_wrangling/morning_tidydata/scoring_AQ/index.org][activity: AQ scoring]])                |
+|            | 14:00-17:00 | Data visualization with ggplot2 ([[file:02_more_wrangling/afternoon_dataviz/ggplot_activity/ggplot_activity.html][activity]])                    |
 |------------+-------------+---------------------------------------------------------------|
 | Thu 08-Apr | 10:00-13:00 | Univariate distributions                                      |
 |            | 14:00-17:00 | Bivariate distributions / correlation                         |
@@ -93,12 +93,9 @@ If installing R/RStudio is not possible, because (1) you are using a laptop with
 If you need an extra challenge, consider the following materials.
 
 ** Data wrangling practice
-- [[file:extra/scoring_AQ/index.org][Scoring the AQ-10]]
+
 - [[file:extra/disgust/index.org][More data tidying and joins: The =disgust= dataset]]
 - Scoring the EQ-Short and SQ-Short [hard!]: ([[file:extra/EQ_SQ/EQ_SQ_wrangle.Rmd][Rmd_source]]) ([[file:extra/EQ_SQ/solution.html][solution_html]]) ([[file:extra/EQ_SQ/solution.Rmd][solution_Rmd]]) ([[file:extra/EQ_SQ_files.zip][data_files]])
-
-** Data visualization practice
-- [[file:extra/factorial_plots/factorial_plots.html][Factorial plots]]
 
 ** Model specification                                             :noexport:
 - [[https://talklab.psy.gla.ac.uk/tvw/catpred][Coding categorical predictors in factorial designs]]

@@ -193,8 +193,8 @@ Load in the data from the csv file into the variable =big5= and look at it (use 
 #+HTML: <div class='solution'><button>Solution</button>
 
 #+begin_src R
-   big5 <- read_csv("personality.csv")
-   glimpse(big5)
+  big5 <- read_csv("personality.csv")
+  glimpse(big5)
 #+end_src
 
 #+HTML: </div>
@@ -206,9 +206,10 @@ The dataset is in wide format. Use the appropriate tidyr function to reshape it 
 #+HTML: <div class='solution'><button>Solution</button>
 
 #+begin_src R
-   big5_long <- gather(big5, "item", "score", Op1:Ex9)  
+  big5_long <- pivot_longer(big5, Op1:Ex9,
+			    names_to = "item", values_to = "score")  
 
-   big5_long
+  big5_long
 #+end_src
 
 #+HTML: </div>
@@ -218,7 +219,8 @@ The dataset is in wide format. Use the appropriate tidyr function to reshape it 
 Try to use the =separate()= function to make your table look like this:
 
 #+begin_src R :exports results
-   big5_long %>% separate(item, c("trait", "question"), sep = 2, convert = TRUE)
+  big5_long %>%
+    separate(item, c("trait", "question"), sep = 2, convert = TRUE)
 #+end_src
 
 See =?separate= to find out what argument you need to use to be able to separate based on position (rather than character).  Store the result in =big5_long2=.
@@ -226,8 +228,8 @@ See =?separate= to find out what argument you need to use to be able to separate
 #+HTML: <div class='solution'><button>Solution</button>
 
 #+begin_src R
-   big5_long2 <- big5_long %>%
-     separate(item, c("trait", "question"), sep = 2, convert = TRUE)
+  big5_long2 <- big5_long %>%
+    separate(item, c("trait", "question"), sep = 2, convert = TRUE)
 #+end_src
 
 #+HTML: </div>
@@ -239,9 +241,9 @@ Now calculate trait scores for each =user_id= and =trait= by summing the scores.
 #+HTML: <div class='solution'><button>Solution</button>
 
 #+begin_src R
-   big5_long2 %>%
-     group_by(user_id, trait) %>%
-     summarise(tot = sum(score, na.rm = FALSE))
+  big5_long2 %>%
+    group_by(user_id, trait) %>%
+    summarise(tot = sum(score, na.rm = FALSE), .groups = "drop")
 #+end_src
 
 #+RESULTS:
@@ -266,13 +268,14 @@ Now calculate trait scores for each =user_id= and =trait= by summing the scores.
 #+CALL: hide() :results html value
 
 #+begin_src R
-   big5 <- read_csv("personality.csv") %>%
-     gather("item", "score", Op1:Ex9) %>%
-     separate(item, c("trait", "question"), sep = 2, convert = TRUE) %>%
-     group_by(user_id, trait) %>%
-     summarise(tot = sum(score, na.rm = FALSE))
+  big5 <- read_csv("personality.csv") %>%
+    pivot_longer(Op1:Ex9,
+		 names_to = "item", values_to = "score") %>%
+    separate(item, c("trait", "question"), sep = 2, convert = TRUE) %>%
+    group_by(user_id, trait) %>%
+    summarise(tot = sum(score, na.rm = FALSE), .groups = "drop")
 
-   big5
+  big5
 #+end_src
 
 #+RESULTS:

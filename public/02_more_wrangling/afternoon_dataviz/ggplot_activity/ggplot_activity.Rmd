@@ -1,0 +1,482 @@
+---
+title: "Data Visualization with `ggplot2`"
+author: "Dale Barr (@dalejbarr)"
+output:
+  html_document:
+    toc: true
+    css: webex.css
+    includes:
+      after_body: webex.js
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!requireNamespace("webex")) {
+  stop("You must have the 'webex' package installed to knit HTML from this template.\n   devtools::install_github(\"dalejbarr/webex\")")
+} else {
+  library("webex")
+}
+```
+
+# What you will be doing
+
+Below, you will see various graphs. Your task is to write R code to recreate these plots as closely as you can. We will use some built-in datasets. We will also use data from packages `lme4` and `truthiness`, which you can download from CRAN.
+
+**REMEMBER: NEVER use `install.packages()` in a script. Type the command in the console.**
+
+```{r install, echo=TRUE, eval=FALSE}
+install.packages("lme4") # only do this if you don't already have it: it takes a long time
+
+install.packages("truthiness") # illusory truth effect longitudinal study
+```
+
+Put these lines at the top of your script.
+
+```{r libraries}
+library("lme4")
+library("truthiness")
+library("tidyverse")
+```
+
+# Basic plots
+
+## Histogram
+
+The `sleepstudy` dataset has information about participants mean response times following multiple days of sleep deprivation. (See `?sleepstudy` for details).
+
+Make a histogram of the variable `Reaction`.
+
+```{r histo, echo=FALSE, message=FALSE}
+ggplot(sleepstudy, aes(Reaction)) +
+  geom_histogram()
+```
+
+`r hide("Solution")`
+
+```{r histo2, ref.label="histo", eval=FALSE, echo=TRUE}
+```
+
+`r unhide()`
+
+## Scatterplot
+
+Now make the plot below, showing `Reaction` as a function of the number of days of sleep deprivation (`Days`) in the `sleepstudy` dataset. Add a 'smooth' to the plot using `geom_smooth()`. Make the points semi-transparent to deal with overplotting.
+
+```{r scatter, echo=FALSE, message=FALSE}
+ggplot(sleepstudy, aes(Days, Reaction)) +
+  geom_point(alpha = .2) +
+  geom_smooth(se = FALSE) +
+  scale_x_continuous(breaks = 0:9)
+```
+
+`r hide()`
+
+```{r scatter2, ref.label="scatter", echo=TRUE, eval=FALSE}
+```
+
+`r unhide()`
+
+## Spaghetti plot
+
+In this plot below, which also used the `sleepstudy` data, each individual line is the data for a single subject.
+
+```{r spaghetti, echo=FALSE}
+ggplot(sleepstudy, aes(Days, Reaction)) +
+  geom_line(aes(group = Subject), alpha = .2)
+```
+
+`r hide()`
+
+```{r spaghetti2, ref.label="spaghetti", echo=TRUE, eval=FALSE}
+```
+
+`r unhide()`
+
+## Boxplots
+
+For these next few plots, we're going to use data from the `truthiness` package. This package contains data from a longitudinal study of the *illusory truth effect*. 
+
+The Illusory Truth phenomenon is the tendency of people to consider statements they have heard before as more likely to be true relative to novel statements (Hasher, Goldstein, & Toppino, 1977). In a typical experiment, participants are exposed to a set of true and false statements during an exposure phase, and are later asked to rate how likely they are to be true. People generally rate statements they have seen before as more true. The data in the `truthiness` package is from a study that examined the persistence of this effect across four time intervals: immediately, one day, one week, and one month following initial exposure. 
+
+Five hundred and sixty seven participants saw 64 out of 128 statements of ambiguous veracity during an exposure phase, and later rated how likely the full set of statements were to be true on a scale from 1 (definitely false) to 7 (definitely true). (Note that each statement that was repeated was repeated only once, at one of the four intervals.)
+
+All of the data for this study is stored in tidy format. See `?truth_trajectory_data` for details.
+
+The first thing to do is to combine the info across all our tables using joins. Copy the following code into your script.
+
+```{r tt-combine}
+## combine info from tidy tables
+all_ratings <- ratings %>%
+  inner_join(phases, c("ID", "phase_id")) %>%
+  filter(keep) %>%                         # apply exclusions
+  inner_join(sessions, "ID") %>%           # link to participant-level info
+  inner_join(stimulus_conditions,          # map to experimental condition
+             c("list_id", "stim_id")) %>% 
+  select(ID, repetition, interval, trating)
+
+all_ratings
+```
+
+Now calculate the mean rating for each subject across the levels of `repetition` and `interval`.
+
+`r hide("Hint")`
+
+```
+rmeans <- all_ratings %>%
+  group_by(...) %>%
+  summarize(...)
+```
+
+`r unhide()`
+
+`r hide()`
+
+```{r tt-means}
+rmeans <- all_ratings %>%
+  group_by(ID, repetition, interval) %>%
+  summarize(mean_rating = mean(trating), .groups = "drop")
+
+rmeans
+```
+
+`r unhide()`
+
+From here on out, we'll be working with these subject means (`rmeans`).
+
+**Using `rmeans`, make the following boxplot showing the overall illusory truth effect (collapsed over interval).**
+
+```{r tt-boxplot, echo=FALSE}
+ggplot(rmeans, aes(repetition, mean_rating)) +
+  geom_boxplot(aes(color = repetition)) +
+  guides(color = FALSE)  # it's redundant with the x-axis, so remove it
+```
+
+`r hide()`
+
+```{r tt-boxplot2, echo=TRUE, eval=FALSE, ref.label="tt-boxplot"}
+```
+
+`r unhide()`
+
+## Violin plots with faceting
+
+```{r tt-violin, echo=FALSE}
+ggplot(rmeans, aes(repetition, mean_rating)) +
+  geom_violin(aes(fill = interval)) +
+  facet_wrap(~interval) +
+  guides(fill = FALSE)
+```
+
+`r hide()`
+
+```{r tt-violin2, echo=TRUE, eval=FALSE, ref.label="tt-violin"}
+```
+
+`r unhide()`
+
+# Factorial plots
+
+The purpose of this section of the walkthrough is to give you some practice making factorial plots; i.e., plots for experiments containing multiple categorical predictors. It assumes that you already are somewhat familiar with `ggplot2`.  You might find it useful to consult the [RStudio Data Visualization Cheat Sheet](https://www.rstudio.org/links/data_visualization_cheat_sheet).
+
+Another source you might find useful is this page on the [dreaded topic of *factors* in R](https://stat545.com/block029_factors.html).
+
+Yet another useful page is on [multi-panel plots in ggplot2](http://www.zevross.com/blog/2019/04/02/easy-multi-panel-plots-in-r-using-facet_wrap-and-facet_grid-from-ggplot2/).
+
+Things that we will learn include:
+
+  - renaming levels of a factor
+  - reordering levels of  a factor
+  - fixing plot labels
+  - alpha transparency for backgrounding / overplotting
+  - superimposing means on raw data
+
+## A single-factor within subject design
+
+Let's start with a design with a single two-level within-subjects factor.  In many instances, people wouldn't bother to produce a graph for such data because there are only two means to display. But obviously there's more that you could show if you show the raw data, which is often a good idea. So let's see how this could be done.
+
+We're going to be working with some real psycholinguistic data for this one. This is some (preliminary) data where we measured how often people overspecify a referent in a communicative task; i.e., calling a candle "the small candle" even when it is the only candle in a display. We did this under two different experimental conditions: when the test trial was similar to a previous trial (the *congruent* condition) versus distinct (the *incongruent* condition).
+
+### Data import and pre-processing
+
+Load in the data from [misspec.csv](misspec.csv), store it in the variable `mdat`, and have a look at it.
+
+`r hide()`
+
+```{r load-data, message=FALSE}
+library("tidyverse")
+
+mdat <- read_csv("misspec.csv")
+glimpse(mdat)
+```
+
+`r unhide()`
+
+Calculate the mean misspecification rate for each participant at each level of `congruency`, and store it in `mdat2`.
+
+`r hide("Hint: How do I get the mean of a logical vector?")`
+
+```{r logical-mean}
+## what happens if you take the mean of a logical vector
+lvec <- c(TRUE, TRUE, TRUE, FALSE)
+mean(lvec)
+```
+
+`r unhide()`
+
+`r hide("Hint: How to I get means for each subject/condition combination?")`
+
+```
+data %>%
+  group_by(...) %>% 
+  summarise(...)
+```
+
+`r unhide()`
+
+`r hide()`
+
+```{r log-sol}
+mdat2 <- mdat %>%
+  group_by(SessionID, congruency) %>%
+  summarize(mrate = mean(Misspec), .groups = "drop")
+
+mdat2
+```
+
+`r unhide()`
+
+### Plotting
+
+A plot of just the means would be very boring. Here's the exact plot I want you to try to make instead:
+
+```{r misspec-plot, echo = FALSE, fig.width=4, fig.height=3}
+means <- mdat2 %>%
+  group_by(congruency) %>%
+  summarise(mrate = mean(mrate))
+
+ggplot(mdat2, aes(congruency, mrate)) +
+  geom_line(aes(group = SessionID), alpha = .2) +
+  geom_point(alpha = .2) +
+  coord_cartesian(ylim = c(0, 1)) +
+  geom_line(data = means, color = 'red', 
+            group = 1) +
+  geom_point(data = means, color = 'red', 
+             size = 3, shape = 4)
+```
+
+Each individual line is data from a single subject. Some hints are below.
+
+- How do I make the points for each participant connect?
+
+`r hide("Hint")`
+Map the aesthetic called `group` for lines to `SessionID`.
+`r unhide()`
+
+- How do I make the lines/points see-through?
+
+`r hide("Hint")`
+Set `alpha` value to .2 or something like that for the geom. Do this **outside** the `aes()` function.
+`r unhide()`
+
+- How do I make the y-range go from 0 to 1?
+
+`r hide("Hint")`
+See examples under ?coord_cartesian
+`r unhide()`
+
+- How do I get the means on the plot?
+
+`r hide("Hint")`
+You have to calculate them and store them in a variable (`means <- data %>% group_by(...) %>% summarise(...)`). Then set the `data = ` argument in a new layer (e.g., `geom_line()` or `geom_point()`).
+`r unhide()`
+
+- How do I change the shape of the points for the means?
+
+`r hide("Hint")`
+The `shape` argument to `geom_point()`. Do this **outside** the `aes()` function because you are using a static value, not mapping it to a variable in your dataset. See `vignette("ggplot2-specs")`.
+`r unhide()`
+
+- How do I make the line for the means?
+
+`r hide("Hint")`
+OK this is a bit of a hack: set `group = 1` as an argument to `geom_line()`, outside of the `aes()` statement.
+`r unhide()`
+
+And, the full solution.
+
+`r hide()`
+```{r onefac-sol, eval=FALSE}
+means <- mdat2 %>% 
+  group_by(congruency) %>%
+  summarise(mrate = mean(mrate)) %>%
+  ungroup()
+
+ggplot(mdat2, aes(congruency, mrate)) +
+  geom_line(aes(group = SessionID), alpha = .2) +
+  geom_point(alpha = .2) +
+  coord_cartesian(ylim = c(0, 1)) +
+  geom_line(data = means, color = 'red', 
+            group = 1) +
+  geom_point(data = means, color = 'red', 
+             size = 3, shape = 4)
+```
+`r unhide()`
+
+## 2x2 design
+
+For this example, we'll just be plotting the cell means for a 2x2 design with made-up data. (If you want to get fancier and show the data, knock yourself out, but it's probably going to look pretty terrible.)
+
+The made up data in [mood.csv](mood.csv) is from a hypothetical study looking at effects of drug therapy and cognitive therapy on depression.
+
+```{r made-up, echo=FALSE}
+set.seed(999) # so you get the same random numbers
+mood_data <- tibble(
+  dtype = rep(c("endo", "exo"), each = 16),
+  drug = rep(rep(c("ctrl", "antid"), each = 8), 2),
+  ther = rep(rep(rep(c("ctrl", "cog"), each = 4), 2), 2),
+  mood = rnorm(32, 60, 7))
+
+write_csv(mood_data, "mood.csv")
+```
+
+The variables are:
+
+- `dtype` : depression trigger type (endogenous, exogenous);
+- `drug`  : whether patient received antidepressant or placebo
+- `ther`  : whether patient received cognitive-behavioral therapy or placebo
+- `mood`  : patient's mood rating
+
+We'll just ignore the `dtype` variable until the next exercise and focus on the two IVs of drug and therapy.
+
+What you need to do now is to produce the graph below:
+
+```{r d2x2-target, message = FALSE, echo=FALSE, fig.height=2.7, fig.width=4}
+mood <- read_csv("mood.csv")
+
+mood_means <- mood %>%
+  group_by(drug, ther) %>%
+  summarize(m = mean(mood)) %>%
+  ungroup() %>% # IMPORTANT!
+  mutate(Drug = recode(drug,
+                       ctrl = "Control",
+                       antid = "Antidepressant") %>%
+           fct_relevel("Control"),
+         Therapy = recode(ther, 
+                          ctrl = "Control",
+                          cog = "Cognitive") %>%
+           fct_relevel("Control"))
+
+ggplot(mood_means, aes(Drug, m, color = Therapy)) +
+  geom_line(aes(group = Therapy)) +
+  geom_point(aes(shape = Therapy), size = 3) +
+  labs(y = "Mean Mood Rating")
+```
+
+`r hide("Hint: What are the basic steps?")`
+
+1. read in the data
+2. calculate cell means
+3. recode the variables to have more sensible names
+4. make into factors and re-level so that "Control" comes first
+5. make the plot and re-label the y-axis
+
+`r unhide()`
+
+`r hide("Hint: What function to rename the levels?")`
+`recode()`
+`r unhide()`
+
+`r hide("Hint: What function to make \"Control\" the first level?")`
+`fct_relevel()`; see the blog post linked to at the top about factors.
+`r unhide()`
+
+`r hide("Solution for creating cell means and re-labeling factor levels")`
+
+```{r means-data, eval=FALSE}
+mood <- read_csv("mood.csv")
+
+mood_means <- mood %>%
+  group_by(drug, ther) %>%
+  summarize(m = mean(mood)) %>%
+  ungroup() %>% # IMPORTANT!
+  mutate(Therapy = recode(ther, 
+                          ctrl = "Control",
+                          cog = "Cognitive") %>%
+           fct_relevel("Control"),
+         Drug = recode(drug,
+                       ctrl = "Control",
+                       antid = "Antidepressant") %>%
+           fct_relevel("Control"))
+```
+
+`r unhide()`
+
+`r hide("Solution for creating the plot")`
+
+```{r d2x2-solution, eval=FALSE}
+ggplot(mood_means, aes(Drug, m, color = Therapy)) +
+  geom_line(aes(group = Therapy)) +
+  geom_point(aes(shape = Therapy), size = 3) +
+  labs(y = "Mean Mood Rating")
+```
+
+`r unhide()`
+
+## 2x2x2 design
+
+OK now we want to break the data down by whether the trigger is endogenous or exogenous (variable `dtype`).  Adapt your code above to create the following graph:
+
+```{r threeway-graph, echo=FALSE, fig.height=3.4}
+mood_means2 <- mood %>%
+  group_by(dtype, drug, ther) %>%
+  summarize(m = mean(mood)) %>%
+  ungroup() %>% # IMPORTANT!
+  mutate(
+    Trigger = recode(dtype,
+                     endo = "Endogenous Trigger",
+                     exo = "Exogenous Trigger"),
+    Therapy = recode(ther, 
+                     ctrl = "Control",
+                     cog = "Cognitive") %>%
+      fct_relevel("Control"),
+    Drug = recode(drug,
+                  ctrl = "Control",
+                  antid = "Antidepressant") %>%
+      fct_relevel("Control"))
+
+ggplot(mood_means2, aes(Drug, m, color = Therapy)) +
+  geom_line(aes(group = Therapy)) +
+  geom_point(aes(shape = Therapy), size = 3) +
+  labs(y = "Mean Mood Rating") +
+  facet_wrap(~Trigger)
+
+```
+
+`r hide()`
+
+```{r threeway-sol, eval=FALSE}
+mood_means2 <- mood %>%
+  group_by(dtype, drug, ther) %>%
+  summarize(m = mean(mood)) %>%
+  ungroup() %>%
+  mutate(
+    Trigger = recode(dtype,
+                     endo = "Endogenous Trigger",
+                     exo = "Exogenous Trigger"),
+    Therapy = recode(ther, 
+                     ctrl = "Control",
+                     cog = "Cognitive") %>%
+      fct_relevel("Control"),
+    Drug = recode(drug,
+                  ctrl = "Control",
+                  antid = "Antidepressant") %>%
+      fct_relevel("Control"))
+
+ggplot(mood_means2, aes(Drug, m, color = Therapy)) +
+  geom_line(aes(group = Therapy)) +
+  geom_point(aes(shape = Therapy), size = 3) +
+  labs(y = "Mean Mood Rating") +
+  facet_wrap(~Trigger)
+```
+
+`r unhide()`

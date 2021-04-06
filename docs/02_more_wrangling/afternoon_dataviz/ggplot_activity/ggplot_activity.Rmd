@@ -1,8 +1,9 @@
 ---
-title: "Factorial Plots!"
+title: "Data Visualization with `ggplot2`"
 author: "Dale Barr (@dalejbarr)"
 output:
   html_document:
+    toc: true
     css: webex.css
     includes:
       after_body: webex.js
@@ -17,9 +18,165 @@ if (!requireNamespace("webex")) {
 }
 ```
 
-## Purpose
+# What you will be doing
 
-The purpose of this walkthrough is to give you some practice making factorial plots; i.e., plots for experiments containing multiple categorical predictors. It assumes that you already are somewhat familiar with `ggplot2`.  You might find it useful to consult the [RStudio Data Visualization Cheat Sheet](https://www.rstudio.org/links/data_visualization_cheat_sheet).
+Below, you will see various graphs. Your task is to write R code to recreate these plots as closely as you can. We will use some built-in datasets. We will also use data from packages `lme4` and `truthiness`, which you can download from CRAN.
+
+**REMEMBER: NEVER use `install.packages()` in a script. Type the command in the console.**
+
+```{r install, echo=TRUE, eval=FALSE}
+install.packages("lme4") # only do this if you don't already have it: it takes a long time
+
+install.packages("truthiness") # illusory truth effect longitudinal study
+```
+
+Put these lines at the top of your script.
+
+```{r libraries}
+library("lme4")
+library("truthiness")
+library("tidyverse")
+```
+
+# Basic plots
+
+## Histogram
+
+The `sleepstudy` dataset has information about participants mean response times following multiple days of sleep deprivation. (See `?sleepstudy` for details).
+
+Make a histogram of the variable `Reaction`.
+
+```{r histo, echo=FALSE, message=FALSE}
+ggplot(sleepstudy, aes(Reaction)) +
+  geom_histogram()
+```
+
+`r hide("Solution")`
+
+```{r histo2, ref.label="histo", eval=FALSE, echo=TRUE}
+```
+
+`r unhide()`
+
+## Scatterplot
+
+Now make the plot below, showing `Reaction` as a function of the number of days of sleep deprivation (`Days`) in the `sleepstudy` dataset. Add a 'smooth' to the plot using `geom_smooth()`. Make the points semi-transparent to deal with overplotting.
+
+```{r scatter, echo=FALSE, message=FALSE}
+ggplot(sleepstudy, aes(Days, Reaction)) +
+  geom_point(alpha = .2) +
+  geom_smooth(se = FALSE) +
+  scale_x_continuous(breaks = 0:9)
+```
+
+`r hide()`
+
+```{r scatter2, ref.label="scatter", echo=TRUE, eval=FALSE}
+```
+
+`r unhide()`
+
+## Spaghetti plot
+
+In this plot below, which also used the `sleepstudy` data, each individual line is the data for a single subject.
+
+```{r spaghetti, echo=FALSE}
+ggplot(sleepstudy, aes(Days, Reaction)) +
+  geom_line(aes(group = Subject), alpha = .2)
+```
+
+`r hide()`
+
+```{r spaghetti2, ref.label="spaghetti", echo=TRUE, eval=FALSE}
+```
+
+`r unhide()`
+
+## Boxplots
+
+For these next few plots, we're going to use data from the `truthiness` package. This package contains data from a longitudinal study of the *illusory truth effect*. 
+
+The Illusory Truth phenomenon is the tendency of people to consider statements they have heard before as more likely to be true relative to novel statements (Hasher, Goldstein, & Toppino, 1977). In a typical experiment, participants are exposed to a set of true and false statements during an exposure phase, and are later asked to rate how likely they are to be true. People generally rate statements they have seen before as more true. The data in the `truthiness` package is from a study that examined the persistence of this effect across four time intervals: immediately, one day, one week, and one month following initial exposure. 
+
+Five hundred and sixty seven participants saw 64 out of 128 statements of ambiguous veracity during an exposure phase, and later rated how likely the full set of statements were to be true on a scale from 1 (definitely false) to 7 (definitely true). (Note that each statement that was repeated was repeated only once, at one of the four intervals.)
+
+All of the data for this study is stored in tidy format. See `?truth_trajectory_data` for details.
+
+The first thing to do is to combine the info across all our tables using joins. Copy the following code into your script.
+
+```{r tt-combine}
+## combine info from tidy tables
+all_ratings <- ratings %>%
+  inner_join(phases, c("ID", "phase_id")) %>%
+  filter(keep) %>%                         # apply exclusions
+  inner_join(sessions, "ID") %>%           # link to participant-level info
+  inner_join(stimulus_conditions,          # map to experimental condition
+             c("list_id", "stim_id")) %>% 
+  select(ID, repetition, interval, trating)
+
+all_ratings
+```
+
+Now calculate the mean rating for each subject across the levels of `repetition` and `interval`.
+
+`r hide("Hint")`
+
+```
+rmeans <- all_ratings %>%
+  group_by(...) %>%
+  summarize(...)
+```
+
+`r unhide()`
+
+`r hide()`
+
+```{r tt-means}
+rmeans <- all_ratings %>%
+  group_by(ID, repetition, interval) %>%
+  summarize(mean_rating = mean(trating), .groups = "drop")
+
+rmeans
+```
+
+`r unhide()`
+
+From here on out, we'll be working with these subject means (`rmeans`).
+
+**Using `rmeans`, make the following boxplot showing the overall illusory truth effect (collapsed over interval).**
+
+```{r tt-boxplot, echo=FALSE}
+ggplot(rmeans, aes(repetition, mean_rating)) +
+  geom_boxplot(aes(color = repetition)) +
+  guides(color = FALSE)  # it's redundant with the x-axis, so remove it
+```
+
+`r hide()`
+
+```{r tt-boxplot2, echo=TRUE, eval=FALSE, ref.label="tt-boxplot"}
+```
+
+`r unhide()`
+
+## Violin plots with faceting
+
+```{r tt-violin, echo=FALSE}
+ggplot(rmeans, aes(repetition, mean_rating)) +
+  geom_violin(aes(fill = interval)) +
+  facet_wrap(~interval) +
+  guides(fill = FALSE)
+```
+
+`r hide()`
+
+```{r tt-violin2, echo=TRUE, eval=FALSE, ref.label="tt-violin"}
+```
+
+`r unhide()`
+
+# Factorial plots
+
+The purpose of this section of the walkthrough is to give you some practice making factorial plots; i.e., plots for experiments containing multiple categorical predictors. It assumes that you already are somewhat familiar with `ggplot2`.  You might find it useful to consult the [RStudio Data Visualization Cheat Sheet](https://www.rstudio.org/links/data_visualization_cheat_sheet).
 
 Another source you might find useful is this page on the [dreaded topic of *factors* in R](https://stat545.com/block029_factors.html).
 
@@ -81,7 +238,7 @@ data %>%
 ```{r log-sol}
 mdat2 <- mdat %>%
   group_by(SessionID, congruency) %>%
-  summarize(mrate = mean(Misspec))
+  summarize(mrate = mean(Misspec), .groups = "drop")
 
 mdat2
 ```
@@ -321,6 +478,5 @@ ggplot(mood_means2, aes(Drug, m, color = Therapy)) +
   labs(y = "Mean Mood Rating") +
   facet_wrap(~Trigger)
 ```
-
 
 `r unhide()`
