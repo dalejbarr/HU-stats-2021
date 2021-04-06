@@ -45,6 +45,36 @@
 |            | 14:00-17:00 | Catch-up / review / Q&A                                       |
 |------------+-------------+---------------------------------------------------------------|
 
+* Course description
+
+This course provides an introduction to experiment design and statistics. Various designs and associated inferential statistical analysis procedures are discussed using the framework of the General Linear Model. These include, for example, the t-test, correlation and regression, and basics of analysis of variance (ANOVA). This course includes practical application of theoretical knowledge. Using a computer-based statistics program, participants will become familiar with the analysis of statistical data through practice examples.
+
+At the end of the course, participants should be able to: 
+
+- write an analysis script performing basic data transformations,
+  visualizations, and analysis
+
+- identify appropriate analysis procedures depending on design and
+  data type
+
+- perform data simulations for simple designs
+
+- describe and explain the assumptions behind the methods
+
+- interpret statistical output and relate it to statistical hypotheses
+
+- apply these techniques to a variety of example data sets
+
+** How each day will be structured
+
+  | 10:00-11:25 | (quiz) + Q&A + lecture + live coding   |
+  | 11:25-11:35 | BREAK                                  |
+  | 11:35-13:00 | self-paced exercises in breakout rooms |
+  | 13:00-14:00 | BREAK                                  |
+  | 14:00-15:25 | (quiz) + Q&A + lecture + live coding   |
+  | 15:25-15:35 | BREAK                                  |
+  | 15:35-17:00 | self-paced exercises in breakout rooms |
+
 * Getting access to R / RStudio software
 
 For this course, you will need access to R and RStudio. In the best case, you should install it on your own laptop or desktop computer. To do so, please [[file:00_installation/installation.html][follow these instructions]]. 
@@ -57,30 +87,36 @@ If installing R/RStudio is not possible, because (1) you are using a laptop with
 
 - Fallback 2: [[https://towardsdatascience.com/how-to-use-r-in-google-colab-b6e02d736497][Google Colab]]. I haven't used this myself, but apparently it is possible to run R, and you will not face any usage limits. However, the interface is different and it will probably be difficult to get help if you get stuck.
 
-* Extra materials                                                  :noexport:
 
-** Model specification
-- [[https://talklab.psy.gla.ac.uk/tvw/catpred][Coding categorical predictors in factorial designs]]
+* Extra materials
 
-- Extra practice with linear regression: ([[file:extra/extra_lm_practice.Rmd][source Rmd file]]) ([[file:extra/extra_lm_solution.html][solution]])
+If you need an extra challenge, consider the following materials.
 
 ** Data wrangling practice
-- [[file:01_monday/afternoon_scoring_the_AQ/index.org][Scoring the AQ-10]]
-- [[file:02_tuesday/afternoon_joins/index.org][More data tidying and joins: The =disgust= dataset]]
+- [[file:extra/scoring_AQ/index.org][Scoring the AQ-10]]
+- [[file:extra/disgust/index.org][More data tidying and joins: The =disgust= dataset]]
 - Scoring the EQ-Short and SQ-Short [hard!]: ([[file:extra/EQ_SQ/EQ_SQ_wrangle.Rmd][Rmd_source]]) ([[file:extra/EQ_SQ/solution.html][solution_html]]) ([[file:extra/EQ_SQ/solution.Rmd][solution_Rmd]]) ([[file:extra/EQ_SQ_files.zip][data_files]])
 
 ** Data visualization practice
 - [[file:extra/factorial_plots/factorial_plots.html][Factorial plots]]
 
+** Model specification                                             :noexport:
+- [[https://talklab.psy.gla.ac.uk/tvw/catpred][Coding categorical predictors in factorial designs]]
+
+- Extra practice with linear regression: ([[file:extra/extra_lm_practice.Rmd][source Rmd file]]) ([[file:extra/extra_lm_solution.html][solution]])
+
 ** Data simulation
 - [[file:extra/binary/binary.html][Simulating binary data]]
 
-** Scripts from Live Coding Sessions
+** Scripts from Live Coding Sessions                               :noexport:
 - Scottish babynames script from Monday morning: [[file:01_monday/morning_intro_to_R/names.R][names.R]]
 - Data wrangling and data tidying: [[file:01_monday/afternoon_intro_to_data_wrangling/01_monday_afternoon_script.R][01_monday_afternoon_script.R]]
 - [[file:extra/misc/misc.html][Miscellaneous extra things (Thursday morning)]]
 
-* Resources
+
+* Additional Resources
+
+These materials are not required; some are reference materials, others allow you to dive further into various topics.
 
 ** RMarkdown
 

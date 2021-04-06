@@ -1,0 +1,348 @@
+#+TITLE: More tidying and joins
+#+OPTIONS: html-link-use-abs-url:nil html-postamble:auto
+#+OPTIONS: html-preamble:t html-scripts:t html-style:t
+#+OPTIONS: html5-fancy:nil tex:t toc:t num:nil ^:nil h:2
+#+HTML_DOCTYPE: xhtml-strict
+#+HTML_CONTAINER: div
+#+DESCRIPTION:
+#+KEYWORDS:
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../../css/my_css.css" />
+#+HTML_LINK_HOME: ../../index.html
+#+HTML_LINK_UP:   ../../index.html
+#+HTML_MATHJAX:
+#+HTML_HEAD:
+#+HTML_HEAD_EXTRA:
+#+SUBTITLE:
+#+INFOJS_OPT:
+#+CREATOR: <a href="https://www.gnu.org/software/emacs/">Emacs</a> 24.5.1 (<a href="http://orgmode.org">Org</a> mode 9.1.5)
+#+LATEX_HEADER:
+#+PROPERTY: header-args:R :session *R* :exports both :results output 
+
+* Tasks                                                            :noexport:
+** give endpoint table
+* Setup                                                            :noexport:
+
+#+begin_src R :exports none :results silent
+  library("webex")
+  library("tidyverse")
+  options(pillar.subtle = TRUE, readr.show_progress = FALSE)
+  setwd("~/ps_stats/root/02_tuesday/afternoon_joins")
+
+  print.tbl_df <- function(x, ...) {
+    print(head(as.data.frame(x), ifelse(nrow(x) > 20, 10, nrow(x)), ...))
+    invisible(x)
+  }
+#+end_src
+
+#+NAME: hide
+#+begin_src R :exports results :results html value :var x="Solution"
+  hide(x)
+#+end_src
+
+#+NAME: unhide
+#+begin_src R :exports results :results html value
+unhide()
+#+end_src
+
+* Loading and tidying the =disgust= dataset
+
+Here are more exercises on reshaping and joining data. Recall that in [[file:~/workshop/root/01_monday/afternoon_intro_to_data_wrangling/index.org][the previous data wrangling exercises]] we reshaped Big 5 data from the [[file:personality.csv][=personality.csv=]] dataset and calculated personality scores on the 5 scales.
+
+This survey was given as part of a larger study, where the same participants supplied demographic information ([[file:users.csv][=users.csv=]]) and filled out a scale on moral disgust ([[file:disgust.csv][=disgust.csv=]]).  Now we are going to tidy up the =disgust= table and join it with big5.
+
+Put those three files, =personality.csv=, =disgust.csv=, and =users.csv= into the same working directory.  Then add the following code chunk to the start of your script.
+
+#+begin_src R :results silent
+  library("tidyverse")
+
+  pers <- read_csv("personality.csv")
+  users <- read_csv("users.csv")
+  disgust <- read_csv("disgust.csv")  
+#+end_src
+
+For reference, here is the code you created yesterday to calculate the big5 scores.  Note that we have added a final step where, after calculating the scores for each scale, we went back from long to wide.
+
+#+begin_src R
+  ## calculate big5 scores for each user_id
+  big5 <- pers %>%
+    gather("item", "score", Op1:Ex9) %>%
+    separate(item, c("trait", "question"), sep = 2, convert = TRUE) %>%
+    group_by(user_id, trait) %>%
+    summarise(tot = sum(score)) # note: na.rm is default
+
+  big5_w <- big5 %>%
+    spread(trait, tot)
+
+  big5_w
+#+end_src
+
+#+RESULTS:
+#+begin_example
+   user_id Ag Co Ex Ne Op
+1        0 NA 27 25 NA 20
+2        1 18 30 24 18 30
+3        2 19 28 23 20 27
+4        5 12 34 35 19 29
+5        8 23 41 23  8 39
+6      108 30 39 29 11 26
+7      233 33 NA 33 28 28
+8      298 30 29 21 31 12
+9      426 18 41 50  1 23
+10     436 26 25 24 27 24
+#+end_example
+
+Now let's have a look at the =disgust= scores.
+
+#+begin_src R
+  glimpse(disgust)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+Observations: 20,000
+Variables: 24
+$ id        <int> 1199, 1, 1599, 13332, 23, 1160, 7980, 552, 37829, 6902, 6...
+$ user_id   <int> 0, 1, 2, 2118, 2311, 3630, 4458, 4651, 4976, 5469, 6066, ...
+$ date      <date> 2008-10-07, 2008-07-10, 2008-10-27, 2012-01-02, 2008-07-...
+$ moral1    <int> 5, 2, 1, 0, 4, 1, 3, 2, 6, 0, 4, 1, 1, 4, 2, 1, NA, 3, 1,...
+$ moral2    <int> 6, 2, 1, 1, 4, 5, 4, 4, 6, 1, 5, 2, 4, 4, 5, 3, NA, 5, 2,...
+$ moral3    <int> 4, 1, 1, 1, 4, NA, 3, 3, 6, 3, 6, 2, 3, 4, 4, 2, NA, 4, 3...
+$ moral4    <int> 6, 2, 1, 1, 4, 5, 4, 5, 0, 4, 5, 2, 4, 4, 6, 4, NA, 5, 2,...
+$ moral5    <int> 5, 1, NA, 1, 4, 5, 4, 5, 6, 1, 5, 1, 3, 3, 5, 5, NA, 3, 2...
+$ moral6    <int> 5, 1, NA, 2, 4, 5, 3, 5, 0, 0, 4, 2, 4, 3, 4, 4, NA, 4, 3...
+$ moral7    <int> 6, 1, 1, 1, 4, 1, 3, 3, 0, 1, 4, 1, 3, 2, 5, 4, NA, 3, 4,...
+$ sexual1   <int> 4, 3, 1, 4, 2, 0, 2, 4, 0, 3, 3, 1, 1, 4, 2, 0, NA, 1, 3,...
+$ sexual2   <int> 0, 1, NA, 3, 1, 5, 4, 2, 0, 5, 0, 0, 0, 2, 1, 0, NA, 3, 0...
+$ sexual3   <int> 1, 1, 1, 0, 2, 0, 3, 4, 0, 2, 1, 0, 0, 1, 0, 0, NA, 3, 0,...
+$ sexual4   <int> 0, 2, NA, 6, 1, 2, 2, 6, 0, 4, 6, 3, 1, 3, 2, 0, NA, 5, 2...
+$ sexual5   <int> 1, 1, 1, 0, 1, 0, 1, 6, 0, 6, 3, 0, 0, 2, 1, 0, NA, 5, 0,...
+$ sexual6   <int> 4, 2, NA, 3, 1, 1, 5, 6, 0, 6, 5, 4, 2, 3, 4, 0, NA, 3, 3...
+$ sexual7   <int> 5, 2, NA, 5, 5, 0, 4, 2, 0, 5, 3, 4, 1, 6, 3, 0, NA, 3, 5...
+$ pathogen1 <int> 6, 3, NA, 5, 5, 6, 6, 5, 6, 5, 6, 4, 4, 5, 3, 5, NA, 4, 4...
+$ pathogen2 <int> 1, 2, NA, 6, 5, 3, 4, 6, 6, 2, 5, 3, 4, 2, 3, 4, NA, 5, 4...
+$ pathogen3 <int> 6, 3, 1, 4, 4, 1, 4, 6, 6, 4, 5, 1, 3, 0, 2, 3, NA, 3, 3,...
+$ pathogen4 <int> 5, 3, NA, 6, 4, 1, 3, 4, 6, 4, 5, 1, 4, 4, 4, 1, NA, 5, 4...
+$ pathogen5 <int> 4, 2, NA, 5, 5, 3, 3, 6, 0, 2, 5, 4, 5, 5, 5, 4, NA, 4, 4...
+$ pathogen6 <int> 5, 3, NA, 5, 4, 1, 2, 1, 0, 2, 5, 1, 4, 5, 1, 2, NA, 5, 5...
+$ pathogen7 <int> 6, 3, NA, 4, 3, 0, 3, 6, 6, 6, 5, 3, 5, 4, 5, 3, NA, 5, 2...
+#+end_example
+
+You can see that we measured three subscales disgust: moral (=moral1:moral7=), sexual (=sexual1:sexual7=), and pathogen (=pathogen1:pathogen7=).  We want to do the same thing that we did with big5, namely: 
+
+- reshape the data from wide to long with new variables =item= (moral, sexual or pathogen) and =score=;
+- split the =item= column into =subscale= (e.g., =moral=) and =question= (e.g., 1, 2, 3, 4, 5, 6, 7);
+- calculate totals for each combination of =user_id= and =scale=;
+- covert back to wide, so that there is one row for each participant.  Your final data table should look like so:
+
+#+NAME: disgust
+#+begin_src R :exports none :results silent
+  disgust2 <- disgust %>%
+    gather("item", "score", moral1:pathogen7) %>%
+    separate(item, c("subscale", "question"), -1, convert = TRUE) %>%
+    group_by(user_id, subscale) %>%
+    summarize(tot = sum(score)) # note: na.rm is default
+
+  disgust_w <- disgust2 %>%
+    spread(subscale, tot)
+#+end_src
+
+#+begin_src R :exports results
+  disgust_w
+#+end_src
+
+#+RESULTS:
+#+begin_example
+   user_id moral pathogen sexual
+1        0    37       33     15
+2        1    10       19     12
+3        2    NA       NA     NA
+4     2118     7       35     21
+5     2311    28       30     13
+6     3630    NA       15      8
+7     4458    24       25     21
+8     4651    27       34     30
+9     4976    24       30      0
+10    5469    10       25     31
+#+end_example
+
+#+CALL: hide(x = "Hint (gather)") :results html value
+
+#+begin_src R :eval never :exports code
+  ## NB: 'key' and 'value' are just names you want to give the newly
+  ##     created columns. 
+  disgust %>%
+    gather(key = ______, value = _______, moral1:pathogen7) 
+#+end_src
+
+#+CALL: unhide() :results html value
+
+#+CALL: hide(x = "Hint (separate)") :results html value
+
+the =sep= argument to =separate()= can be a negative number (see =?separate=)
+
+#+CALL: unhide() :results html value
+
+#+CALL: hide(x = "Hint (calculate totals)") :results html value
+
+: group_by() %>% summarise()
+
+#+CALL: unhide() :results html value
+
+#+CALL: hide() :results html value
+
+#+begin_src R :noweb yes :exports both
+  <<disgust>>
+#+end_src
+
+#+CALL: unhide() :results html value
+
+* Joining the tibbles
+
+Note that we now have three tibbles, =users=, =disgust_w=, and =big5_w=.  They look like this:
+
+- =users=
+
+  #+begin_src R :exports results
+    users
+  #+end_src
+
+- =disgust_w=
+
+  #+begin_src R :exports results
+    disgust_w
+  #+end_src
+
+- =big5_w=
+
+  #+begin_src R :exports results
+    big5_w
+  #+end_src
+
+Your task is now to use =inner_join()= to bring together the data from all the tables, so that the resulting table looks like this:
+
+#+NAME: joined
+#+begin_src R :exports results
+  users %>%
+    inner_join(disgust_w, "user_id") %>%
+    inner_join(big5_w, "user_id")
+#+end_src
+
+#+RESULTS: joined
+#+begin_example
+   user_id    sex   birthday moral pathogen sexual Ag Co Ex Ne Op
+1        0   <NA>       <NA>    37       33     15 NA 27 25 NA 20
+2        1 female 1976-11-18    10       19     12 18 30 24 18 30
+3        2   male 1985-10-09    NA       NA     NA 19 28 23 20 27
+4     3630   male 1968-04-15    NA       15      8 34 48 41  6 33
+5     4651 female 1979-11-09    27       34     30 22 26 21 40 30
+6     6093   male 1965-01-12    11       17     12 30 26  9 37 39
+7     6172 female 1987-01-06    22       29      5 30 35 42  9 24
+8     7129 female 1988-02-09    24       25     21 31 32 27 29 NA
+9     8378   male 1965-08-30    23       22      0 26 36 25 19 39
+10    9881 female 1980-10-13    27       31     23 22 38 18 27 21
+#+end_example
+
+#+CALL: hide("Hint") :results html value
+
+#+begin_src R :eval never :exports code
+  x %>%
+    inner_join(y, "linking_field") %>%
+    inner_join(z, "linking_field")
+#+end_src
+
+#+CALL: unhide() :results html value
+
+#+CALL: hide() :results html value
+
+#+begin_src R :noweb yes
+  <<joined>>
+#+end_src
+
+#+CALL: unhide() :results html value
+
+* 
+
+#+begin_export html
+ <script>
+
+ /* update total correct if #total_correct exists */
+ update_total_correct = function() {
+   if (t = document.getElementById("total_correct")) {
+     t.innerHTML =
+       document.getElementsByClassName("correct").length + " of " +
+       document.getElementsByClassName("solveme").length + " correct";
+   }
+ }
+
+ /* solution button toggling function */
+ b_func = function() {
+   var cl = this.parentElement.classList;
+   if (cl.contains('open')) {
+     cl.remove("open");
+   } else {
+     cl.add("open");
+   }
+ }
+
+ /* function for checking solveme answers */
+ solveme_func = function(e) {
+   var real_answers = JSON.parse(this.dataset.answer);
+   var my_answer = this.value;
+   var cl = this.classList;
+   if (cl.contains("ignorecase")) {
+     my_answer = my_answer.toLowerCase();
+   }
+   if (cl.contains("nospaces")) {
+     my_answer = my_answer.replace(/ /g, "");
+   }
+  
+   if (my_answer !== "" & real_answers.includes(my_answer)) {
+     cl.add("correct");
+   } else {
+     cl.remove("correct");
+   }
+   update_total_correct();
+ }
+
+ window.onload = function() {
+   /* set up solution buttons */
+   var buttons = document.getElementsByTagName("button");
+
+   for (var i = 0; i < buttons.length; i++) {
+     if (buttons[i].parentElement.classList.contains('solution')) {
+       buttons[i].onclick = b_func;
+     }
+   }
+  
+   /* set up solveme inputs */
+   var solveme = document.getElementsByClassName("solveme");
+
+   for (var i = 0; i < solveme.length; i++) {
+     /* make sure input boxes don't auto-anything */
+     solveme[i].setAttribute("autocomplete","off");
+     solveme[i].setAttribute("autocorrect", "off");
+     solveme[i].setAttribute("autocapitalize", "off"); 
+     solveme[i].setAttribute("spellcheck", "false");
+     solveme[i].value = "";
+    
+     /* adjust answer for ignorecase or nospaces */
+     var cl = solveme[i].classList;
+     var real_answer = solveme[i].dataset.answer;
+     if (cl.contains("ignorecase")) {
+       real_answer = real_answer.toLowerCase();
+     }
+     if (cl.contains("nospaces")) {
+       real_answer = real_answer.replace(/ /g, "");
+     }
+     solveme[i].dataset.answer = real_answer;
+    
+     /* attach checking function */
+     solveme[i].onkeyup = solveme_func;
+     solveme[i].onchange = solveme_func;
+   }
+  
+   update_total_correct();
+ }
+
+ </script>
+#+end_export

@@ -1,0 +1,69 @@
+---
+title: "Simulating binary data"
+output:
+  html_document:
+    css: webex.css
+    includes:
+      after_body: webex.js
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!requireNamespace("webex")) {
+  stop("You must have the 'webex' package installed to knit HTML from this template.\n   devtools::install_github(\"dalejbarr/webex\")")
+} else {
+  library("webex")
+}
+```
+
+If you know how to simulate data for a study with a continuous DV, you are just one step away from simulating data with a binary DV.
+
+1. Create your code to simulate continuous data, except don't add in the final Gaussian residuals.
+2. Treat the model fits as values in log odds space, and write a function that iterates over the model predictions, converts them to probabilities, and samples 1, 0 based on the probability.
+
+## Create the data set
+
+So, here's an example.  Let's say that you have created the following simulated data set:
+
+```{r sim-data1, message=FALSE}
+library("tidyverse")
+set.seed(999)
+
+mu <- 1.1
+
+dat <- tibble(subject_id = rep(1:10, each = 2),
+              condition = rep(c("control", "experimental"), 10),
+              sri = rep(rnorm(10), each = 2), # by-subject random intercept
+              eff = rep(c(-.11, .11), times = 10), # fixed effect of condition
+              eta = mu + sri + eff) # the predicted value (no residual)
+
+dat
+```
+
+Now, let's define a function that (1) converts log odds (`eta`) to probabilities and then (2) samples 0s, 1s based on those probability.
+
+## Create a function to generate Bernoulli trials
+
+```{r sample}
+bernoulli_trial <- function(eta) {
+  p <- (1 / (1 + exp(-eta))) # inverse logit function
+  sample(c(1, 0), 1, prob = c(p, 1 - p)) # choose 1 or 0 based on p
+}
+
+# try it out
+replicate(1000, bernoulli_trial(-1)) %>% table()
+replicate(1000, bernoulli_trial(0)) %>% table()
+replicate(1000, bernoulli_trial(1)) %>% table()
+```
+
+## Add the column to your data
+
+Now we will make a new column by running this function using `purrr::map_dbl()` from tidyverse. (The `map_*()` functions are iterating functions. See [the `purrr` documentation](https://purrr.tidyverse.org/) for more info.) 
+
+The binary response variable is stored in `Y`.
+
+```{r final}
+dat %>%
+  mutate(Y = map_dbl(eta, bernoulli_trial))
+```
+

@@ -1,0 +1,149 @@
+---
+title: "Miscellaneous extra things"
+author: "Dale"
+date: "4 April 2019"
+output: 
+  html_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Window functions in dplyr
+
+```{r window-fns, message=FALSE}
+library("tidyverse")
+library("babynames")
+
+babynames %>%
+  group_by(year, sex) %>%
+  filter(near(prop, max(prop))) %>%
+  ungroup()
+```
+
+
+## Making tibbles by hand
+
+```{r tibs}
+# tibble way
+tibble(subject = 1:8,
+       A = rep(c("A1", "A2"), each = 4),
+       Y = rnorm(8))
+
+# tribble way
+tribble(~subject, ~A, ~Y,
+        1, "A1", rnorm(1),
+        2, "A2", rnorm(1))
+```
+
+
+## Inline R code in RMarkdown
+
+```{r t-test}
+set.seed(999)
+v1 <- rnorm(100)
+v2 <- rnorm(100)
+
+result <- t.test(v1, v2, var.equal = TRUE)
+
+x <- broom::tidy(result)
+x
+```
+
+**Source**: The result of the t-test was: 
+t(`` `r knitr::inline_expr("x$parameter")` ``) = 
+`` `r knitr::inline_expr("round(x$statistic, 3)")` ``, 
+p = `` `r knitr::inline_expr("round(x$p.value, 3)")` ``.
+
+**Generated**: The result of the t-test was: 
+t(`r x$parameter`) = `r round(x$statistic, 3)`, p = `r round(x$p.value, 3)`.
+
+
+## Recoding and re-leveling
+
+- syntax: `recode(varname, current = "New", ...)`
+
+```{r recode1}
+vv <- sample(rep(c("C 1", "E"), each = 5))
+dplyr::recode(vv, `C 1` = "Control", E = "Experimental")
+```
+
+## Releveling factors
+
+- syntax: `forcats::fct_relevel(varname, "First Level", "Second Level")`
+
+```{r fct-relevel}
+vvv <- rep(c("Antidepressant", "Placebo", "Other"), each = 3)
+fct_relevel(vvv, "Placebo")
+```
+
+## Some useful additional functions
+
+```{r misc}
+## names(): get the column names
+names(starwars)
+
+## str(): get the structure of the object
+# str(starwars)
+
+## class(): what type of object is it?
+class(starwars)
+
+## nrow(): how many rows in the table?
+nrow(starwars)
+
+## ncol(): how many columns?
+ncol(starwars)
+
+## dim(): what are the table dimensions? 
+dim(starwars)
+
+## summary(): get summaries of all columns
+summary(iris)
+
+## distinct(): get distinct combinations in the data
+distinct(mtcars, am, gear, carb)
+
+## count(): count observations for each distinct combo
+count(mtcars, am, gear, carb)
+
+## select helpers: starts_with()
+select(who, starts_with("new_sp"))
+
+## test values
+## is.logical(); is.numeric(); is.character(); is.factor()
+## as.integer(); as.numeric(); as.character(); as.factor()
+is.logical(starwars$name)
+is.character(starwars$name)
+is.factor(starwars$name)
+
+## levels()
+x <- factor(starwars$name)
+levels(x)
+
+## summarizing functions; often used with summarize
+## min(); max(); sum(); dplyr::n(); median(); rank()
+mtcars %>%
+  summarize(mn = min(mpg), mx = max(mpg), med = median(mpg))
+```
+
+```{r more, eval=FALSE}
+## viewing tables
+## View(); glimpse()
+## head(); tail()
+print(starwars) # same as just typing "starwars"
+print(mtcars, n = +Inf) # print all rows! see ?print.tbl
+```
+
+```{r even-more}
+## repeating things and making sequences
+## rep(); seq()
+rep(letters[1:5], 5)
+rep(LETTERS[1:5], each = 5)
+
+seq(1, 10, .5)
+seq(10, 1, length.out = 7)
+```
+

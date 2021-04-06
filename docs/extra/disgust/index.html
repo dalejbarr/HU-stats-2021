@@ -1,0 +1,639 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2018-04-17 Tue 14:50 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>More tidying and joins</title>
+<meta name="generator" content="Org mode" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<link rel="stylesheet" type="text/css" href="../../css/my_css.css" />
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2017 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="org-div-home-and-up">
+ <a accesskey="h" href="../../index.html"> UP </a>
+ |
+ <a accesskey="H" href="../../index.html"> HOME </a>
+</div><div id="content">
+<h1 class="title">More tidying and joins</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgcfff540">Loading and tidying the <code>disgust</code> dataset</a></li>
+<li><a href="#org9430771">Joining the tibbles</a></li>
+<li><a href="#org44c0848"></a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgcfff540" class="outline-2">
+<h2 id="orgcfff540">Loading and tidying the <code>disgust</code> dataset</h2>
+<div class="outline-text-2" id="text-orgcfff540">
+<p>
+Here are more exercises on reshaping and joining data. Recall that in <a href="file:///home/dalebarr/workshop/root/01_monday/afternoon_intro_to_data_wrangling/index.html#MissingReference">the previous data wrangling exercises</a> we reshaped Big 5 data from the <a href="personality.csv"><code>personality.csv</code></a> dataset and calculated personality scores on the 5 scales.
+</p>
+
+<p>
+This survey was given as part of a larger study, where the same participants supplied demographic information (<a href="users.csv"><code>users.csv</code></a>) and filled out a scale on moral disgust (<a href="disgust.csv"><code>disgust.csv</code></a>).  Now we are going to tidy up the <code>disgust</code> table and join it with big5.
+</p>
+
+<p>
+Put those three files, <code>personality.csv</code>, <code>disgust.csv</code>, and <code>users.csv</code> into the same working directory.  Then add the following code chunk to the start of your script.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R"><span style="color: #008b8b;">library</span>(<span style="color: #8b2252;">"tidyverse"</span>)
+
+pers <span style="color: #008b8b;">&lt;-</span> read_csv(<span style="color: #8b2252;">"personality.csv"</span>)
+users <span style="color: #008b8b;">&lt;-</span> read_csv(<span style="color: #8b2252;">"users.csv"</span>)
+disgust <span style="color: #008b8b;">&lt;-</span> read_csv(<span style="color: #8b2252;">"disgust.csv"</span>)  
+</pre>
+</div>
+
+<p>
+For reference, here is the code you created yesterday to calculate the big5 scores.  Note that we have added a final step where, after calculating the scores for each scale, we went back from long to wide.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R"><span style="color: #b22222;">## </span><span style="color: #b22222;">calculate big5 scores for each user_id</span>
+big5 <span style="color: #008b8b;">&lt;-</span> pers <span style="color: #008b8b;">%&gt;%</span>
+  gather(<span style="color: #8b2252;">"item"</span>, <span style="color: #8b2252;">"score"</span>, Op1:Ex9) <span style="color: #008b8b;">%&gt;%</span>
+  separate(item, c(<span style="color: #8b2252;">"trait"</span>, <span style="color: #8b2252;">"question"</span>), sep = 2, convert = <span style="color: #228b22;">TRUE</span>) <span style="color: #008b8b;">%&gt;%</span>
+  group_by(user_id, trait) <span style="color: #008b8b;">%&gt;%</span>
+  summarise(tot = sum(score)) <span style="color: #b22222;"># </span><span style="color: #b22222;">note: na.rm is default</span>
+
+big5_w <span style="color: #008b8b;">&lt;-</span> big5 <span style="color: #008b8b;">%&gt;%</span>
+  spread(trait, tot)
+
+big5_w
+</pre>
+</div>
+
+<pre class="example">
+   user_id Ag Co Ex Ne Op
+1        0 NA 27 25 NA 20
+2        1 18 30 24 18 30
+3        2 19 28 23 20 27
+4        5 12 34 35 19 29
+5        8 23 41 23  8 39
+6      108 30 39 29 11 26
+7      233 33 NA 33 28 28
+8      298 30 29 21 31 12
+9      426 18 41 50  1 23
+10     436 26 25 24 27 24
+</pre>
+
+<p>
+Now let&rsquo;s have a look at the <code>disgust</code> scores.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">glimpse(disgust)
+</pre>
+</div>
+
+<pre class="example">
+Observations: 20,000
+Variables: 24
+$ id        &lt;int&gt; 1199, 1, 1599, 13332, 23, 1160, 7980, 552, 37829, 6902, 6...
+$ user_id   &lt;int&gt; 0, 1, 2, 2118, 2311, 3630, 4458, 4651, 4976, 5469, 6066, ...
+$ date      &lt;date&gt; 2008-10-07, 2008-07-10, 2008-10-27, 2012-01-02, 2008-07-...
+$ moral1    &lt;int&gt; 5, 2, 1, 0, 4, 1, 3, 2, 6, 0, 4, 1, 1, 4, 2, 1, NA, 3, 1,...
+$ moral2    &lt;int&gt; 6, 2, 1, 1, 4, 5, 4, 4, 6, 1, 5, 2, 4, 4, 5, 3, NA, 5, 2,...
+$ moral3    &lt;int&gt; 4, 1, 1, 1, 4, NA, 3, 3, 6, 3, 6, 2, 3, 4, 4, 2, NA, 4, 3...
+$ moral4    &lt;int&gt; 6, 2, 1, 1, 4, 5, 4, 5, 0, 4, 5, 2, 4, 4, 6, 4, NA, 5, 2,...
+$ moral5    &lt;int&gt; 5, 1, NA, 1, 4, 5, 4, 5, 6, 1, 5, 1, 3, 3, 5, 5, NA, 3, 2...
+$ moral6    &lt;int&gt; 5, 1, NA, 2, 4, 5, 3, 5, 0, 0, 4, 2, 4, 3, 4, 4, NA, 4, 3...
+$ moral7    &lt;int&gt; 6, 1, 1, 1, 4, 1, 3, 3, 0, 1, 4, 1, 3, 2, 5, 4, NA, 3, 4,...
+$ sexual1   &lt;int&gt; 4, 3, 1, 4, 2, 0, 2, 4, 0, 3, 3, 1, 1, 4, 2, 0, NA, 1, 3,...
+$ sexual2   &lt;int&gt; 0, 1, NA, 3, 1, 5, 4, 2, 0, 5, 0, 0, 0, 2, 1, 0, NA, 3, 0...
+$ sexual3   &lt;int&gt; 1, 1, 1, 0, 2, 0, 3, 4, 0, 2, 1, 0, 0, 1, 0, 0, NA, 3, 0,...
+$ sexual4   &lt;int&gt; 0, 2, NA, 6, 1, 2, 2, 6, 0, 4, 6, 3, 1, 3, 2, 0, NA, 5, 2...
+$ sexual5   &lt;int&gt; 1, 1, 1, 0, 1, 0, 1, 6, 0, 6, 3, 0, 0, 2, 1, 0, NA, 5, 0,...
+$ sexual6   &lt;int&gt; 4, 2, NA, 3, 1, 1, 5, 6, 0, 6, 5, 4, 2, 3, 4, 0, NA, 3, 3...
+$ sexual7   &lt;int&gt; 5, 2, NA, 5, 5, 0, 4, 2, 0, 5, 3, 4, 1, 6, 3, 0, NA, 3, 5...
+$ pathogen1 &lt;int&gt; 6, 3, NA, 5, 5, 6, 6, 5, 6, 5, 6, 4, 4, 5, 3, 5, NA, 4, 4...
+$ pathogen2 &lt;int&gt; 1, 2, NA, 6, 5, 3, 4, 6, 6, 2, 5, 3, 4, 2, 3, 4, NA, 5, 4...
+$ pathogen3 &lt;int&gt; 6, 3, 1, 4, 4, 1, 4, 6, 6, 4, 5, 1, 3, 0, 2, 3, NA, 3, 3,...
+$ pathogen4 &lt;int&gt; 5, 3, NA, 6, 4, 1, 3, 4, 6, 4, 5, 1, 4, 4, 4, 1, NA, 5, 4...
+$ pathogen5 &lt;int&gt; 4, 2, NA, 5, 5, 3, 3, 6, 0, 2, 5, 4, 5, 5, 5, 4, NA, 4, 4...
+$ pathogen6 &lt;int&gt; 5, 3, NA, 5, 4, 1, 2, 1, 0, 2, 5, 1, 4, 5, 1, 2, NA, 5, 5...
+$ pathogen7 &lt;int&gt; 6, 3, NA, 4, 3, 0, 3, 6, 6, 6, 5, 3, 5, 4, 5, 3, NA, 5, 2...
+</pre>
+
+<p>
+You can see that we measured three subscales disgust: moral (<code>moral1:moral7</code>), sexual (<code>sexual1:sexual7</code>), and pathogen (<code>pathogen1:pathogen7</code>).  We want to do the same thing that we did with big5, namely: 
+</p>
+
+<ul class="org-ul">
+<li>reshape the data from wide to long with new variables <code>item</code> (moral, sexual or pathogen) and <code>score</code>;</li>
+<li>split the <code>item</code> column into <code>subscale</code> (e.g., <code>moral</code>) and <code>question</code> (e.g., 1, 2, 3, 4, 5, 6, 7);</li>
+<li>calculate totals for each combination of <code>user_id</code> and <code>scale</code>;</li>
+<li>covert back to wide, so that there is one row for each participant.  Your final data table should look like so:</li>
+</ul>
+
+<pre class="example">
+   user_id moral pathogen sexual
+1        0    37       33     15
+2        1    10       19     12
+3        2    NA       NA     NA
+4     2118     7       35     21
+5     2311    28       30     13
+6     3630    NA       15      8
+7     4458    24       25     21
+8     4651    27       34     30
+9     4976    24       30      0
+10    5469    10       25     31
+</pre>
+
+
+<div class='solution'><button>Hint (gather)</button>
+
+<div class="org-src-container">
+<pre class="src src-R"><span style="color: #b22222;">## </span><span style="color: #b22222;">NB: 'key' and 'value' are just names you want to give the newly</span>
+<span style="color: #b22222;">##     </span><span style="color: #b22222;">created columns. </span>
+disgust <span style="color: #008b8b;">%&gt;%</span>
+  gather(key = ______, value = _______, moral1:pathogen7) 
+</pre>
+</div>
+
+
+</div>
+
+
+<div class='solution'><button>Hint (separate)</button>
+
+<p>
+the <code>sep</code> argument to <code>separate()</code> can be a negative number (see <code>?separate</code>)
+</p>
+
+
+</div>
+
+
+<div class='solution'><button>Hint (calculate totals)</button>
+
+<pre class="example">
+group_by() %&gt;% summarise()
+
+</pre>
+
+
+</div>
+
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">disgust2 <span style="color: #008b8b;">&lt;-</span> disgust <span style="color: #008b8b;">%&gt;%</span>
+  gather(<span style="color: #8b2252;">"item"</span>, <span style="color: #8b2252;">"score"</span>, moral1:pathogen7) <span style="color: #008b8b;">%&gt;%</span>
+  separate(item, c(<span style="color: #8b2252;">"subscale"</span>, <span style="color: #8b2252;">"question"</span>), -1, convert = <span style="color: #228b22;">TRUE</span>) <span style="color: #008b8b;">%&gt;%</span>
+  group_by(user_id, subscale) <span style="color: #008b8b;">%&gt;%</span>
+  summarize(tot = sum(score)) <span style="color: #b22222;"># </span><span style="color: #b22222;">note: na.rm is default</span>
+
+disgust_w <span style="color: #008b8b;">&lt;-</span> disgust2 <span style="color: #008b8b;">%&gt;%</span>
+  spread(subscale, tot)
+</pre>
+</div>
+
+
+</div>
+</div>
+</div>
+
+<div id="outline-container-org9430771" class="outline-2">
+<h2 id="org9430771">Joining the tibbles</h2>
+<div class="outline-text-2" id="text-org9430771">
+<p>
+Note that we now have three tibbles, <code>users</code>, <code>disgust_w</code>, and <code>big5_w</code>.  They look like this:
+</p>
+
+<ul class="org-ul">
+<li><p>
+<code>users</code>
+</p>
+
+<pre class="example">
+   user_id    sex   birthday
+1        0   &lt;NA&gt;       &lt;NA&gt;
+2        1 female 1976-11-18
+3        2   male 1985-10-09
+4        5   male 1980-06-26
+5        8   male 1968-06-21
+6        9   male 1972-01-19
+7       10 female 1978-06-20
+8       17 female 1981-11-21
+9       19 female 1980-08-08
+10      20   male 1964-08-27
+</pre></li>
+
+<li><p>
+<code>disgust_w</code>
+</p>
+
+<pre class="example">
+   user_id moral pathogen sexual
+1        0    37       33     15
+2        1    10       19     12
+3        2    NA       NA     NA
+4     2118     7       35     21
+5     2311    28       30     13
+6     3630    NA       15      8
+7     4458    24       25     21
+8     4651    27       34     30
+9     4976    24       30      0
+10    5469    10       25     31
+</pre></li>
+
+<li><p>
+<code>big5_w</code>
+</p>
+
+<pre class="example">
+   user_id Ag Co Ex Ne Op
+1        0 NA 27 25 NA 20
+2        1 18 30 24 18 30
+3        2 19 28 23 20 27
+4        5 12 34 35 19 29
+5        8 23 41 23  8 39
+6      108 30 39 29 11 26
+7      233 33 NA 33 28 28
+8      298 30 29 21 31 12
+9      426 18 41 50  1 23
+10     436 26 25 24 27 24
+</pre></li>
+</ul>
+
+<p>
+Your task is now to use <code>inner_join()</code> to bring together the data from all the tables, so that the resulting table looks like this:
+</p>
+
+<pre class="example">
+   user_id    sex   birthday moral pathogen sexual Ag Co Ex Ne Op
+1        0   &lt;NA&gt;       &lt;NA&gt;    37       33     15 NA 27 25 NA 20
+2        1 female 1976-11-18    10       19     12 18 30 24 18 30
+3        2   male 1985-10-09    NA       NA     NA 19 28 23 20 27
+4     3630   male 1968-04-15    NA       15      8 34 48 41  6 33
+5     4651 female 1979-11-09    27       34     30 22 26 21 40 30
+6     6093   male 1965-01-12    11       17     12 30 26  9 37 39
+7     6172 female 1987-01-06    22       29      5 30 35 42  9 24
+8     7129 female 1988-02-09    24       25     21 31 32 27 29 NA
+9     8378   male 1965-08-30    23       22      0 26 36 25 19 39
+10    9881 female 1980-10-13    27       31     23 22 38 18 27 21
+</pre>
+
+
+<div class='solution'><button>Hint</button>
+
+<div class="org-src-container">
+<pre class="src src-R">x <span style="color: #008b8b;">%&gt;%</span>
+  inner_join(y, <span style="color: #8b2252;">"linking_field"</span>) <span style="color: #008b8b;">%&gt;%</span>
+  inner_join(z, <span style="color: #8b2252;">"linking_field"</span>)
+</pre>
+</div>
+
+
+</div>
+
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">users <span style="color: #008b8b;">%&gt;%</span>
+  inner_join(disgust_w, <span style="color: #8b2252;">"user_id"</span>) <span style="color: #008b8b;">%&gt;%</span>
+  inner_join(big5_w, <span style="color: #8b2252;">"user_id"</span>)
+</pre>
+</div>
+
+<pre class="example">
+   user_id    sex   birthday moral pathogen sexual Ag Co Ex Ne Op
+1        0   &lt;NA&gt;       &lt;NA&gt;    37       33     15 NA 27 25 NA 20
+2        1 female 1976-11-18    10       19     12 18 30 24 18 30
+3        2   male 1985-10-09    NA       NA     NA 19 28 23 20 27
+4     3630   male 1968-04-15    NA       15      8 34 48 41  6 33
+5     4651 female 1979-11-09    27       34     30 22 26 21 40 30
+6     6093   male 1965-01-12    11       17     12 30 26  9 37 39
+7     6172 female 1987-01-06    22       29      5 30 35 42  9 24
+8     7129 female 1988-02-09    24       25     21 31 32 27 29 NA
+9     8378   male 1965-08-30    23       22      0 26 36 25 19 39
+10    9881 female 1980-10-13    27       31     23 22 38 18 27 21
+</pre>
+
+
+</div>
+</div>
+</div>
+
+<div id="outline-container-org44c0848" class="outline-2">
+<h2 id="org44c0848"></h2>
+<div class="outline-text-2" id="text-org44c0848">
+<script>
+
+/* update total correct if #total_correct exists */
+update_total_correct = function() {
+  if (t = document.getElementById("total_correct")) {
+    t.innerHTML =
+      document.getElementsByClassName("correct").length + " of " +
+      document.getElementsByClassName("solveme").length + " correct";
+  }
+}
+
+/* solution button toggling function */
+b_func = function() {
+  var cl = this.parentElement.classList;
+  if (cl.contains('open')) {
+    cl.remove("open");
+  } else {
+    cl.add("open");
+  }
+}
+
+/* function for checking solveme answers */
+solveme_func = function(e) {
+  var real_answers = JSON.parse(this.dataset.answer);
+  var my_answer = this.value;
+  var cl = this.classList;
+  if (cl.contains("ignorecase")) {
+    my_answer = my_answer.toLowerCase();
+  }
+  if (cl.contains("nospaces")) {
+    my_answer = my_answer.replace(/ /g, "");
+  }
+
+  if (my_answer !== "" & real_answers.includes(my_answer)) {
+    cl.add("correct");
+  } else {
+    cl.remove("correct");
+  }
+  update_total_correct();
+}
+
+window.onload = function() {
+  /* set up solution buttons */
+  var buttons = document.getElementsByTagName("button");
+
+  for (var i = 0; i < buttons.length; i++) {
+    if (buttons[i].parentElement.classList.contains('solution')) {
+      buttons[i].onclick = b_func;
+    }
+  }
+
+  /* set up solveme inputs */
+  var solveme = document.getElementsByClassName("solveme");
+
+  for (var i = 0; i < solveme.length; i++) {
+    /* make sure input boxes don't auto-anything */
+    solveme[i].setAttribute("autocomplete","off");
+    solveme[i].setAttribute("autocorrect", "off");
+    solveme[i].setAttribute("autocapitalize", "off"); 
+    solveme[i].setAttribute("spellcheck", "false");
+    solveme[i].value = "";
+
+    /* adjust answer for ignorecase or nospaces */
+    var cl = solveme[i].classList;
+    var real_answer = solveme[i].dataset.answer;
+    if (cl.contains("ignorecase")) {
+      real_answer = real_answer.toLowerCase();
+    }
+    if (cl.contains("nospaces")) {
+      real_answer = real_answer.replace(/ /g, "");
+    }
+    solveme[i].dataset.answer = real_answer;
+
+    /* attach checking function */
+    solveme[i].onkeyup = solveme_func;
+    solveme[i].onchange = solveme_func;
+  }
+
+  update_total_correct();
+}
+
+</script>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Created: 2018-04-17 Tue 14:50</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
