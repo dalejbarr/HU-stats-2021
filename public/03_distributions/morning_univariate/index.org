@@ -1,0 +1,726 @@
+#+title: Probability and Probability distributions
+#+OPTIONS: html-link-use-abs-url:nil html-postamble:auto
+#+OPTIONS: html-preamble:t html-scripts:t html-style:t
+#+OPTIONS: html5-fancy:nil tex:t toc:t num:nil h:3 ^:nil
+#+HTML_DOCTYPE: xhtml-strict
+#+HTML_CONTAINER: div
+#+DESCRIPTION:
+#+KEYWORDS:
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../../css/my_css.css" />
+#+HTML_LINK_HOME: ../../index.html
+#+HTML_LINK_UP:   ../../index.html
+#+HTML_MATHJAX:
+#+HTML_HEAD:
+#+HTML_HEAD_EXTRA:
+#+SUBTITLE:
+#+INFOJS_OPT:
+#+CREATOR: <a href="https://www.gnu.org/software/emacs/">Emacs</a> 24.5.1 (<a href="http://orgmode.org">Org</a> mode 9.1.5)
+#+LATEX_HEADER:
+#+MACRO: hide0 #+HTML: <div class='solution'><button>Solution</button>
+#+MACRO: hide #+HTML: <div class='solution'><button>$1</button>
+#+MACRO: unhide #+HTML: </div>
+#+PROPERTY: header-args:R :session *R* :exports both :results output
+
+* Setup                                                            :noexport:
+
+#+begin_src R
+  options(crayon.enabled = FALSE, tidyverse.quiet = TRUE)
+  library("webex")
+  library("tidyverse")
+#+end_src
+
+* Background
+
+For this session, we will build up a lab exercise on probability and probability distributions.  The idea is to start out with a basic random process that is easy to understand and simulate in R (coin flipping), which introduces the idea of a discrete distribution (the binomial distribution).  Next, we will talk about continuous distributions (the standard normal distribution) and z-scores.
+
+In the process, we will learn about how to write simple functions in R, how to simulate data, and various distribution functions (density, quantile, etc.).
+
+* A discrete distribution: The binomial distribution
+
+Let's start by simulating a coin flip in R.
+
+#+BEGIN_SRC R
+  sample(c("heads", "tails"), 1)
+#+END_SRC
+
+Here we're using the function =sample()=, which takes a random sample from the vector supplied as the first argument, =x=.  In this case, the first argument has the two possible states of a coin: heads or tails.  The second argument to =sample()= is the number of samples that we want to draw, which in this case is '1' for a single coin flip.  If we wanted to flip the coin 10 times, we would type:
+
+#+BEGIN_SRC R
+  sample(c("heads", "tails"), 10)
+#+END_SRC
+
+#+RESULTS:
+: Error in sample.int(length(x), size, replace, prob) : 
+:   cannot take a sample larger than the population when 'replace = FALSE'
+
+Whoops!  We already see a problem.  The default for =sample()= is to sample /without replacement/, which means that once a value is drawn, it is removed from the vector.  What we need to do instead is to sample /with replacement/, which we can do just by overriding the default for the third argument =replace=, which by default is set to =FALSE=.  (Note that the options in =x= are sampled with equal probability by default, but this can be overridden by changing the fourth argument, =prob=.)
+
+#+BEGIN_SRC R
+  sample(c("heads", "tails"), 10, TRUE)
+#+END_SRC
+
+#+RESULTS:
+:  [1] "heads" "tails" "heads" "heads" "tails" "tails" "heads" "tails" "heads"
+: [10] "heads"
+
+OK, let's play a game where we count the number of heads that we get on \(k\) coin flips (we will call each coin flip a single 'trial', like a trial in an experiment).  Let's store the result of the call to =sample()= in a variable, and then we will use a programming trick to count the number of heads.
+
+#+BEGIN_SRC R
+  k <- 10
+  flips <- sample(c("heads", "tails"), k, TRUE)
+  nheads <- sum(flips == "heads")
+#+END_SRC
+
+#+RESULTS:
+
+The second statement here counts the number of heads using the =sum()= function.  If you look at what the statement within =sum()= does on its own:
+
+#+BEGIN_SRC R
+  flips == "heads"
+#+END_SRC
+
+#+RESULTS:
+:  [1] FALSE FALSE FALSE  TRUE FALSE FALSE  TRUE FALSE  TRUE FALSE
+
+you can see that it is just comparing each value of =flips= to =heads= and returning =TRUE= if it's heads, and =FALSE= otherwise.  Because =TRUE= is equivalent to a '1' and =FALSE= is equivalent to a '0' in R, taking the =sum()= of the logical vector will return the number of heads (from 0 to /k/).  This programming trick turns out to be a very useful way to count things in R.  (We could also have used the function =table()= to count things, but in this case the output of =table()= is less useful for our purposes.)
+
+** Empirical distributions
+
+OK, we're going to start doing a lot of coin flipping, counting up how many heads we get and then creating distributions of the number of /heads/ in /k/ flips.  Since we're going to be doing the above steps over and over, it's best if we wrap the code we've written into a function.  This way we don't have to type those steps every time we want to flip a coin and count up the number of heads.
+
+#+BEGIN_SRC R
+  head_count <- function(k) {
+      flips <- sample(c("heads", "tails"), k, TRUE)
+      sum(flips == "heads")
+  }
+#+END_SRC
+
+Now let's play around with the function.
+
+#+BEGIN_EXAMPLE
+> head_count(10)
+[1] 4
+> head_count(10)
+[1] 3
+> head_count(10)
+[1] 5
+> head_count(10)
+[1] 4
+> head_count(10)
+[1] 5
+> head_count(100)
+[1] 44
+> head_count(1000)
+[1] 513
+> head_count(10000)
+[1] 5020
+#+END_EXAMPLE
+
+OK, let's take it a step further and ask the question: what is the probability of getting 0 heads in 10 flips?  1 head in 10 flips?  2 heads in 10 flips?  ... 10 heads in 10 flips?
+
+One way to find out is to /estimate/ these probabilities through simulation.  Let's say that a single 'experiment' consists of flipping the coin 10 times (i.e., one call to the function =head_count()=.  What we can do is to repeat this 'experiment' a large number of times, keeping track of the number of heads we got each time, and then plotting the results in a distribution.  To do this, we will use the function =replicate()=.  The first argument to replicate is the number of times we want to repeat a command; the second argument is the command to be repeated.
+
+#+BEGIN_SRC R
+  replicate(100, head_count(10))
+#+END_SRC
+
+#+RESULTS:
+:   [1] 3 5 4 3 4 3 5 5 3 6 4 3 4 7 6 5 5 3 5 5 6 3 5 5 3 6 8 3 5 6 6 4 4 6 4 4 5
+:  [38] 5 5 3 7 4 4 5 5 6 5 2 4 5 5 3 5 2 4 4 5 6 4 3 3 6 4 6 7 7 5 4 6 3 6 5 4 3
+:  [75] 6 5 7 7 2 4 5 3 5 4 4 6 3 2 7 7 3 2 2 7 7 5 6 4 7 6
+
+We can plot a histogram of the experiment outcomes using =ggplot2=.
+
+#+HEADER: :file coin_hist1.png
+#+BEGIN_SRC R :exports both :results output graphics file
+  library("tidyverse")
+
+  heads <- replicate(1000, head_count(10))
+
+  ggplot(tibble(x = heads), aes(x)) +
+    geom_bar() +
+    scale_x_continuous(breaks = 0:10)
+#+END_SRC
+
+#+RESULTS:
+[[file:coin_hist1.png]]
+
+Note that we can estimate the probability of each of the 11 outcomes (0:10) by counting them up and dividing through by the number of experiments.  In this case we will count up using the function =table()=.
+
+#+BEGIN_SRC R
+  table(heads)
+#+END_SRC
+
+#+RESULTS:
+: heads
+:   0   1   2   3   4   5   6   7   8   9  10 
+:   2   9  50 119 216 206 215 123  49   9   2
+
+#+BEGIN_SRC R
+  probs <- table(heads) / 1000
+  probs
+#+END_SRC
+
+#+RESULTS:
+: heads
+:     0     1     2     3     4     5     6     7     8     9    10 
+: 0.002 0.010 0.053 0.104 0.217 0.251 0.211 0.110 0.030 0.011 0.001
+
+#+HEADERS: :file coin_hist2.png
+#+BEGIN_SRC R :exports both :results output graphics file
+  ## make a tibble so we can view in ggplot2
+  my_probs <- tibble(outcome = as.integer(names(probs)),
+		     probability = probs)
+
+  ggplot(my_probs, aes(outcome, probability)) +
+    geom_col()
+#+END_SRC
+
+#+RESULTS:
+[[file:coin_hist2.png]]
+
+Now that we have estimated probabilities of different experimental outcomes, we can use these probabilities to answer questions like?
+
+**What is the probability of getting exactly 5 heads on 10 flips?**
+
+{{{hide0}}}
+
+#+BEGIN_SRC R :exports none
+    v <- function(x, y) {
+        i <- as.character(y)
+        sapply(i, function(ff) {
+            res <- which(names(x) == ff)
+            if (length(res) > 0L)
+                return(x[[res]])
+            else
+                return(0)
+        })
+    }
+
+    v1 <- as.numeric(v(probs, 5L))
+    v2 <- sum(as.numeric(v(probs, 0:2)))
+#+END_SRC
+
+This was estimated as src_R[:exports results :results value]{v1} from our simulation.
+
+{{{unhide}}}
+
+
+**What is the probability of getting at most 2 heads on 10 flips?**
+
+{{{hide0}}}
+
+For this we just add up \(P(Y = 0) + P(Y = 1) + P(Y = 2)\), which, from our simulations, yields src_R[:exports results :results value]{v2}
+
+{{{unhide}}}
+
+These probabilities are just estimates, and if we ran the experiment again, we'd get different results!  We need something more definitive.
+
+** Theoretical distributions
+
+Fortunately, mathematicians have determined how all the possible outcomes for a 'coin flipping' type experiment can be enumerated such that the probabilities can be calculated exactly.  This is quantified in the form of the [[https://en.wikipedia.org/wiki/Binomial_distribution][binomial distribution]] (Wikipedia).
+
+#+BEGIN_SRC R :exports results :results output graphics file :file bdist.png :width 800 :height 300
+  par(mfrow = c(1, 3))
+  barplot(dbinom(0:4, 4, .5), names.arg = 0:4, main = "Nheads on 4 coin flips")
+  barplot(dbinom(0:10, 10, .5), names.arg = 0:10, main = "Nheads on 10 coin flips")
+  barplot(dbinom(0:32, 32, .5), names.arg = 0:32, main = "Nheads on 32 coin flips")
+#+END_SRC
+
+#+RESULTS:
+[[file:bdist.png]]
+
+Note that you can plot your own version of the theoretical distribution using:
+
+#+BEGIN_SRC R :exports code :eval never
+  bdist <- tibble(outcome = 0:10,
+		  probability = dbinom(outcome, 10, .5))
+
+
+  ggplot(bdist, aes(outcome, probability)) +
+    geom_col() +
+    scale_x_continuous(breaks = 0:10)
+#+END_SRC
+
+The binomial distribution is determined by three parameters: \(N\), the number of trials (which was 10 in the case of our coin flipping experiment), \(k\), the number of 'successes' over all \(N\) trials (e.g., getting exactly 5 heads on 10 flips), and \(p\), the probability of success on any one trial (e.g., the probability of a coin flip turning up heads, which is .5).
+
+R provides various functions for working with the binomial distribution:
+
+#+BEGIN_EXAMPLE
+The Binomial Distribution
+
+Description:
+
+     Density, distribution function, quantile function and random
+     generation for the binomial distribution with parameters ‘size’
+     and ‘prob’.
+
+     This is conventionally interpreted as the number of ‘successes’ in
+     ‘size’ trials.
+
+Usage:
+
+     dbinom(x, size, prob, log = FALSE)
+     pbinom(q, size, prob, lower.tail = TRUE, log.p = FALSE)
+     qbinom(p, size, prob, lower.tail = TRUE, log.p = FALSE)
+     rbinom(n, size, prob)
+     
+Arguments:
+
+    x, q: vector of quantiles.
+
+       p: vector of probabilities.
+
+       n: number of observations. If ‘length(n) > 1’, the length is
+          taken to be the number required.
+
+    size: number of trials (zero or more).
+
+    prob: probability of success on each trial.
+
+log, log.p: logical; if TRUE, probabilities p are given as log(p).
+
+lower.tail: logical; if TRUE (default), probabilities are P[X <= x],
+          otherwise, P[X > x].
+#+END_EXAMPLE
+
+Note that the four functions are all named in the form =*binom= where the =*= is either =d=, =p=, =q=, and =r=.  
+
+- The =d= in =dbinom()= stands for /density/.  =dbinom()= returns the probability of =x= successes given =size= trials and probability of success =prob=.
+
+- The =p= in =pbinom()= gives the /distribution/ function.  =pbinom= returns the probability of getting \(X \le x\) successes given =size= trials and probability of success =prob=.  It is the typical function that you would use to get something corresponding to a 'p-value' (which is the reason it starts with a 'p').
+
+- The =q= in =qbinom()= is the 'quantile' function; it returns the number of successes cutting off =p= probability, given =size= trials and a probability of success =prob=.
+
+- The =r= in =rbinom()= is a random generation function.  It will randomly generate =n= experiments, each having =size= trials and =prob= probability of success, and return the number of successes in each.
+
+These things are confusing, so play around with them until you fully understand how they work.  Note that this system of density, distribution, quantile, and random generation functions is repeated through /all different kinds of probability distributions/ in R.
+
+| =dnorm()=  | =pnorm()=  | =qnorm()=  | =rnorm()=  | Normal Distribution                     |   |
+| =dt()=     | =pt()=     | =qt()=     | =rt()=     | Student's (Gosset's) \(t\) distribution |   |
+| =dchisq()= | =pchisq()= | =qchisq()= | =rchisq()= | Chi-square distribution                 |   |
+| =df()=     | =pf()=     | =qf()=     | =rf()=     | \(F\) distribution                      |   |
+
+If you master these functions, you'll never need to look up a critical value in a statistical table ever again!
+
+To sharpen our understanding, let's try these functions out to answer the two questions above:
+
+**What is the probability of getting exactly 5 heads on 10 flips?**
+
+{{{hide0}}}
+
+#+BEGIN_SRC R
+   dbinom(5, 10, .5)
+#+END_SRC
+
+Note that this is just giving us the height of this blue bar:
+
+#+BEGIN_SRC R :results output graphics file :file dbinom_5.png :exports results
+    barplot(dbinom(0:10, 10, .5), names.arg = 0:10, 
+            col = rep(c('gray', 'lightblue', 'gray'), c(5, 1, 5)))
+#+END_SRC  
+
+{{{unhide}}}
+
+**What is the probability of getting at most 2 heads on 10 flips?**
+
+{{{hide0}}}
+
+#+BEGIN_SRC R
+  pbinom(2, 10, .5)
+#+END_SRC
+
+Note that there is another way we could have done this:
+
+#+BEGIN_SRC R
+    probs <- dbinom(0:2, 10, .5)
+    probs
+    sum(probs)
+#+END_SRC
+
+In this latter strategy, we are just adding up the heights of the three blue bars.
+
+#+BEGIN_SRC R :results output graphics file :file dbinom_2.png :exports results
+    barplot(dbinom(0:10, 10, .5), names.arg = 0:10, 
+            col = rep(c('lightblue', 'gray'), c(3, 8)))
+#+END_SRC  
+
+{{{unhide}}}
+
+**What is the probability of getting 7 or more heads on 10 flips?**
+
+{{{hide0}}}
+
+#+BEGIN_SRC R
+    sum(dbinom(7:10, 10, .5))
+#+END_SRC
+
+or, equivalently:
+
+#+BEGIN_SRC R
+    pbinom(6, 10, .5, lower.tail = FALSE)
+#+END_SRC
+
+What ~pbinom()~ gives us is the probability of getting 0 to 6 successes (the lower tail of the distribution, given by the pink bars).  The total area under the curve for a theoretical distribution sums to 1.  If we want the upper tail instead, we set =lower.tail= to =FALSE=, and this will give us the probability for the blue bars.
+
+#+BEGIN_SRC R :results output graphics file :exports results :file dbinom_tail.png
+    barplot(dbinom(0:10, 10, .5), names.arg = 0:10, 
+            col = rep(c('pink', 'lightblue'), c(7, 4)))  
+#+END_SRC
+
+{{{unhide}}}
+
+OK now let's consider a scenario in which you'd use the quantile function =qbinom()= You suspect that the coin is biased against heads.  Your null hypothesis is that the coin is not biased against heads (\(P(heads) = .5\)).  
+
+You are going to run a single experiment to test your hypothesis, with 10 trials.  
+
+**What is the minimum number of 'successes' that is acceptable, if you want to keep your long-run error rate for this type of experiment at .05?**
+
+#+BEGIN_SRC R
+  qbinom(.05, 10, .5)
+#+END_SRC
+
+#+RESULTS:
+: [1] 2
+
+So if you got less than two heads, you would reject the null that the coin was unbiased against heads.
+
+Ten trials is probably far too few.  
+
+**What would your cutoff be if you ran 100 trials?**
+
+{{{hide0}}}
+
+#+BEGIN_SRC R
+  qbinom(.05, 100, .5)
+#+END_SRC
+
+{{{unhide}}}
+
+**What would your cutoff be for 1000?**
+
+{{{hide0}}}
+
+#+BEGIN_SRC R
+  qbinom(.05, 1000, .5)
+#+END_SRC
+
+{{{unhide}}}
+
+**What would your cutoff be for 10000?**
+
+{{{hide0}}}
+
+#+BEGIN_SRC R
+  qbinom(.05, 10000, .5)
+#+END_SRC
+
+{{{unhide}}}
+
+Let's answer the same three questions above, but let's assume that we wanted to be more conservative, and reduce our error rate to .01. What would your cutoffs be for 10, 100, 1000, and 10000 trials?
+
+{{{hide0}}}
+
+#+BEGIN_SRC R
+  qbinom(.01, c(10, 100, 1000, 10000), .5)
+#+END_SRC
+
+#+RESULTS:
+: [1]    1   38  463 4884
+
+{{{unhide}}}
+
+** Data simulation with the binomial distribution
+
+The ~rbinom()~ function can be used to simulate data. Let's try it out. 
+
+Above you wrote a function ~head_count()~ to simulate the flipping of a coin 10 times and counting the number of heads. You can use ~rbinom()~ to do the same thing. This function is useful for simulation.
+
+**Use ~rbinom()~ to simulate four experiments in each of which you flip a coin 10 times and count the number of heads.**
+
+{{{hide0}}}
+
+#+begin_src R
+  rbinom(4, 10, .5)
+#+end_src
+
+#+RESULTS:
+: [1] 2 3 7 4
+
+{{{unhide}}}
+
+**Use ~rbinom()~ to simulate 10 experiments, in each of which you roll a six sided die 100 times and count the number of times you get a '2'.**
+
+{{{hide0}}}
+
+#+begin_src R
+  rbinom(10, 100, 1/6)
+#+end_src
+
+#+RESULTS:
+:  [1] 17 15 18 16 17 12 11 10 15 17
+
+{{{unhide}}}
+
+* A continuous distribution: The normal distribution
+
+As the above illustrates, probability distributions are useful for estimating probabilities and determining cutoff values in hypothesis testing.  However, many of the variables we are interested in are continuous rather than discrete.  Many such variables (IQ, height, weight) tend to show a /normal/ distribution such as illustrated below.
+
+#+BEGIN_SRC R :exports results :results output graphics file :file nd.png
+  x <- seq(-4, 4, .01)
+  par(mai = c(.5, .5, .01, 0))
+  plot(x, dnorm(x), type = 'l', col = 'blue', ylab = 'probability density', xlab = 'z')
+#+END_SRC
+
+According to the Scottish Health Survey (2008), the mean height for 16-24 year old Scottish males is 176.2\nbsp{}cm with a standard deviation of 6.748; for females the mean is 163.8\nbsp{}cm with a standard deviation of 6.931.  Assuming height is normally distributed (a safe assumption), here are the (estimated) height distributions for 16-24 year olds in Scotland:
+
+#+NAME: normdist
+#+BEGIN_SRC R :exports results :results output graphics file :file shs_height.png :width 800 :height 200
+  x <- seq(136.076, 203.192, .1)
+  par(mai = c(.5, .5, .01, 0))
+  plot(x, dnorm(x, 176.2, 6.748), type = 'l', col = 'blue',
+       xlab = "Height (cm)")
+  points(x, dnorm(x, 163.8, 6.931), type = 'l', col = 'red')
+  abline(v = 176.2, lty = 2, col = 'blue')
+  abline(v = 163.8, lty = 2, col = 'red')
+  text(176.2, .05, "176.2 cm", col = 'blue')
+  text(163.8, .05, "163.8 cm", col = 'red')
+  legend("topleft", legend = c("male", "female"), lty = 1, col = c('blue', 'red'),
+         bty = 'n')
+#+END_SRC
+
+Unlike with discrete distributions, it does not really make sense to ask for the probability of an exact value.  Instead, we can ask for the probability that a value falls within a particular range \((x_1, x_2\)), \(P(x_1 < X < x_2)\).
+
+So we can ask:
+
+**What is the probability that a 16-24 yo Scottish male is at least 185cm tall?**
+
+Note that we are asking for the area shaded in blue:
+
+#+BEGIN_SRC R :noweb yes :exports results :results output graphics file :file shs_height1.png :width 800 :height 200
+  <<normdist>>
+  polygon(c(seq(185, 200, .1), 185),
+          c(dnorm(seq(185, 200, .1), 176.2, 6.748), 0), col = 'blue', border = NA)
+#+END_SRC
+
+There are two ways to answer this question.  The easy way is just to use the =pnorm()= function, specifying the mean and SD as the second and third arguments.  We want the upper tail, so =lower.tail= should be set to =FALSE=.
+
+#+BEGIN_SRC R
+    pnorm(185, 176.2, 6.748, lower.tail = FALSE)
+#+END_SRC
+
+#+RESULTS:
+	: [1] 0.09610143
+
+**What is the probability of a randomly selected Scottish woman being shorter than 155cm?**
+
+{{{hide0}}}
+
+#+begin_src R
+  pnorm(155, 163.8, 6.931) # lower.tail = TRUE
+#+end_src
+
+#+RESULTS:
+: [1] 0.1021032
+
+{{{unhide}}}
+
+**What is the probability of a randomly selected Scottish man being taller than the average Scottish woman?**
+
+{{{hide0}}}
+
+#+begin_src R
+  pnorm(163.8, 176.2, 6.748, lower.tail = FALSE)
+#+end_src
+
+#+RESULTS:
+: [1] 0.966938
+
+{{{unhide}}}
+
+** z-scores
+
+The other way to do it, which is good to know, is using \(z\) scores.  A z score expresses a score relative to the /standard normal distribution/, which is a normal distribution that has a mean of zero and a standard deviation of 
+
+The formula for a \(z\) score is:
+
+\(z = \frac{X - \mu}{\sigma}\)
+
+Where \(\mu\) is the population mean and \(\sigma\) is the population SD.  
+
+Let us return to our original question and do it with the z-score approach:
+
+**What is the probability that a 16-24 yo Scottish male is at least 185cm tall?**
+
+{{{hide0}}}
+
+A 185cm tall male has a \(z\) score of src_R[:exports results :results value]{round((185-176.2) / 6.748, 3)}
+
+Using the =pnorm()= function with =lower.tail= set to =FALSE=:
+
+#+BEGIN_SRC R
+  this_z <- (185-176.2) / 6.748
+
+  pnorm(this_z, lower.tail = FALSE)
+#+END_SRC
+
+#+RESULTS:
+: [1] 0.09610143
+
+{{{unhide}}}
+
+What is useful about z scores is that it gives us a good way to compare different distributions.  For instance, we can compare a tall male to a tall female to answer the question: 
+
+**Which one of these people is taller relative to other people of their same sex?**
+
+Angus is 198cm tall, and Fiona is 188cm tall.  Which one is more freakishly tall?
+
+{{{hide0}}}
+
+#+BEGIN_SRC R
+  z_f <- (188 - 163.8) / 6.931
+  z_a <- (198 - 176.2) / 6.748
+
+  c(Angus = z_a, Fiona = z_f)
+#+END_SRC
+
+#+RESULTS:
+:  
+:   Angus    Fiona 
+: 3.230587 3.491560
+
+So Fiona, being about 3.5SD above the mean for her sex, is taller relative to other women than Angus is relative to other men.
+
+{{{unhide}}}
+
+OK, let's imagine that Fiona refuses to date any men who are shorter than her (i.e., men who are 188cm or below have no chance).  
+
+**What proportion of men would be eligible to date Fiona?**
+
+{{{hide0}}}
+
+#+BEGIN_SRC R
+  ## a z-score for a man as tall as Fiona is:
+  z_male <- (188 - 176.2) / 6.748
+  z_male
+#+END_SRC
+
+#+RESULTS:
+: [1] 1.748666
+
+So a male as tall as her is about 1.7 SDs above the mean for his sex.  What proportion of young Scottish men are at least this height?
+
+#+BEGIN_SRC R
+  pnorm(z_male, lower.tail = FALSE)
+#+END_SRC
+
+#+RESULTS:
+: [1] 0.04017436
+
+Only about 4%!  She might want to move to the Netherlands!
+
+{{{unhide}}}
+
+**Fiona decides to be less picky.  If she wanted to increase the pool of eligible men to 10% of the male population, what height cutoff should she put in her dating profile?**
+
+{{{hide0}}}
+
+#+BEGIN_SRC R 
+  qnorm(.10, 176.2, 6.748, lower.tail = FALSE) 
+#+END_SRC
+
+{{{unhide}}}
+
+
+
+* TODO Sampling distributions for test statistics                  :noexport:
+
+* 
+  :PROPERTIES:
+  :NOTOC:    t
+  :END:
+  
+#+begin_export html
+ <script>
+
+ /* update total correct if #total_correct exists */
+ update_total_correct = function() {
+   if (t = document.getElementById("total_correct")) {
+     t.innerHTML =
+       document.getElementsByClassName("correct").length + " of " +
+       document.getElementsByClassName("solveme").length + " correct";
+   }
+ }
+
+ /* solution button toggling function */
+ b_func = function() {
+   var cl = this.parentElement.classList;
+   if (cl.contains('open')) {
+     cl.remove("open");
+   } else {
+     cl.add("open");
+   }
+ }
+
+ /* function for checking solveme answers */
+ solveme_func = function(e) {
+   var real_answers = JSON.parse(this.dataset.answer);
+   var my_answer = this.value;
+   var cl = this.classList;
+   if (cl.contains("ignorecase")) {
+     my_answer = my_answer.toLowerCase();
+   }
+   if (cl.contains("nospaces")) {
+     my_answer = my_answer.replace(/ /g, "");
+   }
+  
+   if (my_answer !== "" & real_answers.includes(my_answer)) {
+     cl.add("correct");
+   } else {
+     cl.remove("correct");
+   }
+   update_total_correct();
+ }
+
+ window.onload = function() {
+   /* set up solution buttons */
+   var buttons = document.getElementsByTagName("button");
+
+   for (var i = 0; i < buttons.length; i++) {
+     if (buttons[i].parentElement.classList.contains('solution')) {
+       buttons[i].onclick = b_func;
+     }
+   }
+  
+   /* set up solveme inputs */
+   var solveme = document.getElementsByClassName("solveme");
+
+   for (var i = 0; i < solveme.length; i++) {
+     /* make sure input boxes don't auto-anything */
+     solveme[i].setAttribute("autocomplete","off");
+     solveme[i].setAttribute("autocorrect", "off");
+     solveme[i].setAttribute("autocapitalize", "off"); 
+     solveme[i].setAttribute("spellcheck", "false");
+     solveme[i].value = "";
+    
+     /* adjust answer for ignorecase or nospaces */
+     var cl = solveme[i].classList;
+     var real_answer = solveme[i].dataset.answer;
+     if (cl.contains("ignorecase")) {
+       real_answer = real_answer.toLowerCase();
+     }
+     if (cl.contains("nospaces")) {
+       real_answer = real_answer.replace(/ /g, "");
+     }
+     solveme[i].dataset.answer = real_answer;
+    
+     /* attach checking function */
+     solveme[i].onkeyup = solveme_func;
+     solveme[i].onchange = solveme_func;
+   }
+  
+   update_total_correct();
+ }
+
+ </script>
+#+end_export

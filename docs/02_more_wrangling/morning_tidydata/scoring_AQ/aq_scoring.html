@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-04-06 Tue 21:19 -->
+<!-- 2021-04-07 Wed 22:47 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Scoring the AQ-10: Hints and solutions</title>
@@ -248,9 +248,9 @@ for the JavaScript code in this tag.
 </div><div id="content">
 <h1 class="title">Scoring the AQ-10: Hints and solutions</h1>
 
-<div id="outline-container-org2d807ec" class="outline-2">
-<h2 id="org2d807ec">Scoring the AQ</h2>
-<div class="outline-text-2" id="text-org2d807ec">
+<div id="outline-container-orgd4e72e8" class="outline-2">
+<h2 id="orgd4e72e8">Scoring the AQ</h2>
+<div class="outline-text-2" id="text-orgd4e72e8">
 <p>
 As a hint, your solution will involve reshaping using a <code>tidyr</code> function and joining tables using one of the two-table verbs in <code>dplyr</code>.
 </p>
@@ -284,28 +284,13 @@ Note that we have used the argument &ldquo;<code>skip = 1</code>&rdquo; because 
 </div>
 
 <pre class="example">
-Rows: 66
-Columns: 14
-$ Id          [3m[90m&lt;dbl&gt;[39m[23m 16, 17, 18, 19, 20, 21, 22, 28, 29, 31, 34, 35, 39, 40, 41…
-$ Gender      [3m[90m&lt;chr&gt;[39m[23m "Male", "Male", "Male", "Male", "Male", "Female", "Female"…
-$ Age         [3m[90m&lt;dbl&gt;[39m[23m 20, 40, 33, 18, 24, 42, 19, 49, 18, 18, 32, 18, 20, 39, 18…
-$ Participate [3m[90m&lt;dbl&gt;[39m[23m 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…
-$ Q1          [3m[90m&lt;chr&gt;[39m[23m "Slightly Disagree", "Definitely Agree", "Definitely Agree…
-$ Q2          [3m[90m&lt;chr&gt;[39m[23m "Definitely Agree", "Slightly Agree", "Definitely Agree", …
-$ Q3          [3m[90m&lt;chr&gt;[39m[23m "Slightly Disagree", "Slightly Agree", "Slightly Agree", "…
-$ Q4          [3m[90m&lt;chr&gt;[39m[23m "Definitely Disagree", "Definitely Agree", "Definitely Agr…
-$ Q5          [3m[90m&lt;chr&gt;[39m[23m "Slightly Agree", "Definitely Agree", "Definitely Agree", …
-$ Q6          [3m[90m&lt;chr&gt;[39m[23m "Slightly Agree", "Definitely Agree", "Definitely Agree", …
-$ Q7          [3m[90m&lt;chr&gt;[39m[23m "Slightly Agree", "Slightly Agree", "Slightly Agree", "Sli…
-$ Q8          [3m[90m&lt;chr&gt;[39m[23m "Definitely Disagree", "Slightly Disagree", "Definitely Ag…
-$ Q9          [3m[90m&lt;chr&gt;[39m[23m "Slightly Agree", "Slightly Agree", "Definitely Agree", "D…
-$ Q10         [3m[90m&lt;chr&gt;[39m[23m "Slightly Agree", "Slightly Disagree", "Definitely Disagre…
+Error in glimpse(dat) : object 'dat' not found
 </pre>
 </div>
 
-<div id="outline-container-orgc4c5b97" class="outline-3">
-<h3 id="orgc4c5b97">Pull out participant information</h3>
-<div class="outline-text-3" id="text-orgc4c5b97">
+<div id="outline-container-orgd31a792" class="outline-3">
+<h3 id="orgd31a792">Pull out participant information</h3>
+<div class="outline-text-3" id="text-orgd31a792">
 <p>
 The table has a mix of information: participant demographics and responses to survey items.  We want to have separate tables for these.  Next step: pull out the participant information into a separate table called <code>part_info</code>.
 </p>
@@ -320,14 +305,20 @@ part_info <span style="font-weight: bold; text-decoration: underline;">&lt;-</sp
 </pre>
 </div>
 
+<pre class="example">
+
+Error in select(., Id, Gender, Age, Participate) : object 'dat' not found
+</pre>
+
+
 
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgc3c7063" class="outline-3">
-<h3 id="orgc3c7063">Reshape the question data</h3>
-<div class="outline-text-3" id="text-orgc3c7063">
+<div id="outline-container-orga61778b" class="outline-3">
+<h3 id="orga61778b">Reshape the question data</h3>
+<div class="outline-text-3" id="text-orga61778b">
 <p>
 Now let&rsquo;s reshape the question data (columns Q1 to Q10) from wide to
 long, and store this in the variable <code>qdat</code>.
@@ -351,9 +342,9 @@ qdat
 </div>
 </div>
 
-<div id="outline-container-orge16a393" class="outline-3">
-<h3 id="orge16a393">Deal with the reverse coding</h3>
-<div class="outline-text-3" id="text-orge16a393">
+<div id="outline-container-org060c0fa" class="outline-3">
+<h3 id="org060c0fa">Deal with the reverse coding</h3>
+<div class="outline-text-3" id="text-org060c0fa">
 <p>
 Now let&rsquo;s create our tables that link responses to scores for the two different formats.  There are different possible solutions to this.
 </p>
@@ -417,18 +408,12 @@ scored
 
 <pre class="example">
 
-   Id Question     Degree Agreement Score
-1  16       Q1   Slightly  Disagree     0
-2  16      Q10   Slightly     Agree     1
-3  16       Q2 Definitely     Agree     0
-4  16       Q3   Slightly  Disagree     1
-5  16       Q4 Definitely  Disagree     1
-6  16       Q5   Slightly     Agree     0
-7  16       Q6   Slightly     Agree     0
-8  16       Q7   Slightly     Agree     1
-9  16       Q8 Definitely  Disagree     0
-10 16       Q9   Slightly     Agree     0
+Error in separate(., Response, c("Degree", "Agreement")) : 
+  object 'qdat' not found
+
+Error: object 'scored' not found
 </pre>
+
 
 
 </div>
@@ -519,6 +504,12 @@ OK, now we&rsquo;re ready to score each individual question by linking <code>qda
 </pre>
 </div>
 
+<pre class="example">
+
+Error in inner_join(., qformats, "Question") : object 'qdat' not found
+</pre>
+
+
 <p>
 If everything goes correctly, we should have the same number of rows in <code>scored</code> as we had in <code>qdat</code>.  The next line is just to formally test that this is the case, using <code>stopifnot()</code>.  This will cause the program to halt if the condition is not satisfied.
 </p>
@@ -527,6 +518,11 @@ If everything goes correctly, we should have the same number of rows in <code>sc
 <pre class="src src-R">stopifnot(nrow(scored) == nrow(qdat))
 </pre>
 </div>
+
+<pre class="example">
+Error in nrow(scored) : object 'scored' not found
+</pre>
+
 
 
 </div>
@@ -541,24 +537,14 @@ We should always double check that our scoring system worked. We can do this usi
 </div>
 
 <pre class="example">
-   Question            Response Score  n
-1        Q1    Definitely Agree     1 21
-2        Q1 Definitely Disagree     0  6
-3        Q1      Slightly Agree     1 26
-4        Q1   Slightly Disagree     0 13
-5       Q10    Definitely Agree     1  4
-6       Q10 Definitely Disagree     0 11
-7       Q10      Slightly Agree     1 15
-8       Q10   Slightly Disagree     0 36
-9        Q2    Definitely Agree     0  9
-10       Q2 Definitely Disagree     1  2
+Error in count(., Question, Response, Score) : object 'scored' not found
 </pre>
 </div>
 </div>
 
-<div id="outline-container-org81c43f5" class="outline-3">
-<h3 id="org81c43f5">Calculate the AQ</h3>
-<div class="outline-text-3" id="text-org81c43f5">
+<div id="outline-container-org8c17bce" class="outline-3">
+<h3 id="org8c17bce">Calculate the AQ</h3>
+<div class="outline-text-3" id="text-org8c17bce">
 <p>
 The final thing to do is to calculate the AQ, which is the sum of the 1s for each <code>Id</code> (because each unique value of <code>Id</code> stands in for a unique participant).  
 </p>
@@ -582,33 +568,30 @@ Use <code>group_by(Id) %&gt;% summarise(AQ = sum(Score))</code>, and pipe the re
 </pre>
 </div>
 
+<pre class="example">
+
+Error in group_by(., Id) : object 'scored' not found
+</pre>
+
+
 <div class="org-src-container">
 <pre class="src src-R">AQ_scores
 </pre>
 </div>
 
 <pre class="example">
-   Id AQ
-1  52  9
-2  55  8
-3  86  8
-4  99  8
-5  46  7
-6  74  7
-7  22  6
-8  40  5
-9  45  5
-10 51  5
+Error: object 'AQ_scores' not found
 </pre>
+
 
 
 <div class='solution'><button>Solution</button>
 </div>
 </div>
 
-<div id="outline-container-orgcc54307" class="outline-3">
-<h3 id="orgcc54307">Plot</h3>
-<div class="outline-text-3" id="text-orgcc54307">
+<div id="outline-container-org75dcdea" class="outline-3">
+<h3 id="org75dcdea">Plot</h3>
+<div class="outline-text-3" id="text-org75dcdea">
 <p>
 Our last task was to generate a histogram using <code>ggplot2</code>.
 </p>
@@ -632,9 +615,9 @@ Our last task was to generate a histogram using <code>ggplot2</code>.
 </div>
 </div>
 
-<div id="outline-container-org9df1ad4" class="outline-3">
-<h3 id="org9df1ad4">Merge with participant information</h3>
-<div class="outline-text-3" id="text-org9df1ad4">
+<div id="outline-container-orgb26e267" class="outline-3">
+<h3 id="orgb26e267">Merge with participant information</h3>
+<div class="outline-text-3" id="text-orgb26e267">
 <p>
 We probably want to link the AQ scores back to participant info (since, for example, we&rsquo;d want to contact participants with particularly high AQs).  To do this you need to use a join.
 </p>
@@ -653,28 +636,19 @@ We probably want to link the AQ scores back to participant info (since, for exam
 </div>
 
 <pre class="example">
-   Id AQ Gender Age Participate
-1  52  9   Male  25           0
-2  55  8 Female  23           1
-3  86  8   Male  77           1
-4  99  8   Male  25           0
-5  46  7 Female  21           1
-6  74  7 Female  48           1
-7  22  6 Female  19           1
-8  40  5   Male  39           1
-9  45  5 Female  58           1
-10 51  5 Female  20           1
+Error in head(part_AQ, 10) : object 'part_AQ' not found
 </pre>
 
 
+
 </div>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org41e0ecd" class="outline-2">
-<h2 id="org41e0ecd"></h2>
-<div class="outline-text-2" id="text-org41e0ecd">
+<div id="outline-container-org2eaf929" class="outline-2">
+<h2 id="org2eaf929"></h2>
+<div class="outline-text-2" id="text-org2eaf929">
 <script>
 
 /* update total correct if #total_correct exists */
@@ -761,7 +735,7 @@ window.onload = function() {
 </div>
 </div>
 <div id="postamble" class="status">
-<p class="date">Created: 2021-04-06 Tue 21:19</p>
+<p class="date">Created: 2021-04-07 Wed 22:47</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -1,0 +1,423 @@
+#+STARTUP: beamer
+#+TITLE:     Probability & Hypothesis Testing
+#+AUTHOR:    Level 3 Statistics
+#+DATE:      Homework 2
+#+DESCRIPTION:
+#+KEYWORDS:
+#+LANGUAGE:  en
+#+OPTIONS:   H:2 num:t toc:nil \n:nil @:t ::t |:t ^:t -:t f:t *:t <:t
+#+OPTIONS:   TeX:t LaTeX:t skip:nil d:nil todo:t pri:nil tags:not-in-toc
+#+INFOJS_OPT: view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+#+SELECT_TAGS: export
+#+EXCLUDE_TAGS: noexport Excel
+#+LINK_UP:   
+#+LINK_HOME: 
+#+XSLT:
+#+LaTeX_CLASS: beamer
+#+LaTeX_CLASS_OPTIONS: [presentation,smaller]
+#+LATEX_HEADER: \usepackage[T1]{fontenc}
+#+LATEX_HEADER: \usepackage{helvet}
+#+LATEX_HEADER: \usepackage{inconsolata}
+#+LATEX_HEADER: \usetheme{Boadilla}\usecolortheme{beaver}
+#+LATEX_HEADER: \setbeamertemplate{footline}[page number]{}
+#+LATEX_HEADER: \setbeamertemplate{navigation symbols}{}
+#+LATEX_HEADER: \usepackage{upquote}
+#+LATEX_HEADER: \usepackage{hyperref}
+#+LATEX_HEADER: \hypersetup{colorlinks,citecolor=violet,linkcolor=red,urlcolor=blue}
+#+PROPERTY: header-args:R :session *R*
+
+* notes																														 :noexport:
+
+- but you can show how to do the 15-25% one using that arg as TRUE
+- FIX THIS: for one of the normal distribution problems, I put 151 instead of 151.5
+- R: show them the trick of changing the mean/sd in the pnorm formula
+
+* Working with probabilities
+
+** Working with the binomial distribution
+
+#+latex: \framesubtitle{Functions you will need}
+
+#+begin_src R :exports results :results output graphics :file binom.pdf :width 9 :height 3.7
+  bseq <- seq(0,20,1)
+  par(mai=c(.8,.8,.1,.1))
+  ff <- barplot(dbinom(bseq,20,.5), col=c(rep(NA,13),rep('blue',8)),yaxt='n',
+                ylab="probability",xlab="X")
+  labs <- c("0",rep("",12),"A",rep("",6),"N")
+  axis(1,ff,labels=labs,cex.axis=1)
+  axis(2,at=c(0,.05,dbinom(13,20,.5),.10,.15),
+       labels=c("","","B","",""),cex.axis=1.5,las=1)
+  abline(h=dbinom(13,20,.5),lty=3)
+  arrows(21, .05, 19, .04, col='blue', length=.1)
+  text(21,.05,"blue area = C", col="blue", pos=4)
+#+end_src
+
+#+RESULTS:
+[[file:binom.pdf]]
+
+| Calculation    | function                                     |
+|----------------+----------------------------------------------|
+| get B from A   | \texttt{dbinom(A, N, p)}                     |
+| \(P(X \ge A)\) | \texttt{sum(dbinom(A:N, N, p))}              |
+| \(P(X \le A)\) | \texttt{sum(dbinom(0:A, N, p))}              |
+| get X given C  | \texttt{qbinom(C, N, p, lower.tail = FALSE)} |
+|----------------+----------------------------------------------|
+
+where \(B=P(X=A)\), \(C\) is \(P(X \ge A)\) (i.e., the blue area),
+\(N\) is the number of trials, and \(p\) is the probability of
+"success"
+
+** BINOMIAL PROBLEMS
+
+Your friend claims that her dog can correctly interpret her verbal
+requests to fetch five different kinds of objects: a squeaky toy, a
+newspaper, slippers, the TV remote, and a leash.  You are a skeptic
+and decide to test her claim.  You lay these five objects out on the
+floor in the living room of her flat.  You run 100 "trials", with each
+trial consisting of a request by your friend for the dog to bring an
+object from the living room to her bedroom (where she is located).  On
+each trial you record the dog's accuracy.  Assume that the dog always
+returns with an object.  There are 20 trials for each of the five
+objects, presented in a random order.
+
+Assuming your friend's dog has no language comprehension abilities:
+
+1. What is the probability of "success" (i.e., that the dog will be
+   accurate on any single trial)?
+2. What is the probability that it will be accurate on exactly 30
+   trials?
+3. What is the probability that its accuracy will be between 15% and
+   25% (range includes 15 and 25)?
+4. What is the accuracy level beyond which you would reject the null hypothesis of no
+   language abilities, assuming the test is one-tailed, \(\alpha=.05\)?
+
+** Probability of "success"					     :answer:
+
+Assuming your friend's dog has no language comprehension abilities:
+
+(1) What is the probability of "success" (i.e., that the dog will be accurate on any single trial)?
+
+#+BEGIN_CENTER
+choices are (toy, newpaper, slippers, remote, leash)
+
+\(p = \frac{1}{\text{number of choices}} = \frac{1}{5} = .2\)
+#+END_CENTER
+
+** Accurate on exactly \(A\) trials				   :R:answer:
+
+#+latex: \framesubtitle{\texttt{R} Formula method}
+
+(2) What is the probability that it will be accurate on exactly 30 trials?
+
+Note: \(N = 100, p=.2\)
+
+
+#+BEGIN_CENTER
+use =R= function =dbinom(A,N,p)=
+#+END_CENTER
+
+*** R code							    :B_block:
+    :PROPERTIES:
+    :BEAMER_env: block
+    :END:
+
+#+begin_src R :exports both :results output
+dbinom(30, 100, .2)
+#+end_src
+
+#+RESULTS:
+: [1] 0.005189643
+
+** Accuracy between \(A\) and \(B\)			       :R:answer:
+
+(3) What is the probability that its accuracy will be between 15% and 25%?
+
+#+BEGIN_CENTER
+use =R= function =sum(dbinom(A:B,N,p))=
+#+END_CENTER
+
+*** R code							    :B_block:
+    :PROPERTIES:
+    :BEAMER_env: block
+    :END:
+
+#+begin_src R :exports both :results output
+dbinom(15:25, 100, .2)
+sum(dbinom(15:25, 100, .2))
+#+end_src
+
+#+RESULTS:
+:  [1] 0.04806179 0.06383207 0.07885138 0.09089812 0.09807429 0.09930021
+:  [7] 0.09457163 0.08489953 0.07198004 0.05773399 0.04387783
+: [1] 0.8320809
+
+** Critical value for rejecting the null?			   :R:answer:
+
+(4) At what accuracy level would you reject the null hypothesis of no language abilities, assuming \(\alpha=.05\)?
+
+#+BEGIN_CENTER
+use =R= function =qbinom(alpha, N, p, lower.tail=FALSE)=
+#+END_CENTER
+
+*** R code							    :B_block:
+    :PROPERTIES:
+    :BEAMER_env: block
+    :END:
+
+#+begin_src R :exports both :results output
+qbinom(.05, 100, .2, lower.tail=FALSE)
+#+end_src
+
+#+RESULTS:
+: [1] 27
+
+*** back						    :B_ignoreheading:
+    :PROPERTIES:
+    :BEAMER_env: ignoreheading
+    :END:
+
+- So, if the dog gets *more than* 27 correct (out of 100), this would be
+  sufficiently unlikely under the hypothesis that the dog has no
+  understanding to lead you to suspect the contrary...
+
+** Working with the standard normal distribution
+
+#+latex: \framesubtitle{Functions you will need}
+
+#+latex: \begin{center}
+
+#+begin_src R :exports results :results output graphics :file snd.pdf :width 9 :height 3.5
+  nseq <- seq(-4,4,.01)
+  nseq2 <- seq(1,4,.01)
+  nseq3 <- seq(-4,1,.01)
+  par(mai=c(.6,.1,.1,.1),mgp=c(2.5,.8,0),las=1)
+  plot(nseq, dnorm(nseq), type='n', ylab="probability",las=1, xaxt='n',xlab="",yaxt='n',
+       bty='n')
+  polygon(c(nseq2, rev(nseq2)), c(dnorm(nseq2), rep(0,length(nseq2))), col='lightblue1',
+          border=NA)
+  polygon(c(nseq3, rev(nseq3)), c(dnorm(nseq3), rep(0,length(nseq3))), col='indianred1',
+          border=NA)
+  points(nseq, dnorm(nseq), type='l', ylab="probability", lwd=2, col='blue')
+  axis(1,at=seq(-4,4,1),labels=c(rep("",4),expression(mu),"A",rep("",3)))
+  abline(v=0,lty=3)
+  abline(h=0)
+  abline(v=1,lty=2)
+  text(1.5,.03,"B")
+  text(-1.5,.03,"C")
+#+end_src
+
+#+RESULTS:
+[[file:snd.pdf]]
+
+| Calculation   | R                                     |
+|---------------+---------------------------------------|
+| get B given A | \texttt{pnorm(A, lower.tail = FALSE)} |
+| get C given A | \texttt{pnorm(A, lower.tail = TRUE)}  |
+| get A given B | \texttt{qnorm(B, lower.tail = FALSE)} |
+| get A given C | \texttt{qnorm(C, lower.tail = TRUE)}  |
+|---------------+---------------------------------------|
+
+#+latex: \end{center}
+
+** NORMAL DISTRIBUTION PROBLEMS
+
+The average height (\mu) of a 16-24 year old Scotsman is 176.2
+centimetres, with a standard deviation (\sigma) of 6.748.  The average
+height (\mu) of a 16-24 year old Scotswoman is 163.8 cm, with a
+standard deviation (\sigma) of 6.931.  Assume that height is normally
+distributed.  (Data from the [[http://www.scotland.gov.uk/Resource/Doc/286063/0087158.pdf][Scottish Health Survey, 2008]].)
+
+For these problems, please use the \(z\)-score formula
+
+#+BEGIN_CENTER
+\(z = \frac{X-\mu}{\sigma}\).
+#+END_CENTER
+
+1. What is the probability of meeting a 16-24 y.o. Scotswoman who is
+   taller than the average 16-24 y.o. Scotsman?
+2. Fiona is a very tall Scotswoman (181.12\nbsp{}cm) in the 16-24
+   y.o. range who refuses to date men who are shorter than her.  What
+   proportion of all 16-24 Scotsmen would she be willing to date?
+3. Out of 100,000 16-24 y.o. Scotswomen, how many would you predict
+   would meet the height eligibility requirement to join the Royal
+   Navy (at least 151.5\nbsp{}cm tall)?
+4. How tall would a 16-24 y.o. Scotsman have to be in order to be in
+   the top 5% of the height distribution for Scotsmen in his age
+   group?
+
+
+** Scotswomen taller than typical Scotsman			   :answer:R:
+
+(1) What is the probability of meeting a 16-24 y.o. Scotswoman who is
+taller than the average 16-24 y.o. Scotsman?
+
+#+BEGIN_CENTER
+|            |  mean |    SD |
+|------------+-------+-------|
+| Scotswoman | 163.8 | 6.931 |
+| Scotsman   | 176.2 | 6.748 |
+|------------+-------+-------|
+
+\(z = \frac{X-\mu}{\sigma}\)
+#+END_CENTER
+
+A 16-24yo Scotswoman who is as tall as the average Scotsman has a
+\(z\)-score of \(z = \frac{176.2-163.8}{6.931} = 1.789\), i.e., she is
+1.789\nbsp{}\(SD\)s above the mean of her distribution.  The
+probability of encountering a woman as tall as this or taller, \(P(X
+\ge 1.789)\), is:
+
+*** R code							    :B_block:
+    :PROPERTIES:
+    :BEAMER_env: block
+    :END:
+
+#+begin_src R :exports both :results output
+pnorm(1.789,lower.tail=FALSE)
+#+end_src
+
+#+RESULTS:
+: [1] 0.03680741
+
+** Fiona's dating problems					   :R:answer:
+
+(2) Fiona is a very tall Scotswoman (181.12\nbsp{}cm) in the 16-24
+y.o. range who refuses to date men who are shorter than her.  What
+proportion of all 16-24 Scotsmen would she be willing to date?
+
+#+BEGIN_CENTER
+|            |  mean |    SD |
+|------------+-------+-------|
+| Scotswoman | 163.8 | 6.931 |
+| Scotsman   | 176.2 | 6.748 |
+|------------+-------+-------|
+
+\(z = \frac{X-\mu}{\sigma}\)
+#+END_CENTER
+
+What proportion of Scotsmen are taller than Fiona?  A z-score for a
+man as tall as she would be \(z = \frac{181.12-176.2}{6.748} = .729\).
+The proportion of men at least this tall is:
+
+*** R code 							    :B_block:
+    :PROPERTIES:
+    :BEAMER_env: block
+    :END:
+
+#+begin_src R :exports both :results output
+pnorm(.729,lower.tail=FALSE)
+#+end_src
+
+#+RESULTS:
+: [1] 0.2330008
+
+*** back						    :B_ignoreheading:
+    :PROPERTIES:
+    :BEAMER_env: ignoreheading
+    :END:
+
+So about 1 in every 4 Scotsmen her age would be available.
+** Royal Navy problem						   :R:answer:
+
+(3) Out of 100,000 16-24 y.o. Scotswomen, how many would you predict
+would meet the height eligibility requirement to join the Royal Navy
+(at least 151.5\nbsp{}cm tall)?
+
+#+BEGIN_CENTER
+|  mean |    SD |
+|-------+-------|
+| 163.8 | 6.931 |
+
+\(z = \frac{X-\mu}{\sigma}\)
+#+END_CENTER
+
+A female who is 151.5 cm tall has a \(z\)-score of \(z =
+\frac{151.5-163.8}{6.931} = -1.774636\).  The proportion of women taller than this is:
+
+*** R code							    :B_block:
+    :PROPERTIES:
+    :BEAMER_env: block
+    :END:
+
+#+begin_src R :exports both :results output
+  z <- (151.5 - 163.8) / 6.931
+  print(z)
+  pnorm(z, lower.tail = FALSE)
+  round(pnorm(z, lower.tail = FALSE) * 100000)
+#+end_src
+
+#+RESULTS:
+: [1] -1.774636
+: [1] 0.962021
+: [1] 96202
+
+*** back						    :B_ignoreheading:
+    :PROPERTIES:
+    :BEAMER_env: ignoreheading
+    :END:
+
+The expected number is given by \(p \times N\), which in this case is
+\(96,202\) women.
+
+** How tall to be in the top 5%?				   :answer:R:
+
+(4) How tall would a 16-24 y.o. Scotsman have to be in order to be in
+the top 5% of the height distribution for Scotsmen in his age group?
+
+#+BEGIN_CENTER
+|            |  mean |    SD |
+|------------+-------+-------|
+| Scotswoman | 163.8 | 6.931 |
+| Scotsman   | 176.2 | 6.748 |
+|------------+-------+-------|
+
+\(z = \frac{X-\mu}{\sigma}\)
+#+END_CENTER
+
+What \(z\) score cuts off the top 5% of the distribution?
+
+*** R code							    :B_block:
+    :PROPERTIES:
+    :BEAMER_env: block
+    :END:
+
+#+begin_src R :exports both :results output
+  z_crit <- qnorm(.05, lower.tail = FALSE)
+  print(z_crit)
+#+end_src
+
+#+RESULTS:
+: [1] 1.644854
+
+** How tall to be in the top 5%? (cont'd)			     :answer:
+
+So, someone in the top 5% (95th percentile) has a \(z\)-score of at
+least 1.645.  Now let's solve the \(z\)-score formula for \(X\) to
+find out what the height would be.
+
+#+BEGIN_EXPORT latex
+\begin{align*}
+z &= \frac{X-\mu}{\sigma}\\
+X &= z\sigma + \mu\\
+X &= 1.645(6.748) + 176.2 = 187.3
+\end{align*}
+#+END_EXPORT
+
+Thus, a 16-24 y.o. Scotsman must be 187.3 cm tall or taller to be in
+the top 5% of the distribution.
+
+*** R code																								 :B_block:answer:R:
+		:PROPERTIES:
+		:BEAMER_env: block
+		:END:
+
+#+BEGIN_SRC R :exports both
+  z_crit * 6.748 + 176.2
+#+END_SRC
+
+#+RESULTS:
+: 187.299472274669
+
+** Submit your homework
+
+http://talklab.psy.gla.ac.uk/L3stats/ps02

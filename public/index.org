@@ -26,8 +26,8 @@
 | Wed 07-Apr | 10:00-13:00 | Tidy data ([[file:02_more_wrangling/morning_tidydata/index.org][walkthrough]]) ([[file:02_more_wrangling/morning_tidydata/scoring_AQ/index.org][activity: AQ scoring]])                |
 |            | 14:00-17:00 | Data visualization with ggplot2 ([[file:02_more_wrangling/afternoon_dataviz/ggplot_activity/ggplot_activity.html][activity]])                    |
 |------------+-------------+---------------------------------------------------------------|
-| Thu 08-Apr | 10:00-13:00 | Univariate distributions                                      |
-|            | 14:00-17:00 | Bivariate distributions / correlation                         |
+| Thu 08-Apr | 10:00-13:00 | Univariate distributions ([[file:03_distributions/morning_univariate/univariate_slides.pdf][slides]]) ([[file:03_distributions/morning_univariate/index.org][walkthrough]])                     |
+|            | 14:00-17:00 | Bivariate distributions / ([[https://dalejbarr.github.io/HU-stats-2021/slides/02_correlation/index.html][slides]]) ([[file:03_distributions/afternoon_bivariate/correlation_walkthrough.html][walkthrough]])       |
 |------------+-------------+---------------------------------------------------------------|
 | Fri 09-Apr | 10:00-13:00 | t-tests: NHST, power, effect size                             |
 |            | 14:00-17:00 | One-way Analysis of Variance (ANOVA)                          |
@@ -88,7 +88,7 @@ If installing R/RStudio is not possible, because (1) you are using a laptop with
 - Fallback 2: [[https://towardsdatascience.com/how-to-use-r-in-google-colab-b6e02d736497][Google Colab]]. I haven't used this myself, but apparently it is possible to run R, and you will not face any usage limits. However, the interface is different and it will probably be difficult to get help if you get stuck.
 
 
-* Extra materials
+* Extra activities
 
 If you need an extra challenge, consider the following materials.
 
@@ -97,19 +97,14 @@ If you need an extra challenge, consider the following materials.
 - [[file:extra/disgust/index.org][More data tidying and joins: The =disgust= dataset]]
 - Scoring the EQ-Short and SQ-Short [hard!]: ([[file:extra/EQ_SQ/EQ_SQ_wrangle.Rmd][Rmd_source]]) ([[file:extra/EQ_SQ/solution.html][solution_html]]) ([[file:extra/EQ_SQ/solution.Rmd][solution_Rmd]]) ([[file:extra/EQ_SQ_files.zip][data_files]])
 
-** Model specification                                             :noexport:
-- [[https://talklab.psy.gla.ac.uk/tvw/catpred][Coding categorical predictors in factorial designs]]
-
-- Extra practice with linear regression: ([[file:extra/extra_lm_practice.Rmd][source Rmd file]]) ([[file:extra/extra_lm_solution.html][solution]])
-
 ** Data simulation
 - [[file:extra/binary/binary.html][Simulating binary data]]
 
-** Scripts from Live Coding Sessions                               :noexport:
+
+* Scripts from Live Coding Sessions                                :noexport:
 - Scottish babynames script from Monday morning: [[file:01_monday/morning_intro_to_R/names.R][names.R]]
 - Data wrangling and data tidying: [[file:01_monday/afternoon_intro_to_data_wrangling/01_monday_afternoon_script.R][01_monday_afternoon_script.R]]
 - [[file:extra/misc/misc.html][Miscellaneous extra things (Thursday morning)]]
-
 
 * Additional Resources
 

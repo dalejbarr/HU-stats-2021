@@ -1,0 +1,250 @@
+
+* Relationships
+
+
+
+
+
+#+RESULTS:
+#+begin_export html
+<table>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> IQ </th>
+   <th style="text-align:right;"> verbal fluency </th>
+   <th style="text-align:right;"> digit span </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> IQ </td>
+   <td style="text-align:right;"> 1.00 </td>
+   <td style="text-align:right;"> 0.56 </td>
+   <td style="text-align:right;"> 0.43 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> verbal fluency </td>
+   <td style="text-align:right;"> 0.56 </td>
+   <td style="text-align:right;"> 1.00 </td>
+   <td style="text-align:right;"> 0.23 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> digit span </td>
+   <td style="text-align:right;"> 0.43 </td>
+   <td style="text-align:right;"> 0.23 </td>
+   <td style="text-align:right;"> 1.00 </td>
+  </tr>
+</tbody>
+</table>
+#+end_export
+
+
+* Correlation matrices
+
+#+begin_export html
+<table>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> IQ </th>
+   <th style="text-align:right;"> verbal fluency </th>
+   <th style="text-align:right;"> digit span </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> IQ </td>
+   <td style="text-align:right;"> </td>
+   <td style="text-align:right;"> </td>
+   <td style="text-align:right;"> </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> verbal fluency </td>
+   <td style="text-align:right;"> 0.56 </td>
+   <td style="text-align:right;">  </td>
+   <td style="text-align:right;"> </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> digit span </td>
+   <td style="text-align:right;"> 0.43 </td>
+   <td style="text-align:right;"> -0.23 </td>
+   <td style="text-align:right;">  </td>
+  </tr>
+</tbody>
+</table>
+#+end_export
+
+* Simulating correlational data
+
+To simulate bivariate (or multivariate) data in R, use =MASS::mvrnorm()=.
+
+=mvrnorm(n, mu, Sigma, ...)=
+
+You need the following information:
+
+- means of \(X\) and \(Y\), \(\bar{X}\) and \(\bar{Y}\)
+- standard deviations of \(X\) and \(Y\), \(\sigma_X\) and \(\sigma_Y\).
+- correlation coefficient \(\rho_{XY}\).
+
+* Let's make synthetic humans
+
+height and weight measurements for 435 people, taken from [[https://www.geogebra.org/m/RRprACv4][here]]
+
+#+HEADER: :file hw_raw.png :width 600 :height 400 :dpi 150
+#+begin_src R :exports results :results output graphics file
+  ggplot(handw, aes(height_in, weight_lbs)) +
+    geom_point(color = "yellow", alpha = .15) +
+    labs(x = "height (in)", y = "weight (lbs)") +
+    theme_jetblack()
+#+end_src
+
+#+RESULTS:
+[[file:hw_raw.png]]
+
+* Log-transformed data
+
+#+HEADER: :file hw_log.png :width 600 :height 400 :dpi 150
+#+begin_src R :exports results :results output graphics file
+  ggplot(hw_log, aes(log_height, log_weight)) +
+    geom_point(color = "yellow", alpha = .15) +
+    labs(x = "log(height)", y = "log(weight)") +
+    theme_jetblack()
+#+end_src
+
+#+RESULTS:
+[[file:hw_log.png]]
+
+* Summary statistics
+
+#+REVEAL_HTML: <div class="column" style="float:left; width: 70%">
+[[file:hw_log.png]]
+#+REVEAL_HTML: </div>
+
+#+REVEAL_HTML: <div class="column" style="float:right; width: 30%">
+| \(\bar{X}\)    | 4.11 |
+| \(\bar{Y}\)    | 4.74 |
+| \(\sigma_{X}\) |  .26 |
+| \(\sigma_{Y}\) |  .65 |
+| \(\rho_{XY}\)  |  .96 |
+#+REVEAL_HTML: </div>
+
+* Covariance matrix
+
+\(\mathbf{\Sigma}\)
+
+*A square matrix that characterizes the variances and their interrelationships (covariances).* 
+
+\begin{pmatrix}
+{\sigma_x}^2                & \rho_{xy} \sigma_x \sigma_y \\
+\rho_{yx} \sigma_y \sigma_x & {\sigma_y}^2 \\
+\end{pmatrix}
+
+Must be *symmetric* and *positive definite*
+
+* Calculations
+
+#+REVEAL_HTML: <div class="column" style="float:left; width: 50%">
+\begin{pmatrix}
+{\sigma_x}^2                & \rho_{xy} \sigma_x \sigma_y \\
+\rho_{yx} \sigma_y \sigma_x & {\sigma_y}^2 \\
+\end{pmatrix}
+#+REVEAL_HTML: </div>
+
+#+REVEAL_HTML: <div class="column" style="float:right; width: 50%">
+| \(\sigma_{X}\) |  .26 |
+| \(\sigma_{Y}\) |  .65 |
+| \(\rho_{XY}\)  |  .96 |
+#+REVEAL_HTML: </div>
+
+* Simulating with =MASS::mvrnorm()=
+
+#+REVEAL_HTML: <div class="column" style="float:left; width: 50%">
+#+begin_src R :exports both :results output
+  my_cov <- .96 * .26 * .65
+  my_Sigma <- matrix(c(.26^2, my_cov, 
+		       my_cov, .65^2),
+		     ncol = 2)
+  my_Sigma
+#+end_src
+
+#+RESULTS:
+: 
+:         [,1]    [,2]
+: [1,] 0.06760 0.16224
+: [2,] 0.16224 0.42250
+
+#+REVEAL_HTML: </div>
+
+#+REVEAL_HTML: <div class="column" style="float:right; width: 50%">
+#+begin_src R :exports both :results output
+  set.seed(62) # so we get the same numbers
+
+  ## DON'T put library(MASS) in your script!
+  newpeeps <-
+    MASS::mvrnorm(6, mu = c(height = 4.11,
+			    weight = 4.74),
+		  Sigma = my_Sigma)
+
+  newpeeps
+#+end_src
+
+#+RESULTS:
+: 
+:        height   weight
+: [1,] 4.254209 5.282913
+: [2,] 4.257828 4.895222
+: [3,] 3.722376 3.759767
+: [4,] 4.191287 4.764229
+: [5,] 4.739967 6.185191
+: [6,] 4.058105 4.806485
+
+#+REVEAL_HTML: </div>
+
+* Transform back to raw units
+
+The =exp()= function is the inverse of =log()=.
+
+#+begin_src R :results output
+  exp(newpeeps)
+#+end_src
+
+#+RESULTS:
+:         height    weight
+: [1,]  70.40108 196.94276
+: [2,]  70.65632 133.64963
+: [3,]  41.36254  42.93844
+: [4,]  66.10779 117.24065
+: [5,] 114.43045 485.50576
+: [6,]  57.86453 122.30092
+
+* Our synthetic humans
+
+#+HEADER: :file synthhumans.png :width 600 :height 400
+#+begin_src R :exports results :results output graphics file
+  ggplot(alldata, aes(height_in, weight_lbs)) +
+    geom_point(aes(colour = type), alpha = .2) + 
+    scale_color_manual(values = c("#F0E442", "#0072B2")) +
+    theme_jetblack()
+#+end_src
+
+#+RESULTS:
+[[file:synthhumans.png]]
+
+* The =bivariate= app
+
+http://shiny.psy.gla.ac.uk/Dale/bivariate
+
+* Correlation and the GLM
+
+#+REVEAL_HTML: <div class="column" style="float:left; width: 50%">
+\(Y_i = \beta_0 + \beta_1 X_i + e_i\)
+
+\(e_i \sim N\left(0, \sigma^2\right)\)
+#+REVEAL_HTML: </div>
+
+#+REVEAL_HTML: <div class="column" style="float:right; width: 50%">
+\(\beta_1 = \rho_{XY}\frac{\sigma_Y}{\sigma_X}\)
+
+\(\beta_0 = \bar{Y} - \beta_1\bar{X}\)
+#+REVEAL_HTML: </div>

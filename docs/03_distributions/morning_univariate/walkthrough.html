@@ -1,0 +1,907 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2021-04-07 Wed 22:47 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Probability &amp; Hypothesis Testing</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Level 3 Statistics" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2019 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">Probability &amp; Hypothesis Testing</h1>
+
+<div id="outline-container-orge416eb7" class="outline-2">
+<h2 id="orge416eb7"><span class="section-number-2">1</span> Working with probabilities</h2>
+<div class="outline-text-2" id="text-1">
+</div>
+<div id="outline-container-org4821d96" class="outline-3">
+<h3 id="org4821d96"><span class="section-number-3">1.1</span> Working with the binomial distribution</h3>
+<div class="outline-text-3" id="text-1-1">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Calculation</th>
+<th scope="col" class="org-left">function</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">get B from A</td>
+<td class="org-left">\texttt{dbinom(A, N, p)}</td>
+</tr>
+
+<tr>
+<td class="org-left">\(P(X \ge A)\)</td>
+<td class="org-left">\texttt{sum(dbinom(A:N, N, p))}</td>
+</tr>
+
+<tr>
+<td class="org-left">\(P(X \le A)\)</td>
+<td class="org-left">\texttt{sum(dbinom(0:A, N, p))}</td>
+</tr>
+
+<tr>
+<td class="org-left">get X given C</td>
+<td class="org-left">\texttt{qbinom(C, N, p, lower.tail = FALSE)}</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+where \(B=P(X=A)\), \(C\) is \(P(X \ge A)\) (i.e., the blue area),
+\(N\) is the number of trials, and \(p\) is the probability of
+&ldquo;success&rdquo;
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgcedc467" class="outline-3">
+<h3 id="orgcedc467"><span class="section-number-3">1.2</span> BINOMIAL PROBLEMS</h3>
+<div class="outline-text-3" id="text-1-2">
+<p>
+Your friend claims that her dog can correctly interpret her verbal
+requests to fetch five different kinds of objects: a squeaky toy, a
+newspaper, slippers, the TV remote, and a leash.  You are a skeptic
+and decide to test her claim.  You lay these five objects out on the
+floor in the living room of her flat.  You run 100 &ldquo;trials&rdquo;, with each
+trial consisting of a request by your friend for the dog to bring an
+object from the living room to her bedroom (where she is located).  On
+each trial you record the dog&rsquo;s accuracy.  Assume that the dog always
+returns with an object.  There are 20 trials for each of the five
+objects, presented in a random order.
+</p>
+
+<p>
+Assuming your friend&rsquo;s dog has no language comprehension abilities:
+</p>
+
+<ol class="org-ol">
+<li>What is the probability of &ldquo;success&rdquo; (i.e., that the dog will be
+accurate on any single trial)?</li>
+<li>What is the probability that it will be accurate on exactly 30
+trials?</li>
+<li>What is the probability that its accuracy will be between 15% and
+25% (range includes 15 and 25)?</li>
+<li>What is the accuracy level beyond which you would reject the null hypothesis of no
+language abilities, assuming the test is one-tailed, \(\alpha=.05\)?</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-org2d9d05f" class="outline-3">
+<h3 id="org2d9d05f"><span class="section-number-3">1.3</span> Probability of &ldquo;success&rdquo;&#xa0;&#xa0;&#xa0;<span class="tag"><span class="answer">answer</span></span></h3>
+<div class="outline-text-3" id="text-1-3">
+<p>
+Assuming your friend&rsquo;s dog has no language comprehension abilities:
+</p>
+
+<p>
+(1) What is the probability of &ldquo;success&rdquo; (i.e., that the dog will be accurate on any single trial)?
+</p>
+
+<div class="org-center">
+<p>
+choices are (toy, newpaper, slippers, remote, leash)
+</p>
+
+<p>
+\(p = \frac{1}{\text{number of choices}} = \frac{1}{5} = .2\)
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org27f3db7" class="outline-3">
+<h3 id="org27f3db7"><span class="section-number-3">1.4</span> Accurate on exactly \(A\) trials&#xa0;&#xa0;&#xa0;<span class="tag"><span class="R">R</span>&#xa0;<span class="answer">answer</span></span></h3>
+<div class="outline-text-3" id="text-1-4">
+<p>
+(2) What is the probability that it will be accurate on exactly 30 trials?
+</p>
+
+<p>
+Note: \(N = 100, p=.2\)
+</p>
+
+
+<div class="org-center">
+<p>
+use <code>R</code> function <code>dbinom(A,N,p)</code>
+</p>
+</div>
+</div>
+
+<ol class="org-ol">
+<li><a id="orgd3f6db5"></a>R code&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_block">B_block</span></span><br />
+<div class="outline-text-4" id="text-1-4-1">
+<div class="org-src-container">
+<pre class="src src-R">dbinom(30, 100, .2)
+</pre>
+</div>
+
+<pre class="example">
+[1] 0.005189643
+</pre>
+</div>
+</li>
+</ol>
+</div>
+
+<div id="outline-container-orgf1d248d" class="outline-3">
+<h3 id="orgf1d248d"><span class="section-number-3">1.5</span> Accuracy between \(A\) and \(B\)&#xa0;&#xa0;&#xa0;<span class="tag"><span class="R">R</span>&#xa0;<span class="answer">answer</span></span></h3>
+<div class="outline-text-3" id="text-1-5">
+<p>
+(3) What is the probability that its accuracy will be between 15% and 25%?
+</p>
+
+<div class="org-center">
+<p>
+use <code>R</code> function <code>sum(dbinom(A:B,N,p))</code>
+</p>
+</div>
+</div>
+
+<ol class="org-ol">
+<li><a id="org70a733e"></a>R code&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_block">B_block</span></span><br />
+<div class="outline-text-4" id="text-1-5-1">
+<div class="org-src-container">
+<pre class="src src-R">dbinom(15:25, 100, .2)
+sum(dbinom(15:25, 100, .2))
+</pre>
+</div>
+
+<pre class="example">
+ [1] 0.04806179 0.06383207 0.07885138 0.09089812 0.09807429 0.09930021
+ [7] 0.09457163 0.08489953 0.07198004 0.05773399 0.04387783
+
+[1] 0.8320809
+</pre>
+</div>
+</li>
+</ol>
+</div>
+
+<div id="outline-container-orgf7ef4b1" class="outline-3">
+<h3 id="orgf7ef4b1"><span class="section-number-3">1.6</span> Critical value for rejecting the null?&#xa0;&#xa0;&#xa0;<span class="tag"><span class="R">R</span>&#xa0;<span class="answer">answer</span></span></h3>
+<div class="outline-text-3" id="text-1-6">
+<p>
+(4) At what accuracy level would you reject the null hypothesis of no language abilities, assuming \(\alpha=.05\)?
+</p>
+
+<div class="org-center">
+<p>
+use <code>R</code> function <code>qbinom(alpha, N, p, lower.tail=FALSE)</code>
+</p>
+</div>
+</div>
+
+<ol class="org-ol">
+<li><a id="org2fb107d"></a>R code&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_block">B_block</span></span><br />
+<div class="outline-text-4" id="text-1-6-1">
+<div class="org-src-container">
+<pre class="src src-R">qbinom(.05, 100, .2, lower.tail=<span style="font-weight: bold; text-decoration: underline;">FALSE</span>)
+</pre>
+</div>
+
+<pre class="example">
+[1] 27
+</pre>
+</div>
+</li>
+
+<li><a id="org03a7f64"></a>back&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_ignoreheading">B_ignoreheading</span></span><br />
+<div class="outline-text-4" id="text-1-6-2">
+<ul class="org-ul">
+<li>So, if the dog gets <b>more than</b> 27 correct (out of 100), this would be
+sufficiently unlikely under the hypothesis that the dog has no
+understanding to lead you to suspect the contrary&#x2026;</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+
+<div id="outline-container-org848d4fe" class="outline-3">
+<h3 id="org848d4fe"><span class="section-number-3">1.7</span> Working with the standard normal distribution</h3>
+<div class="outline-text-3" id="text-1-7">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Calculation</th>
+<th scope="col" class="org-left">R</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">get B given A</td>
+<td class="org-left">\texttt{pnorm(A, lower.tail = FALSE)}</td>
+</tr>
+
+<tr>
+<td class="org-left">get C given A</td>
+<td class="org-left">\texttt{pnorm(A, lower.tail = TRUE)}</td>
+</tr>
+
+<tr>
+<td class="org-left">get A given B</td>
+<td class="org-left">\texttt{qnorm(B, lower.tail = FALSE)}</td>
+</tr>
+
+<tr>
+<td class="org-left">get A given C</td>
+<td class="org-left">\texttt{qnorm(C, lower.tail = TRUE)}</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-org04d8065" class="outline-3">
+<h3 id="org04d8065"><span class="section-number-3">1.8</span> NORMAL DISTRIBUTION PROBLEMS</h3>
+<div class="outline-text-3" id="text-1-8">
+<p>
+The average height (&mu;) of a 16-24 year old Scotsman is 176.2
+centimetres, with a standard deviation (&sigma;) of 6.748.  The average
+height (&mu;) of a 16-24 year old Scotswoman is 163.8 cm, with a
+standard deviation (&sigma;) of 6.931.  Assume that height is normally
+distributed.  (Data from the <a href="http://www.scotland.gov.uk/Resource/Doc/286063/0087158.pdf">Scottish Health Survey, 2008</a>.)
+</p>
+
+<p>
+For these problems, please use the \(z\)-score formula
+</p>
+
+<div class="org-center">
+<p>
+\(z = \frac{X-\mu}{\sigma}\).
+</p>
+</div>
+
+<ol class="org-ol">
+<li>What is the probability of meeting a 16-24 y.o. Scotswoman who is
+taller than the average 16-24 y.o. Scotsman?</li>
+<li>Fiona is a very tall Scotswoman (181.12&nbsp;cm) in the 16-24
+y.o. range who refuses to date men who are shorter than her.  What
+proportion of all 16-24 Scotsmen would she be willing to date?</li>
+<li>Out of 100,000 16-24 y.o. Scotswomen, how many would you predict
+would meet the height eligibility requirement to join the Royal
+Navy (at least 151.5&nbsp;cm tall)?</li>
+<li>How tall would a 16-24 y.o. Scotsman have to be in order to be in
+the top 5% of the height distribution for Scotsmen in his age
+group?</li>
+</ol>
+</div>
+</div>
+
+
+<div id="outline-container-org684eae8" class="outline-3">
+<h3 id="org684eae8"><span class="section-number-3">1.9</span> Scotswomen taller than typical Scotsman&#xa0;&#xa0;&#xa0;<span class="tag"><span class="answer">answer</span>&#xa0;<span class="R">R</span></span></h3>
+<div class="outline-text-3" id="text-1-9">
+<p>
+(1) What is the probability of meeting a 16-24 y.o. Scotswoman who is
+taller than the average 16-24 y.o. Scotsman?
+</p>
+
+<div class="org-center">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">&#xa0;</th>
+<th scope="col" class="org-right">mean</th>
+<th scope="col" class="org-right">SD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Scotswoman</td>
+<td class="org-right">163.8</td>
+<td class="org-right">6.931</td>
+</tr>
+
+<tr>
+<td class="org-left">Scotsman</td>
+<td class="org-right">176.2</td>
+<td class="org-right">6.748</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+\(z = \frac{X-\mu}{\sigma}\)
+</p>
+</div>
+
+<p>
+A 16-24yo Scotswoman who is as tall as the average Scotsman has a
+\(z\)-score of \(z = \frac{176.2-163.8}{6.931} = 1.789\), i.e., she is
+1.789&nbsp;\(SD\)s above the mean of her distribution.  The
+probability of encountering a woman as tall as this or taller, \(P(X
+\ge 1.789)\), is:
+</p>
+</div>
+
+<ol class="org-ol">
+<li><a id="org0a14d8d"></a>R code&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_block">B_block</span></span><br />
+<div class="outline-text-4" id="text-1-9-1">
+<div class="org-src-container">
+<pre class="src src-R">pnorm(1.789,lower.tail=<span style="font-weight: bold; text-decoration: underline;">FALSE</span>)
+</pre>
+</div>
+
+<pre class="example">
+[1] 0.03680741
+</pre>
+</div>
+</li>
+</ol>
+</div>
+
+<div id="outline-container-orga5cb019" class="outline-3">
+<h3 id="orga5cb019"><span class="section-number-3">1.10</span> Fiona&rsquo;s dating problems&#xa0;&#xa0;&#xa0;<span class="tag"><span class="R">R</span>&#xa0;<span class="answer">answer</span></span></h3>
+<div class="outline-text-3" id="text-1-10">
+<p>
+(2) Fiona is a very tall Scotswoman (181.12&nbsp;cm) in the 16-24
+y.o. range who refuses to date men who are shorter than her.  What
+proportion of all 16-24 Scotsmen would she be willing to date?
+</p>
+
+<div class="org-center">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">&#xa0;</th>
+<th scope="col" class="org-right">mean</th>
+<th scope="col" class="org-right">SD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Scotswoman</td>
+<td class="org-right">163.8</td>
+<td class="org-right">6.931</td>
+</tr>
+
+<tr>
+<td class="org-left">Scotsman</td>
+<td class="org-right">176.2</td>
+<td class="org-right">6.748</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+\(z = \frac{X-\mu}{\sigma}\)
+</p>
+</div>
+
+<p>
+What proportion of Scotsmen are taller than Fiona?  A z-score for a
+man as tall as she would be \(z = \frac{181.12-176.2}{6.748} = .729\).
+The proportion of men at least this tall is:
+</p>
+</div>
+
+<ol class="org-ol">
+<li><a id="org84a421a"></a>R code&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_block">B_block</span></span><br />
+<div class="outline-text-4" id="text-1-10-1">
+<div class="org-src-container">
+<pre class="src src-R">pnorm(.729,lower.tail=<span style="font-weight: bold; text-decoration: underline;">FALSE</span>)
+</pre>
+</div>
+
+<pre class="example">
+[1] 0.2330008
+</pre>
+</div>
+</li>
+
+<li><a id="org06039e5"></a>back&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_ignoreheading">B_ignoreheading</span></span><br />
+<div class="outline-text-4" id="text-1-10-2">
+<p>
+So about 1 in every 4 Scotsmen her age would be available.
+</p>
+</div>
+</li>
+</ol>
+</div>
+<div id="outline-container-org86bd929" class="outline-3">
+<h3 id="org86bd929"><span class="section-number-3">1.11</span> Royal Navy problem&#xa0;&#xa0;&#xa0;<span class="tag"><span class="R">R</span>&#xa0;<span class="answer">answer</span></span></h3>
+<div class="outline-text-3" id="text-1-11">
+<p>
+(3) Out of 100,000 16-24 y.o. Scotswomen, how many would you predict
+would meet the height eligibility requirement to join the Royal Navy
+(at least 151.5&nbsp;cm tall)?
+</p>
+
+<div class="org-center">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-right" />
+
+<col  class="org-right" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">mean</th>
+<th scope="col" class="org-right">SD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">163.8</td>
+<td class="org-right">6.931</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+\(z = \frac{X-\mu}{\sigma}\)
+</p>
+</div>
+
+<p>
+A female who is 151.5 cm tall has a \(z\)-score of \(z =
+\frac{151.5-163.8}{6.931} = -1.774636\).  The proportion of women taller than this is:
+</p>
+</div>
+
+<ol class="org-ol">
+<li><a id="orgcddb0cc"></a>R code&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_block">B_block</span></span><br />
+<div class="outline-text-4" id="text-1-11-1">
+<div class="org-src-container">
+<pre class="src src-R">z <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> (151.5 - 163.8) / 6.931
+print(z)
+pnorm(z, lower.tail = <span style="font-weight: bold; text-decoration: underline;">FALSE</span>)
+round(pnorm(z, lower.tail = <span style="font-weight: bold; text-decoration: underline;">FALSE</span>) * 100000)
+</pre>
+</div>
+
+<pre class="example">
+
+[1] -1.774636
+
+[1] 0.962021
+
+[1] 96202
+</pre>
+</div>
+</li>
+
+<li><a id="orgf04061c"></a>back&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_ignoreheading">B_ignoreheading</span></span><br />
+<div class="outline-text-4" id="text-1-11-2">
+<p>
+The expected number is given by \(p \times N\), which in this case is
+\(96,202\) women.
+</p>
+</div>
+</li>
+</ol>
+</div>
+
+<div id="outline-container-orgd67990e" class="outline-3">
+<h3 id="orgd67990e"><span class="section-number-3">1.12</span> How tall to be in the top 5%?&#xa0;&#xa0;&#xa0;<span class="tag"><span class="answer">answer</span>&#xa0;<span class="R">R</span></span></h3>
+<div class="outline-text-3" id="text-1-12">
+<p>
+(4) How tall would a 16-24 y.o. Scotsman have to be in order to be in
+the top 5% of the height distribution for Scotsmen in his age group?
+</p>
+
+<div class="org-center">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">&#xa0;</th>
+<th scope="col" class="org-right">mean</th>
+<th scope="col" class="org-right">SD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Scotswoman</td>
+<td class="org-right">163.8</td>
+<td class="org-right">6.931</td>
+</tr>
+
+<tr>
+<td class="org-left">Scotsman</td>
+<td class="org-right">176.2</td>
+<td class="org-right">6.748</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+\(z = \frac{X-\mu}{\sigma}\)
+</p>
+</div>
+
+<p>
+What \(z\) score cuts off the top 5% of the distribution?
+</p>
+</div>
+
+<ol class="org-ol">
+<li><a id="org29bfdd0"></a>R code&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_block">B_block</span></span><br />
+<div class="outline-text-4" id="text-1-12-1">
+<div class="org-src-container">
+<pre class="src src-R">z_crit <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> qnorm(.05, lower.tail = <span style="font-weight: bold; text-decoration: underline;">FALSE</span>)
+print(z_crit)
+</pre>
+</div>
+
+<pre class="example">
+
+[1] 1.644854
+</pre>
+</div>
+</li>
+</ol>
+</div>
+
+<div id="outline-container-org8708dbd" class="outline-3">
+<h3 id="org8708dbd"><span class="section-number-3">1.13</span> How tall to be in the top 5%? (cont&rsquo;d)&#xa0;&#xa0;&#xa0;<span class="tag"><span class="answer">answer</span></span></h3>
+<div class="outline-text-3" id="text-1-13">
+<p>
+So, someone in the top 5% (95th percentile) has a \(z\)-score of at
+least 1.645.  Now let&rsquo;s solve the \(z\)-score formula for \(X\) to
+find out what the height would be.
+</p>
+
+<p>
+Thus, a 16-24 y.o. Scotsman must be 187.3 cm tall or taller to be in
+the top 5% of the distribution.
+</p>
+</div>
+
+<ol class="org-ol">
+<li><a id="org22bfcc1"></a>R code&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_block">B_block</span>&#xa0;<span class="answer">answer</span>&#xa0;<span class="R">R</span></span><br />
+<div class="outline-text-4" id="text-1-13-1">
+<div class="org-src-container">
+<pre class="src src-R">z_crit * 6.748 + 176.2
+</pre>
+</div>
+
+<pre class="example">
+187.299472274669
+</pre>
+</div>
+</li>
+</ol>
+</div>
+
+<div id="outline-container-org8508cf2" class="outline-3">
+<h3 id="org8508cf2"><span class="section-number-3">1.14</span> Submit your homework</h3>
+<div class="outline-text-3" id="text-1-14">
+<p>
+<a href="http://talklab.psy.gla.ac.uk/L3stats/ps02">http://talklab.psy.gla.ac.uk/L3stats/ps02</a>
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: Homework 2</p>
+<p class="author">Author: Level 3 Statistics</p>
+<p class="date">Created: 2021-04-07 Wed 22:47</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

@@ -9,6 +9,6 @@
 #+options: reveal_rolling_links:nil reveal_single_file:nil
 #+options: reveal_slide_number:"c"
 #+options: reveal_subtree_with_title_slide:nil reveal_toc_footer:nil
-#+options: reveal_width:nil
+#+options: reveal_width:nil toc:nil num:nil
 #+reveal_root: ../reveal.js
 #+reveal_trans: convex

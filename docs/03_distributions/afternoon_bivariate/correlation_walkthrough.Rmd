@@ -1,0 +1,171 @@
+---
+title: "Correlation"
+output: webex::webex_default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library("webex")
+```
+
+## Task 1: Correlation matrix
+
+How many unique pairwise correlations are there between 12 different measurements?
+
+`r hide()`
+
+```{r cmatrix}
+choose(12, 2)
+```
+
+`r unhide()`
+
+## Task 2: Covariance matrices
+
+A 3x3 correlation matrix for variables $X$, $Y$, and $Z$ has the following structure (render to HTML to view):
+
+$$
+\begin{pmatrix}
+{\sigma_x}^2 & \rho_{xy}\sigma_x\sigma_y & \rho_{xz}\sigma_x\sigma_z \\
+\rho_{yx}\sigma_y\sigma_x & {\sigma_y}^2 & \rho_{yz}\sigma_y\sigma_z \\
+\rho_{zx}\sigma_z\sigma_x & \rho_{zy}\sigma_z\sigma_y & {\sigma_z}^2 \\
+\end{pmatrix}
+$$
+
+Now consider this 3x3 matrix with filled in values, and answer the following questions.
+
+$$
+\begin{pmatrix}
+ 4    & -4.31 &  4.45 \\
+-4.31 &  9    & -6.36 \\
+ 4.45 & -6.36 & 16    \\
+\end{pmatrix}
+$$
+
+### Task 2.1
+
+What is the standard deviation of the $Y$ variable?
+
+`r hide()`
+
+```{r cvm-1}
+sd_y <- 3
+```
+
+`r unhide()`
+
+### Task 2.2
+
+What is the covariance of $Y$ and $Z$?
+
+`r hide()`
+
+```{r cvm-2}
+cov_yz <- -6.36
+```
+
+`r unhide()`
+
+### Task 2.3
+
+Is the correlation between $X$ and $Y$ negative or positive? Answer TRUE if negative, FALSE if positive.
+
+`r hide()`
+
+```{r cvm-3}
+is_xy_negative <- TRUE
+```
+
+`r unhide()`
+
+### Task 2.4
+
+What is the correlation between $X$ and $Z$?
+
+`r hide()`
+
+```{r cvm-4}
+# the sd_X = 2, sd_Z = 4 
+rho_xz <- 4.45 / (sqrt(4) * sqrt(16))
+
+rho_xz
+```
+
+`r unhide()`
+
+## Task 3: Covariance matrices and data simulation
+
+### Task 3.1: Construct a covariance matrix
+
+You read a study that reports a correlation of between X and Y of $r = -.2$, and the following descriptive statistics: mean of $X = 3.3$ ($SD = 2.4$), mean of $Y = 77.1$ ($SD = 5.9$).  Adapt the code below to construct a covariance matrix that you could potentially use to simulate data from this study.
+
+`r hide()`
+
+```{r cvm-construct}
+## my_cvmx <- matrix(0, nrow = 0, ncol = 0)
+my_cvmx <- matrix(c(2.4^2, -.2 * 2.4 * 5.9,
+                    -.2 * 2.4 * 5.9, 5.9^2), nrow = 2)
+
+my_cvmx
+```
+
+`r unhide()`
+
+### Task 3.2: Simulate data
+
+Given the covariance matrix below and descriptive statistics below, simulate 10 observations.
+
+$$
+\begin{pmatrix}
+6.25 & 1.70     \\
+1.70 & 2.89 \\
+\end{pmatrix}
+$$
+
+$$\bar{X} = 60$$
+
+$$\bar{Y} = -40$$
+
+`r hide()`
+
+```{r}
+my_Sigma <- matrix(c(6.25, 1.70, 1.70, 2.89), nrow = 2)
+
+## simulated_data should be a 10x2 matrix
+simulated_data <- MASS::mvrnorm(10, c(X = 60, Y = -40), my_Sigma)
+
+simulated_data
+```
+
+`r unhide()`
+
+## Task 4
+
+Return to the "big 5" personality data that we wrangled [in the lesson on tidy data](https://dalejbarr.github.io/HU-stats-2021/02_more_wrangling/morning_tidydata/index.html#org28003ad){target="_blank"}.
+
+Calculate the correlation matrix (the resulting matrix should be 5x5, one row/column for each of the 5 factors.) Use `correlate()` from the `corrr` package. See `vignette("using-corrr", "corrr")` for details.
+
+`r hide()`
+
+```{r big5, message=FALSE}
+library("corrr")
+library("tidyverse")
+
+## copy the wrangling that we did to get a wide table
+ocean <- read_csv("personality.csv") %>%
+  select(-date) %>%
+  pivot_longer(Op1:Ex9, names_to = "item", values_to = "score") %>%
+  separate(item, c("subscale", "it"), 2L) %>%
+  group_by(user_id, subscale) %>%
+  summarize(mscore = mean(score, na.rm = TRUE), .groups = "drop")
+
+ocean %>%
+  pivot_wider(names_from = subscale, values_from = mscore) %>%
+  select(-user_id) %>%
+  correlate() %>%
+  shave(upper = FALSE) %>%
+  fashion() %>%
+  knitr::kable() # make it look pretty
+```
+
+`r unhide()`

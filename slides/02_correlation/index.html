@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Correlation and Regression</title>
+<meta name="author" content="Dale Barr"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="../reveal.js/css/reveal.css"/>
+
+<link rel="stylesheet" href="../reveal.js/css/theme/black.css" id="theme"/>
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = '../reveal.js/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<h1 class="title">Correlation and Regression</h1><h2 class="author">Dale Barr</h2><p class="date">Created: 2021-04-07 Wed 22:38</p>
+</section>
+
+<section>
+<section id="slide-org5fd84f6">
+<h2 id="org5fd84f6">Overview</h2>
+<ol>
+<li>correlations and correlation matrices</li>
+<li>simulating correlational data</li>
+
+</ol>
+
+</section>
+</section>
+<section>
+<section id="slide-org64d6051">
+<h2 id="org64d6051">Correlations</h2>
+<div class="outline-text-2" id="text-org64d6051">
+</div>
+</section>
+<section id="slide-org6384e24">
+<h4 id="org6384e24">Relationships</h4>
+
+<div class="figure">
+<p><img src="corrtypes.png" alt="corrtypes.png" />
+</p>
+</div>
+
+</section>
+<section id="slide-org80831ff">
+<h4 id="org80831ff">Multiple relationships</h4>
+
+<div class="figure">
+<p><img src="poly.png" alt="poly.png" />
+</p>
+</div>
+
+</section>
+<section id="slide-org0ae6223">
+<h4 id="org0ae6223">The perfect relationship</h4>
+<div class="column" style="float:left; width: 50%">
+
+<div class="figure">
+<p><img src="perfect.png" alt="perfect.png" />
+</p>
+</div>
+</div>
+
+<div class="column" style="float:right; width: 50%">
+
+<div class="figure">
+<p><img src="whitney.jpg" alt="whitney.jpg" />
+</p>
+</div>
+</div>
+
+</section>
+<section id="slide-org5dba093">
+<h3 id="org5dba093">The correlation coefficient</h3>
+<p>
+Typicaly denoted as \(\rho\) (Greek symbol &rsquo;rho&rsquo;) or \(r\)
+</p>
+
+<p>
+\(-1 \ge r \le 1\)
+</p>
+
+<ul>
+<li>\(r > 0\): positive relationship</li>
+<li>\(r < 0\): negative relationship</li>
+<li>\(r = 0\): no relationship</li>
+
+</ul>
+
+<p>
+\(r^2\): <i>coefficient of determination</i> (shared variance)
+</p>
+
+<p>
+Estimated using Pearson or Spearman (rank) method.
+In R: <code>cor()</code>, <code>cor.test()</code>
+</p>
+
+</section>
+<section id="slide-orgd0ca6a0">
+<h4 id="orgd0ca6a0">Assumptions</h4>
+<ul>
+<li>relationship between \(X\) and \(Y\) is <b>linear</b></li>
+<li>deviations from line of best fit are <b>normally distributed</b></li>
+
+</ul>
+
+<br/><br/><br/><br/><br/><br/><br/><br/><br/>
+
+</section>
+<section id="slide-org9c958d6">
+<h4 id="org9c958d6">Multiple correlations</h4>
+<p>
+For \(n\) variables, you have
+</p>
+
+<p>
+\[\frac{n!}{2(n - 2)!}\]
+</p>
+
+<p>
+unique pairwise relationships, where \(n!\) is the <b>factorial</b> of \(n\).
+</p>
+
+<p>
+In R: <code>choose(n, 2)</code>.
+</p>
+
+</section>
+<section id="slide-org28e491f">
+<h4 id="org28e491f">Correlation matrices</h4>
+
+<table>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> IQ </th>
+   <th style="text-align:right;"> verbal fluency </th>
+   <th style="text-align:right;"> digit span </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> IQ </td>
+   <td style="text-align:right;"> 1.00 </td>
+   <td style="text-align:right;"> 0.56 </td>
+   <td style="text-align:right;"> 0.43 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> verbal fluency </td>
+   <td style="text-align:right;"> 0.56 </td>
+   <td style="text-align:right;"> 1.00 </td>
+   <td style="text-align:right;"> -0.23 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> digit span </td>
+   <td style="text-align:right;"> 0.43 </td>
+   <td style="text-align:right;"> -0.23 </td>
+   <td style="text-align:right;"> 1.00 </td>
+  </tr>
+</tbody>
+</table>
+
+<p>
+In R: <code>corrr::correlate()</code>
+</p>
+
+</section>
+<section id="slide-org755d064">
+<h4 id="org755d064">Correlation matrices</h4>
+<table>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> IQ </th>
+   <th style="text-align:right;"> verbal fluency </th>
+   <th style="text-align:right;"> digit span </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> IQ </td>
+   <td style="text-align:right;"> </td>
+   <td style="text-align:right;"> </td>
+   <td style="text-align:right;"> </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> verbal fluency </td>
+   <td style="text-align:right;"> 0.56 </td>
+   <td style="text-align:right;">  </td>
+   <td style="text-align:right;"> </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> digit span </td>
+   <td style="text-align:right;"> 0.43 </td>
+   <td style="text-align:right;"> -0.23 </td>
+   <td style="text-align:right;">  </td>
+  </tr>
+</tbody>
+</table>
+
+</section>
+<section id="slide-org8e72677">
+<h4 id="org8e72677">Correlation functions in R</h4>
+<p>
+<code>cor()</code>
+</p>
+
+<p>
+<code>cor.test()</code>
+</p>
+
+<p>
+<code>corrr::correlation()</code>
+</p>
+
+</section>
+</section>
+<section>
+<section id="slide-orgc487118">
+<h2 id="orgc487118">Simulating correlational data</h2>
+<p>
+To simulate bivariate (or multivariate) data in R, use <code>MASS::mvrnorm()</code>.
+</p>
+
+<p>
+<code>mvrnorm(n, mu, Sigma, ...)</code>
+</p>
+
+<p>
+You need the following information:
+</p>
+
+<ul>
+<li>means of \(X\) and \(Y\), \(\mu_x\) and \(\mu_y\)</li>
+<li>standard deviations of \(X\) and \(Y\), \(\sigma_x\) and \(\sigma_y\).</li>
+<li>correlation coefficient \(\rho_{xy}\).</li>
+
+</ul>
+
+</section>
+<section id="slide-org883207a">
+<h4 id="org883207a">The <code>bivariate</code> app</h4>
+<p>
+<a href="https://shiny.psy.gla.ac.uk/Dale/bivariate">https://shiny.psy.gla.ac.uk/Dale/bivariate</a>
+</p>
+
+</section>
+<section id="slide-org220867b">
+<h4 id="org220867b">review: standard deviation</h4>
+<p>
+<i>a measure of how much some quantity varies</i>
+</p>
+
+<p>
+&ldquo;standard deviation of x&rdquo;: \(\sigma_x\)
+</p>
+
+<p>
+&ldquo;variance of x&rdquo;: \({\sigma_x}^2\)
+</p>
+
+<ul>
+<li>estimating \(\sigma_x\) from a sample:</li>
+
+</ul>
+
+<p>
+\( \hat{\sigma}_x = \sqrt{\frac{\Sigma\left(X - \hat{\mu}_x\right)^2}{N - 1}} \)
+</p>
+
+</section>
+<section id="slide-org7df158d">
+<h4 id="org7df158d">Let&rsquo;s make synthetic humans</h4>
+<p>
+height and weight measurements for 435 people, taken from <a href="https://www.geogebra.org/m/RRprACv4">here</a>
+</p>
+
+
+<div class="figure">
+<p><img src="hw_raw.png" alt="hw_raw.png" />
+</p>
+</div>
+
+</section>
+<section id="slide-org747b1ef">
+<h4 id="org747b1ef">Log-transformed data</h4>
+
+<div class="figure">
+<p><img src="hw_log.png" alt="hw_log.png" />
+</p>
+</div>
+
+</section>
+<section id="slide-orgb75459e">
+<h4 id="orgb75459e">Summary statistics</h4>
+<div class="column" style="float:left; width: 70%">
+
+<div class="figure">
+<p><img src="hw_log.png" alt="hw_log.png" />
+</p>
+</div>
+</div>
+
+<div class="column" style="float:right; width: 30%">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-right" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">\(\hat{\mu}_x\)</td>
+<td class="org-right">4.11</td>
+</tr>
+
+<tr>
+<td class="org-left">\(\hat{\mu}_y\)</td>
+<td class="org-right">4.74</td>
+</tr>
+
+<tr>
+<td class="org-left">\(\hat{\sigma}_x\)</td>
+<td class="org-right">.26</td>
+</tr>
+
+<tr>
+<td class="org-left">\(\hat{\sigma}_y\)</td>
+<td class="org-right">.65</td>
+</tr>
+
+<tr>
+<td class="org-left">\(\hat{\rho}_{xy}\)</td>
+<td class="org-right">.96</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+</section>
+<section id="slide-orgbdf2992">
+<h4 id="orgbdf2992">Covariance matrix</h4>
+<p>
+\(\mathbf{\Sigma}\)
+</p>
+
+<p>
+<b>A square matrix that characterizes the variances and their interrelationships (covariances).</b> 
+</p>
+
+<div>
+\begin{pmatrix}
+{\sigma_x}^2                & \rho_{xy} \sigma_x \sigma_y \\
+\rho_{yx} \sigma_y \sigma_x & {\sigma_y}^2 \\
+\end{pmatrix}
+
+</div>
+
+<p>
+Must be <b>symmetric</b> and <b>positive definite</b>
+</p>
+
+
+</section>
+<section id="slide-org91c63c4">
+<h4 id="org91c63c4">Calculations</h4>
+<div class="column" style="float:left; width: 50%">
+<div>
+\begin{pmatrix}
+{\sigma_x}^2                & \rho_{xy} \sigma_x \sigma_y \\
+\rho_{yx} \sigma_y \sigma_x & {\sigma_y}^2 \\
+\end{pmatrix}
+
+</div>
+</div>
+
+<div class="column" style="float:right; width: 50%">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-right" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">\(\sigma_{x}\)</td>
+<td class="org-right">.26</td>
+</tr>
+
+<tr>
+<td class="org-left">\(\sigma_{y}\)</td>
+<td class="org-right">.65</td>
+</tr>
+
+<tr>
+<td class="org-left">\(\rho_{xy}\)</td>
+<td class="org-right">.96</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+</section>
+<section id="slide-org91ac7e4">
+<h4 id="org91ac7e4">Simulating with <code>MASS::mvrnorm()</code></h4>
+<div class="column" style="float:left; width: 50%">
+<div class="org-src-container">
+
+<pre  class="src src-R">my_cov <span class="org-ess-assignment">&lt;-</span> .96 * .26 * .65
+my_Sigma <span class="org-ess-assignment">&lt;-</span> matrix(c(.26^2, my_cov, 
+                     my_cov, .65^2),
+                   ncol = 2)
+my_Sigma
+</pre>
+</div>
+
+<pre class="example">
+
+        [,1]    [,2]
+[1,] 0.06760 0.16224
+[2,] 0.16224 0.42250
+</pre>
+
+
+</div>
+
+<div class="column" style="float:right; width: 50%">
+<div class="org-src-container">
+
+<pre  class="src src-R">set.seed(62) 
+
+<span class="org-comment-delimiter">## </span><span class="org-comment">DON'T put library(MASS) </span>
+<span class="org-comment-delimiter">## </span><span class="org-comment">in your script!</span>
+newpeeps <span class="org-ess-assignment">&lt;-</span>
+  MASS::mvrnorm(6, 
+                mu = c(height = 4.11,
+                       weight = 4.74),
+                Sigma = my_Sigma)
+
+newpeeps
+</pre>
+</div>
+
+<pre class="example">
+
+       height   weight
+[1,] 4.254209 5.282913
+[2,] 4.257828 4.895222
+[3,] 3.722376 3.759767
+[4,] 4.191287 4.764229
+[5,] 4.739967 6.185191
+[6,] 4.058105 4.806485
+</pre>
+
+
+</div>
+
+</section>
+<section id="slide-org0d48206">
+<h4 id="org0d48206">Transform back to raw units</h4>
+<p>
+The <code>exp()</code> function is the inverse of <code>log()</code>.
+</p>
+
+<div class="org-src-container">
+
+<pre  class="src src-R">exp(newpeeps)
+</pre>
+</div>
+
+<pre class="example">
+        height    weight
+[1,]  70.40108 196.94276
+[2,]  70.65632 133.64963
+[3,]  41.36254  42.93844
+[4,]  66.10779 117.24065
+[5,] 114.43045 485.50576
+[6,]  57.86453 122.30092
+</pre>
+
+
+</section>
+<section id="slide-orgc875d0b">
+<h4 id="orgc875d0b">Our synthetic humans</h4>
+
+<div class="figure">
+<p><img src="synthhumans.png" alt="synthhumans.png" />
+</p>
+</div>
+</section>
+</section>
+</div>
+</div>
+<script src="../reveal.js/lib/js/head.min.js"></script>
+<script src="../reveal.js/js/reveal.js"></script>
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: 'c',
+rollingLinks: false,
+keyboard: true,
+mouseWheel: false,
+fragmentInURL: false,
+hashOneBasedIndex: false,
+pdfSeparateFragments: true,
+
+overview: true,
+
+theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+transition: Reveal.getQueryHash().transition || 'convex', // see README of reveal.js for options
+transitionSpeed: 'default',
+
+// Optional libraries used to extend reveal.js
+dependencies: [
+ { src: '../reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: '../reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: '../reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: '../reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: '../reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } }]
+
+});
+</script>
+</body>
+</html>
