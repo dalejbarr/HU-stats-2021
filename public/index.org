@@ -41,7 +41,7 @@
 | Sat 24-Apr | 10:00-13:00 | Linear Mixed-Effects Models (LMMs)                            |
 |            | 14:00-17:00 | LMMs with crossed random effects of subjects and stimuli      |
 |------------+-------------+---------------------------------------------------------------|
-| Sat 01-May | 10:00-13:00 | Catch-up / review / Q&A                                       |
+| Sat 08-May | 10:00-13:00 | Catch-up / review / Q&A                                       |
 |            | 14:00-17:00 | Catch-up / review / Q&A                                       |
 |------------+-------------+---------------------------------------------------------------|
 
@@ -97,9 +97,9 @@ If you need an extra challenge, consider the following materials.
 - [[file:extra/disgust/index.org][More data tidying and joins: The =disgust= dataset]]
 - Scoring the EQ-Short and SQ-Short [hard!]: ([[file:extra/EQ_SQ/EQ_SQ_wrangle.Rmd][Rmd_source]]) ([[file:extra/EQ_SQ/solution.html][solution_html]]) ([[file:extra/EQ_SQ/solution.Rmd][solution_Rmd]]) ([[file:extra/EQ_SQ_files.zip][data_files]])
 
+
 ** Data simulation
 - [[file:extra/binary/binary.html][Simulating binary data]]
-
 
 * Scripts from Live Coding Sessions                                :noexport:
 - Scottish babynames script from Monday morning: [[file:01_monday/morning_intro_to_R/names.R][names.R]]

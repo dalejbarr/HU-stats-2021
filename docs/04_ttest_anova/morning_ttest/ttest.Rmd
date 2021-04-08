@@ -1,0 +1,289 @@
+---
+title: "NHST, t-test, power, chisquare tests"
+output: webex::webex_default
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!requireNamespace("webex")) {
+  stop("You must have the 'webex' package installed to knit HTML from this template.\n   devtools::install_github(\"dalejbarr/webex\")")
+} else {
+  library("webex")
+}
+
+library("tidyverse")
+set.seed(9122005)
+```
+
+## t-tests
+
+The basic way to run a t-test in R is through the `t.test()` function in base R.
+
+It is pretty straightforward, but there a few things to watch out for.
+
+Like `cor.test()` there are two basic versions of the function (see `?t.test`), one that takes two vectors `x` and `y`, and another that takes a `formula` plus a `data.frame`.  The latter would be better suited for tidy data, but the problem is that it does not work if you have paired data. In that case, you have to restructure your data and then use the vector version of the function.
+
+### Independent samples t-test
+
+This can be easily done with randomly generated data. Let's generate two vectors, `x` and `y`, using the `rnorm()` function.  Choose whatever you want for `n`, `mean`, or `sd`.
+
+`r hide()`
+
+```{r two-samp-rgen}
+x <- rnorm(100, -1, 10)
+y <- rnorm(100, 1, 10)
+```
+
+`r unhide()`
+
+Now run a one-sample t-test, testing the null hypothesis that `x` was drawn from a distribution with a mean of zero.
+
+`r hide()`
+
+```{r one-samp-test}
+my_t <- t.test(x)
+
+my_t
+```
+
+`r unhide()`
+
+Now run a two-sample t-test, testing the null hypothesis `x` and `y` are drawn from populations with identical means.
+
+`r hide()`
+
+```{r two-samp-test}
+my_t <- t.test(x, y)
+
+my_t
+```
+
+`r unhide()`
+
+Note that the t-test that is run by default is Welch's t-test, which allows for unequal variances between the groups.  If you want to know why this is a good default, see [this paper](https://www.rips-irsp.com/articles/10.5334/irsp.82/).
+
+However, sometimes you might need to run a 'vanilla' t-test where equal variances are assumed when trying to replicate someone else's findings.  Check `?t.test` to see how to do this and give it a try.
+
+`r hide()`
+
+```{r vanilla-t}
+my_t <- t.test(x, y, var.equal = TRUE)
+
+my_t
+```
+
+`r unhide()`
+
+For our next trick, let's put `x` and `y` in a tibble so that we can try out the formula version.
+
+```{r in-tibble}
+dat <- tibble(group = rep(c("a", "b"), c(length(x), length(y))),
+              score = c(x, y))
+
+dat
+```
+
+Now, run the formula version of `t.test()`.
+
+`r hide()`
+
+```{r t-formula}
+my_t <- t.test(score ~ group, dat)
+
+my_t
+```
+
+`r unhide()`
+
+### Paired t-test
+
+When you have paired data, you must take into account the non-independence by running a paired t-test. **Unfortunately, it is not possible to use the formula version with paired data, so you'll have to restructure the data first to use the vector version.**
+
+Let's look at some real data.  The file [`guilt.csv`](guilt.csv) contains replication data collected by students at the University of Glasgow, who sought to replicate Furnham (1986).[^1]
+
+The overall aim of the original experiment was to investigate whether the decision a jury member makes about the innocence or guilt of a defendant could be influenced by something as simple as when crucial evidence is presented during a trial. During the experiment participants listened to a series of recordings that recreated the 1804 trial of a man known as Joseph Parker who was accused of assuming two identities and marrying two women; i.e. bigamy. Each participant listed to the same recordings of evidence, presented by both prosecution and defence witnesses, and were asked to judge how guilty they thought Mr. Parker was at 14 different points during the experiment on a scale of 1 to 9; 1 being innocent and 9 being guilty.
+
+The manipulation in the experiment was that the order of evidence was altered so that half the participants received one order and the other half received the second order. Key to the order change was the time at which a critical piece of evidence was presented, proving the defendant’s innocence: the middle group heard this evidence at Timepoint 9 of the trial whereas the late group heard this evidence at Timepoint 13. Today we will only focus on the late group, and we will compare the guilt ratings at timepoints 12 versus 13.
+
+#### Preprocess the data
+
+Read in the data and get rid of all timepoints except 12 and 13
+
+`r hide()`
+
+```{r guilt-preprocess}
+guilt <- read_csv("guilt.csv") %>%
+  filter(timepoint %in% c("T12", "T13"))
+
+guilt
+```
+
+`r unhide()`
+
+Now restructure the data into the tibble `guilt_wide` so that it looks like this:
+
+```{r guilt-wide, echo=FALSE}
+guilt_wide <- spread(guilt, timepoint, rating)
+guilt_wide
+```
+
+`r hide()`
+
+```{r guilt-wide-sol}
+guilt_wide <- spread(guilt, timepoint, rating)
+```
+
+`r unhide()`
+
+#### Run the paired t-test
+
+Extract the vectors `T12` and `T13` and run the paired t-test.  Hint: `pull()`
+
+`r hide()`
+
+```{r guilt-t-test}
+guilt_t <- t.test(guilt_wide %>% pull(T12),
+                  guilt_wide %>% pull(T13), paired = TRUE)
+
+guilt_t
+```
+
+`r unhide()`
+
+### Tip: Tidying the result
+
+Use `broom::tidy()` to get the result of the t-test into a table, for easier extraction.
+
+```{r tidy-t-test}
+t_tbl <- guilt_t %>% broom::tidy()  
+
+t_tbl
+```
+
+### Effect size
+
+You could then compute effect size according to the formula
+
+$d = \frac{t}{\sqrt{N}}$
+
+Try it!
+
+`r hide()`
+
+```{r effect-size}
+eff_d <- (t_tbl %>% pull(statistic)) / sqrt(nrow(guilt_wide))
+
+eff_d
+```
+
+`r unhide()`
+
+
+## Calculating power with the `pwr` package
+
+Calculating power can be fairly straightforward for simple designs, using the `pwr` add-on package. For more complex situations, it's best to learn to do data simulation (which we will start learning about tomorrow). 
+
+The functions most relevant to you as a psychologist are:
+
+| Function name      | What it does                                     |
+|--------------------+--------------------------------------------------|
+| `pwr.anova.test()` | power for a balanced one-way ANOVA               |
+| `pwr.chisq.test()` | power for a chisquare test                       |
+| `pwr.r.test()`     | power for a correlation                          |
+| `pwr.t.test()`     | power for one-sample, two-sample, or paired t-test |
+| `pwr.t2n.test()`   | power for two independent samples with unequal N |
+
+Let's look at an example of calculating power for a correlation.  Install `pwr` if you don't already have it by typing `install.packages("pwr")` in the console.
+
+```{r pwr1}
+library("pwr")
+
+## leave the parameter you want to calculate as NULL; in this case, n
+pwr.r.test(r = .3, power = .8)
+```
+
+
+## Contingency tables and chi-square
+
+### Contingency tables
+
+You can do this in base R using `xtabs()` (for crosstabs) or by using the tidyverse, with `dplyr::count()`, optionally followed by reshaping with `tidyr::spread()`.
+
+#### Contingency table in base R with `xtabs()`:
+
+```{r xtabs}
+xtabs(~ eye_color + gender, starwars)
+```
+
+- pros: easy
+- cons: results table not guaranteed to be tidy
+
+#### Contingency table with tidyverse
+  
+- pros: more flexible, and results in a tidy tibble
+- cons: more typing
+
+**NB: Major change in behavior with factors in dplyr version 0.8.0 (released in 2019)**.
+
+  - If you use `count()` with the defaults, then it will count only those levels appearing in the data. In other words, counts of zero are not possible.
+
+  - If you use `count()` with the argument `.drop = FALSE`, *and your variables are defined as factors* then it will count all levels, including combinations that don't appear in the data (they will appear in the output with `n = 0`).
+
+See the section entitled [Give factors some love](https://www.tidyverse.org/articles/2019/02/dplyr-0-8-0/) in this article on dplyr.
+
+How do you know which version of dplyr you have? Here's a quick way to check.
+
+```{r pkg-vers}
+packageVersion("dplyr")
+```
+
+If your version is less than 0.8.0 then this doesn't apply (and you should upgrade; use `tidyverse::tidyverse_update()`).
+
+Here is the behavior of `count()` with the defaults.
+
+```{r tidy-xtabs-dplyr-drop}
+starwars %>%
+  filter(!is.na(gender)) %>%
+  count(gender, eye_color) 
+```
+
+Now compare this output to:
+
+```{r tidy-xtabs-dplyr-nodrop}
+## NB: this will only work with dplyr >= 0.8.0
+starwars %>%
+  filter(!is.na(gender)) %>%
+  mutate(gender = factor(gender), eye_color = factor(eye_color)) %>% # make factors
+  count(gender, eye_color, .drop = FALSE) 
+```
+
+If you want to make it into a proper table, you can reshape it using `tidyr::spread()`:
+
+```{r sw-spread}
+sw_data <- starwars %>%
+  filter(!is.na(gender)) %>%
+  mutate(gender = factor(gender), eye_color = factor(eye_color)) %>% # make factors
+  count(gender, eye_color, .drop = FALSE) 
+
+spread(sw_data, key = gender, value = n)
+```
+
+### Chi-square test for independence
+
+Use `chisq.test()`. Note that counts in the table `x` must be independent. `x` can be a vector or a matrix/table.
+
+```{r chi-sq-test}
+  ## example from chisq.test documentation
+  ## From Agresti(2007) p.39
+  M <- as.table(rbind(c(762, 327, 468), c(484, 239, 477)))
+  dimnames(M) <- list(gender = c("F", "M"),
+		      party = c("Democrat","Independent", "Republican"))
+  (Xsq <- chisq.test(M))  # Prints test summary
+  Xsq$observed   # observed counts (same as M)
+  Xsq$expected   # expected counts under the null
+```
+
+
+
+[^1]: Furnham, A. (1986), The Robustness of the Recency Effect: Studies Using Legal Evidence. *The Journal of General Psychology*, *113*, 351--357.
+

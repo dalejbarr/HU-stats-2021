@@ -1,0 +1,372 @@
+---
+title: "Coding categorical predictor variables in factorial designs"
+author: Dale Barr
+output:
+  html_document:
+    toc: true
+    css: webex.css
+    includes:
+      after_body: webex.js
+---
+
+```{r setup, include = FALSE}
+library("tibble")
+library("dplyr")
+library("knitr")
+library("kableExtra")
+library("webex")
+
+## paste
+.p <- paste0
+
+## .fraction
+.f <- function(x, y) {
+  paste0("\\frac{", x, "}{", y, "}")
+}
+
+## y-bar
+.yb1 <- function(x) {
+  paste0("$\\bar{Y}_{", x, "}$")
+}
+
+.yb2 <- function(x) {
+  paste0("\\bar{Y}_{", x, "}")
+}
+
+## subtraction term
+.st <- function(x, y, bracket = NULL) {
+  if (is.null(bracket)) {
+    paste0(x, " - ", y)
+  } else {
+    paste0(bracket[1], x, " - ", y, bracket[2])
+  }
+}
+
+.rb <- c("(", ")")
+.dr <- c("\\displaystyle\\left(", "\\right)")
+.ds <- c("\\displaystyle\\left[", "\\right]")
+```
+
+Many experimentalists who are trying to make the leap from ANOVA to linear mixed-effects models (LMEMs) in R struggle with the coding of categorical predictors.  It is unexpectedly complicated, and the defaults provided in R turn out to be wholly inappropriate for factorial experiments.  Indeed, using those defaults with factorial experiments can lead researchers to draw erroneous conclusions from their data.
+
+To keep things simple, we'll start with situations where design factors have no more than two levels before moving on to designs with more than three levels.
+
+# Simple versus main effects
+
+Below, I will assume that you understand the difference between a **simple effect** and a **main effect**, and between a **simple interaction** and a **main interaction** in a three-way design.  If you already do, just skip to the [next section](#coding-scheme).
+
+In an $A{\times}B$ design, the simple effect of $A$ is the effect of $A$ **controlling** for $B$, while the main effect of $A$ is the effect of $A$ **ignoring** $B$.  Another way of looking at this is to consider the cell means ($\bar{Y}_{11}$, $\bar{Y}_{12}$, $\bar{Y}_{21}$, and $\bar{Y}_{22}$) and marginal means ($\bar{Y}_{1.}$, $\bar{Y}_{2.}$, $\bar{Y}_{.1}$, and $\bar{Y}_{.2}$) in a factorial design. (The dot subscript tells you to "ignore" the dimension containing the dot; e.g., $\bar{Y}_{.1}$ tells you to take the mean of the first column ignoring the row variable.) To test the main effect of A is to test the null hypothesis that $\bar{Y}_{1.}=\bar{Y}_{2.}$.  To test a simple effect of $A$—the effect of $A$ at a particular level of $B$—would be, for instance, to test the null hypothesis that $\bar{Y}_{11}=\bar{Y}_{21}$.
+
+```{r main-vs-simple, echo = FALSE, results = 'asis'}
+
+tribble(~blah, ~B_1, ~B_2, ~junk, ~marg,
+        "$A_1$", .yb1("11"), .yb1("12"), "", .yb1("1."),
+        "$A_2$", .yb1("21"), .yb1("22"), "", .yb1("2."),
+        "", "", "", "", "",
+        "", .yb1(".1"), .yb1(".2"), "", "") %>%
+  kable(col.names = c("", "$B_1$", "$B_2$", "", ""),
+        align = "cccc")  %>%
+  kable_styling(full_width = FALSE, bootstrap_options = "basic")
+```
+
+The distinction between **simple interactions** and **main interactions** has the same logic: the simple interaction of $AB$ in an $ABC$ design is the interaction of $AB$ at a particular level of $C$; the main interaction of $AB$ is the interaction **ignoring** C.  The latter is what we are usually talking about when we talk about lower-order interactions in a three-way design.  It is also what we are given in the output from standard ANOVA procedures, e.g., the `aov()` function in R, SPSS, SAS, etc.
+
+# Choosing a coding scheme {#coding-scheme}
+
+## Why does it matter?
+
+Generally, the choice of a coding scheme impacts the interpretation of:
+
+1. the intercept term; and
+2. the interpretation of the tests for all but the highest-order effects and interactions in a factorial design.
+
+It also can influence the interpretation/estimation of random effects in a mixed-effects model (see [here](http://talklab.psy.gla.ac.uk/simgen/rsonly.html) for further discussion).  If you have a design with only a single two-level factor, and are using [a maximal random-effects structure](http://idiom.ucsd.edu/~rlevy/papers/barr-etal-2013-jml.pdf), the choice of coding scheme doesn't really matter.
+
+## What are the key coding schemes?
+
+There are many possible coding schemes (see `?contr.treatment` for more information).  The most relevant ones are **treatment**, **sum**, and **deviation**.  Sum and deviation coding can be seen as special cases of **effect** coding; by effect coding, people generally mean codes that sum to zero.
+
+For a two-level factor, you would use the following codes:
+
+```{r coding-scheme-def, echo = FALSE}
+
+tribble(~Coding, ~A_1, ~A_2,
+        "Treatment (dummy)", "$0$", "$1$",
+        "Sum",               "$-1$", "$1$",
+        "Deviation",
+        .p("$", "-", .f(1, 2), "$"),
+        .p("$", .f(1, 2), "$")) %>%
+  kable(col.names = c("Scheme", "$A_1$", "$A_2$"),
+        align = "lrrr")  %>%
+  kable_styling(full_width = FALSE, bootstrap_options = "striped")
+```
+
+The default in R is to use treatment coding for any variable defined as a `factor` in the model (see `?factor` and `?contrasts` for information).  To see why this is not ideal for factorial designs, consider a 2x2x2 factorial design with factors $A$, $B$ and $C$.  We will just consider a fully between-subjects design with only one observation per subject as this allows us to use the simplest possible error structure.  We would fit such a model using `lm()`:
+
+```
+lm(Y ~ A * B * C)
+```
+
+The table below provides the interpretation for various effects in the model under the three different coding schemes.  Note that $Y$ is the dependent variable, and the dots in the subscript mean to "ignore" the corresponding dimension.  Thus, $\bar{Y}_{.1.}$ is the mean of B_1 (ignoring factors $A$ and $C$) and $\bar{Y}_{...}$ is the "grand mean" (ignoring all factors).
+
+```{r three-by-three, echo = FALSE, results = 'asis'}
+tribble(~term, ~treatment, ~sum, ~deviation,
+        "$\\mu$", .yb1("111"), .yb1("..."), .yb1("..."),
+        ## (A) second row
+        "$A$",
+        .p("$", .st(.yb2("211"), .yb2("111")), "$"),
+        .p("$", .f(.st(.yb2("2.."), .yb2("1.."), .rb), 2), "$"),
+        .p("$", .st(.yb2("2.."), .yb2("1..")), "$"),
+        "$B$",
+        .p("$", .st(.yb2("121"), .yb2("111")), "$"),
+        .p("$", .f(.st(.yb2(".2."), .yb2(".1."), .rb), 2), "$"),
+        .p("$", .st(.yb2(".2."), .yb2(".1.")), "$"),
+        "$C$",
+        .p("$", .st(.yb2("112"), .yb2("111")), "$"),
+        .p("$", .f(.st(.yb2("..2"), .yb2("..1"), .rb), 2), "$"),
+        .p("$", .st(.yb2("..2"), .yb2("..1")), "$"),
+        "$AB$",
+        .p("$", .st(.st(.yb2("221"), .yb2("121"), .rb),
+                    .st(.yb2("211"), .yb2("111"), .rb)),
+           "$"),
+        .p("$", .f(.st(.st(.yb2("22."), .yb2("12."), .rb),
+                       .st(.yb2("21."), .yb2("11."), .rb)), 4),
+           "$"),
+        .p("$", .st(.st(.yb2("22."), .yb2("12."), .rb),
+                    .st(.yb2("21."), .yb2("11."), .rb)),
+           "$"),
+        "$AC$",
+        .p("$", .st(.st(.yb2("212"), .yb2("211"), .rb),
+                    .st(.yb2("112"), .yb2("111"), .rb)),
+           "$"),
+        .p("$", .f(.st(.st(.yb2("2.2"), .yb2("1.2"), .rb),
+                       .st(.yb2("2.1"), .yb2("1.1"), .rb)), 4),
+           "$"),
+        .p("$", .st(.st(.yb2("2.2"), .yb2("1.2"), .rb),
+                    .st(.yb2("2.1"), .yb2("1.1"), .rb)),
+           "$"),
+        "$BC$",
+        .p("$", .st(.st(.yb2("122"), .yb2("112"), .rb),
+                    .st(.yb2("121"), .yb2("111"), .rb)),
+           "$"),
+        .p("$", .f(.st(.st(.yb2(".22"), .yb2(".12"), .rb),
+                       .st(.yb2(".21"), .yb2(".11"), .rb)), 4),
+           "$"),
+        .p("$", .st(.st(.yb2(".22"), .yb2(".12"), .rb),
+                    .st(.yb2(".21"), .yb2(".11"), .rb)),
+           "$")
+        ) %>%
+  kable(align = "cccc")  %>%
+  kable_styling(full_width = FALSE, bootstrap_options = "striped")
+```
+
+For the three way $A \times B \times C$ interaction:
+
+```{r three-by-three-ix, echo = FALSE, results = 'asis'}
+tribble(~scheme, ~interpretation,
+        "treatment",
+        .p("$",
+           .st(.st(.st(.yb2(221), .yb2(121), .dr),
+                   .st(.yb2(211), .yb2(111), .dr), .ds),
+               .st(.st(.yb2(222), .yb2(122), .dr),
+                   .st(.yb2(212), .yb2(112), .dr), .ds)),
+           "$"),
+        "sum",
+        .p("$",
+           .f(
+             .st(.st(.st(.yb2(221), .yb2(121), .dr),
+                     .st(.yb2(211), .yb2(111), .dr), .ds),
+                 .st(.st(.yb2(222), .yb2(122), .dr),
+                     .st(.yb2(212), .yb2(112), .dr), .ds)),
+             8),
+           "$"),
+        "deviation",
+        .p("$",
+           .st(.st(.st(.yb2(221), .yb2(121), .dr),
+                   .st(.yb2(211), .yb2(111), .dr), .ds),
+               .st(.st(.yb2(222), .yb2(122), .dr),
+                   .st(.yb2(212), .yb2(112), .dr), .ds)),
+           "$")
+        ) %>%
+  kable(align = "cc") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = "striped")
+```
+
+Note that the inferential tests of $A \times B \times C$ will all have the same outcome, despite the parameter estimate for sum coding being one-eighth of that for the other schemes.  For all lower-order effects, sum and deviation coding will give different parameter estimates but identical inferential outcomes.  Both of these schemes provide identical tests of the canonical main effects and main interactions for a three-way ANOVA.  In contrast, treatment (dummy) coding will provide inferential tests of simple effects and simple interactions.  So, if what you are interested in getting are the "canonical" tests from ANOVA, use sum or deviation coding.
+
+# What about factors with more than two levels?
+
+A factor with $k$ levels requires $k-1$ variables. Each predictor contrasts a particular "target" level of the factor with a level that you (arbitrarily) choose as the "baseline" level.  For instance, for a three-level factor $A$ with $A1$ chosen as the baseline, you'd have two predictor variables, one of which compares $A2$ to $A1$ and the other of which compares $A3$ to $A1$.
+
+For treatment (dummy) coding, the target level is set to 1, otherwise 0.
+
+For sum coding, the levels must sum to zero, so for a given predictor, the target level is given the value 1, the baseline level is given the value -1, and any other level is given the value 0.
+
+For deviation coding, the values must also sum to 0. Deviation coding is recommended whenever you are trying to draw ANOVA-style inferences. Under this scheme, the target level gets the value $\frac{k-1}{k}$ while any non-target level gets the value $-\frac{1}{k}$.   
+
+**Fun fact**: Mean-centering treatment codes (on balanced data) will give you deviation codes.
+
+## Example: Three-level factor {.tabset}
+
+### Treatment (Dummy)
+
+```{r treat-5L, echo=FALSE, results = 'asis'}
+tribble(~level, ~A2v1, ~A3v1,
+        "A1", 0L, 0L,
+        "A2", 1L, 0L,
+        "A3", 0L, 1L) %>%
+  knitr::kable(align = "lrr") %>%
+  kableExtra::kable_styling(full_width = FALSE, bootstrap_options = "striped")
+```
+
+### Sum
+
+```{r sum-5L, echo=FALSE, results = 'asis'}
+tribble(~level, ~A2v1, ~A3v1,
+        "A1", -1L, -1L,
+        "A2",  1L,  0L,
+        "A3",  0L,  1L) %>%
+  knitr::kable(align = "lrr") %>%
+  kableExtra::kable_styling(full_width = FALSE, bootstrap_options = "striped")
+```
+
+### Deviation
+
+```{r dev-5L, echo=FALSE, results = 'asis'}
+tribble(~level, ~A2v1, ~A3v1,
+        "A1", "$-\\frac{1}{3}$", "$-\\frac{1}{3}$",
+        "A2",  "$\\frac{2}{3}$", "$-\\frac{1}{3}$",
+        "A3", "$-\\frac{1}{3}$",  "$\\frac{2}{3}$") %>%
+  knitr::kable(align = "lrr") %>%
+  kableExtra::kable_styling(full_width = FALSE, bootstrap_options = "striped")
+```
+
+## Example: Five-level factor {.tabset}
+
+### Treatment (Dummy)
+
+```{r treat-3L, echo=FALSE, results = 'asis'}
+tribble(~level, ~A2v1, ~A3v1, ~A4v1, ~A5v1,
+        "A1", 0L, 0L, 0L, 0L,
+        "A2", 1L, 0L, 0L, 0L,
+        "A3", 0L, 1L, 0L, 0L,
+        "A4", 0L, 0L, 1L, 0L,
+        "A5", 0L, 0L, 0L, 1L) %>%
+  knitr::kable(align = "lrrrr") %>%
+  kableExtra::kable_styling(full_width = FALSE, bootstrap_options = "striped")
+```
+
+### Sum
+
+```{r sum-3L, echo=FALSE, results = 'asis'}
+tribble(~level, ~A2v1, ~A3v1, ~A4v1, ~A5v1,
+        "A1", -1L,     -1L, -  1L,   -1L,
+        "A2",  1L,      0L,    0L,    0L,
+        "A3",  0L,      1L,    0L,    0L,
+        "A4",  0L,      0L,    1L,    0L,
+        "A5",  0L,      0L,    0L,    1L) %>%
+  knitr::kable(align = "lrrrr") %>%
+  kableExtra::kable_styling(full_width = FALSE, bootstrap_options = "striped")
+```
+
+### Deviation
+
+```{r dev-3L, echo=FALSE, results = 'asis'}
+tribble(~level, ~A2v1, ~A3v1, ~A4v1, ~A5v1,
+        "A1", "$-\\frac{1}{5}$", "$-\\frac{1}{5}$", "$-\\frac{1}{5}$", "$-\\frac{1}{5}$",
+        "A2",  "$\\frac{4}{5}$", "$-\\frac{1}{5}$", "$-\\frac{1}{5}$", "$-\\frac{1}{5}$",
+        "A3", "$-\\frac{1}{5}$", "$\\frac{4}{5}$", "$-\\frac{1}{5}$", "$-\\frac{1}{5}$",
+        "A4", "$-\\frac{1}{5}$", "$-\\frac{1}{5}$", "$\\frac{4}{5}$", "$-\\frac{1}{5}$",
+        "A5", "$-\\frac{1}{5}$", "$-\\frac{1}{5}$", 
+        "$-\\frac{1}{5}$", "$\\frac{4}{5}$") %>%
+  knitr::kable(align = "lrrrr") %>%
+  kableExtra::kable_styling(full_width = FALSE, bootstrap_options = "striped")
+```
+
+# How to create your own numerical predictors
+
+You can change contrasts for any variable of type `factor` using the `contrasts()` or `C()` function. Why bother creating your own numerical predictor variables?
+
+It turns out that variables of type `factor` behave in strange ways in linear models. (You'll soon discover this if you try dropping out a main effect in a model with an interaction in order to perform a significance test.)  So, take control of your own destiny and make your own numerical predictor variables. There are other ways, but here's one approach that gets the job done. (Note: this approach uses functions in the [tidyverse](http://www.tidyverse.org) package.)
+
+Let's assume that your data is contained in a table `dat` like the one below.
+
+```{r dat-tibble, echo = TRUE}
+## make an example table
+dat <- tibble(Y = rnorm(12),
+              A = rep(paste0("A", 1:3), each = 4))
+```
+
+`r hide("Click to view example data")`
+```{r dat-tibble-show, echo = FALSE}
+knitr::kable(dat, digits = 2) %>%
+  kableExtra::kable_styling(full_width = FALSE)
+```
+`r unhide()`
+
+## The `mutate()` / `if_else()` / `case_when()` approach for a three-level factor {.tabset}
+
+### Treatment
+
+```{r treat-code}
+dat_treat <- dat %>%
+  mutate(A2v1 = if_else(A == "A2", 1L, 0L),
+         A3v1 = if_else(A == "A3", 1L, 0L))
+```
+
+`r hide("Click to view resulting table")`
+```{r treat-code-show, echo = FALSE}
+dat_treat
+```
+`r unhide()`
+
+### Sum
+
+```{r sum-code}
+dat_sum <- dat %>%
+  mutate(A2v1 = case_when(A == "A1" ~ -1L, # baseline
+                          A == "A2" ~ 1L,  # target
+                          TRUE      ~ 0L), # anything else
+         A3v1 = case_when(A == "A1" ~ -1L, # baseline
+                          A == "A3" ~  1L, # target
+                          TRUE      ~ 0L)) # anything else
+```
+
+`r hide("Click to view resulting table")`
+```{r sum-code-show, echo = FALSE}
+dat_sum
+```
+`r unhide()`
+
+### Deviation
+
+```{r dev-code}
+# baseline A1
+dat_dev <- dat %>%
+  mutate(A2v1 = if_else(A == "A2", 2/3, -1/3), # target A2
+         A3v1 = if_else(A == "A3", 2/3, -1/3)) # target A3
+```
+
+`r hide("Click to view resulting table")`
+```{r dev-code-show, echo = FALSE}
+dat_dev
+```
+`r unhide()`
+
+# Conclusion
+
+**The interpretation of all but the highest order effect depends on the coding scheme.**
+
+With treatment coding, you are looking at **simple** effects and **simple** interactions, not **main** effects and **main** interactions.
+
+**The parameter estimates for sum coding differs from deviation coding only in the magnitude of the parameter estimates, but have identical interpretations.**
+
+Because it is not subject to the scaling effects seen under sum coding, deviation should be used by default for ANOVA-style designs.
+
+**The default coding scheme for factors is R is "treatment" coding.**
+
+So, anytime you declare a variable as type `factor` and use this variable as a predictor in your regression model, R will automatically create treatment-coded variables.
+
+<p class = "alert">
+**Take-home message: when analyzing factorial designs in R using regression, to obtain the canonical ANOVA-style interpretations of main effects and interactions use deviation coding and NOT the default treatment coding.**
+</p>
