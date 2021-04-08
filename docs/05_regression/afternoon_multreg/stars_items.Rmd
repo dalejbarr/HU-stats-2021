@@ -1,0 +1,14 @@
+---
+title: "stars items"
+output: html_document
+---
+
+```{r, echo=FALSE, message=FALSE}
+library("tidyverse")
+
+read_delim("data/stars_survey.txt", "\t") %>%
+  separate(item_id, c("pre", "num"), 1, convert = TRUE) %>%
+  mutate(item_id = sprintf("I%02d", num)) %>%
+  select(item_id, item, question_topic = scale) %>% knitr::kable()
+```
+

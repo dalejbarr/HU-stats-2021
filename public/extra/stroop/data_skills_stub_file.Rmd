@@ -1,0 +1,118 @@
+---
+title: "Data Skills Self-Assessment Stub File"
+author: "Your Name"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+## leave this code chunk here
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## My data pre-processing
+
+<!-- below this line, you can add or alter any code chunks or text as needed -->
+
+```{r data-pre-processing, message = FALSE}
+library("tidyverse")
+
+## TODO: load in the data; your csv files should either be in the same directory as this Rmd file, or in a subdirectory named 'data', and should be named 'demographics.csv' and 'stroop.csv'
+
+## TODO: process the data
+```
+
+<!-- above this line, add or alter any code chunks or text as needed -->
+
+## My results section
+
+```{r answers, echo = FALSE}
+## In this chunk, define variables in the code chunk below, which are used to create the results section.
+
+## Replace the NULLs zeroes/ones/"blah"s with your answers so that the values go in the right places in the results section. You DO NOT need to edit anything in the results section itself, just define the variables.
+
+## Please don't change any variable names.
+
+## If you would like an extra challenge, try defining the variables using R code rather than just typing in the numbers from the output (but don't get hung up on this if you have trouble)
+
+n_subj <- 0
+n_deleted_subj <- 0
+n_remaining_subj <- 0
+n_native <- 0
+n_nonnative <- 0
+mean_age <- 0
+sd_age <- 0
+
+n_excluded_trials <- 0
+n_incorrect <- 0
+n_correct <- 0
+
+mean_congruent <- 0
+sd_congruent <- 0
+mean_incongruent <- 0
+sd_incongruent <- 0
+mean_stroop <- 0
+sd_stroop <- 0
+mean_native_stroop <- 0
+sd_native_stroop <- 0
+mean_nonnative_stroop <- 0
+sd_nonnative_stroop <- 0
+larger_or_smaller <- "*choose one*: larger/smaller" 
+was_or_was_not <- "*choose one*: was/was not" 
+
+degrees_of_freedom <- 0
+t_statistic <- 0
+p_value <- 1  
+conf_int_lower <- 0 # lower bound of confidence interval
+conf_int_upper <- 0 # upper bound of confidence interval
+cohen_d <- 0
+```
+
+<!-- you don't need to alter anything below this line -->
+<div style="padding:1em; border: 2px solid green;">
+
+### Results
+
+We tested <u>`r n_subj`</u> participants on a Stroop task to determine if native speakers show a larger Stroop effect than non-native speakers. 
+There were <u>`r n_deleted_subj`</u>
+participants who did not respond to the question about being a native speaker. Of the remaining <u>`r n_remaining_subj`</u> participants, 
+<u>`r n_native`</u> were native speakers and 
+<u>`r n_nonnative`</u> were non-native speakers.
+The mean age of the participants was <u>`r mean_age`</u> years 
+(SD = <u>`r sd_age`</u>).
+
+We excluded <u>`r n_excluded_trials`</u> trials because participants did not respond before the response deadline (resulting in a missing value) and 
+<u>`r n_incorrect`</u> trials because participants responded incorrectly, leaving <u>`r n_correct`</u> trials for analysis.
+
+The overall mean reaction time was 
+<u>`r mean_congruent`</u> ms (SD = <u>`r sd_congruent`</u>) 
+for congruent trials and 
+<u>`r mean_incongruent`</u> ms (SD = <u>`r sd_incongruent`</u>) 
+for incongruent trials, yielding an overall Stroop effect of 
+<u>`r mean_stroop`</u> ms (SD = <u>`r sd_stroop`</u>). 
+The Stroop effect for native speakers 
+(M = <u>`r mean_native_stroop`</u>; 
+SD = <u>`r sd_native_stroop`</u>) 
+was numerically <u>`r larger_or_smaller`</u>
+than the Stroop effect for non-native speakers
+(M = <u>`r mean_nonnative_stroop`</u>; 
+SD = <u>`r sd_nonnative_stroop`</u>).
+
+According to Welch's t-test (which does not assume equal variances) with $\alpha = .05$, this difference 
+<u>`r was_or_was_not`</u> 
+statistically significant,
+$t$(<u>`r round(degrees_of_freedom, 2)`</u>) = <u>`r round(t_statistic, 2)`</u>, 
+$p$ `r if (p_value <= .001) "< <u>.001</u>" else sprintf("= <u>%.3f</u>", p_value)`. 
+The 95% confidence interval for the mean difference was 
+[<u>`r conf_int_lower`</u>, <u>`r conf_int_upper`</u>], 
+with an effect size (Cohen's $d$) of <u>`r cohen_d`</u>.
+
+</div>
+<!-- you don't need to alter anything above this line -->
+
+## My graph
+
+```{r create-graph}
+## TODO: create your graph here using ggplot2
+```
+

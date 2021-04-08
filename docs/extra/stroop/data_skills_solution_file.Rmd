@@ -1,0 +1,694 @@
+---
+title: "Solution to Data Skills Self-Assessment"
+author: "Dale Barr"
+output: 
+  html_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## The task
+
+Our task was to define the variables below with values that replace the incorrect values that appear in the Results section when the RMarkdown file is knitted to HTML.
+
+```{r answers-example}
+n_subj <- 0
+n_deleted_subj <- 0
+n_remaining_subj <- 0
+n_native <- 0
+n_nonnative <- 0
+mean_age <- 0
+sd_age <- 0
+
+n_excluded_trials <- 0
+n_incorrect <- 0
+n_correct <- 0
+
+mean_congruent <- 0
+sd_congruent <- 0
+mean_incongruent <- 0
+sd_incongruent <- 0
+mean_stroop <- 0
+sd_stroop <- 0
+mean_native_stroop <- 0
+sd_native_stroop <- 0
+mean_nonnative_stroop <- 0
+sd_nonnative_stroop <- 0
+larger_or_smaller <- "*choose one*: larger/smaller" 
+was_or_was_not <- "*choose one*: was/was not" 
+
+degrees_of_freedom <- 0
+t_statistic <- 0
+p_value <- 1  
+conf_int_lower <- 0 # lower bound of confidence interval
+conf_int_upper <- 0 # upper bound of confidence interval
+cohen_d <- 0
+```
+
+<div style="padding:1em; border: 2px solid green;">
+
+### Results
+
+We tested <u>`r n_subj`</u> participants on a Stroop task to determine if native speakers show a larger Stroop effect than non-native speakers. 
+There were <u>`r n_deleted_subj`</u>
+participants who did not respond to the question about being a native speaker. Of the remaining <u>`r n_remaining_subj`</u> participants, 
+<u>`r n_native`</u> were native speakers and 
+<u>`r n_nonnative`</u> were non-native speakers.
+The mean age of the participants was <u>`r mean_age`</u> years 
+(SD = <u>`r sd_age`</u>).
+
+We excluded <u>`r n_excluded_trials`</u> trials because participants did not respond before the response deadline (resulting in a missing value) and 
+<u>`r n_incorrect`</u> trials because participants responded incorrectly, leaving <u>`r n_correct`</u> trials for analysis.
+
+The overall mean reaction time was 
+<u>`r mean_congruent`</u> ms (SD = <u>`r sd_congruent`</u>) 
+for congruent trials and 
+<u>`r mean_incongruent`</u> ms (SD = <u>`r sd_incongruent`</u>) 
+for incongruent trials, yielding an overall Stroop effect of 
+<u>`r mean_stroop`</u> ms (SD = <u>`r sd_stroop`</u>). 
+The Stroop effect for native speakers 
+(M = <u>`r mean_native_stroop`</u>; 
+SD = <u>`r sd_native_stroop`</u>) 
+was numerically <u>`r larger_or_smaller`</u>
+than the Stroop effect for non-native speakers
+(M = <u>`r mean_nonnative_stroop`</u>; 
+SD = <u>`r sd_nonnative_stroop`</u>).
+
+According to Welch's t-test (which does not assume equal variances) with $\alpha = .05$, this difference 
+<u>`r was_or_was_not`</u> 
+statistically significant,
+$t$(<u>`r round(degrees_of_freedom, 2)`</u>) = <u>`r round(t_statistic, 2)`</u>, 
+$p$ `r if (p_value <= .001) "< <u>.001</u>" else sprintf("= <u>%.3f</u>", p_value)`. 
+The 95% confidence interval for the mean difference was 
+[<u>`r conf_int_lower`</u>, <u>`r conf_int_upper`</u>], 
+with an effect size (Cohen's $d$) of <u>`r cohen_d`</u>.
+
+</div>
+
+## Setting up the R session and data import
+
+The first thing to do is to load in the packages and import the two data files. Make sure the two files are named `demographics.csv` and `stroop.csv` are are located in a directory called `data`, and that this directory is a subdirectory of whatever directory contains this RMarkdown file.
+
+```{r import, message = FALSE}
+library("tidyverse")
+
+stroop <- read_csv("data/stroop.csv", col_types = "iccci")
+demog <- read_csv("data/demographics.csv", col_types = "iic")
+```
+
+*NOTE: Although we didn't do it here, when developing your script, you should always look at your data after importing to make sure it imported correctly.*
+
+## Paragraph 1: Demographics and subject exclusions
+
+Let's do the first paragraph, which has to do with subjects and group sizes.
+
+<div style="padding:1em; border: 2px solid green;">
+
+We tested <u>`r n_subj`</u> participants on a Stroop task to determine if native speakers show a larger Stroop effect than non-native speakers. 
+There were <u>`r n_deleted_subj`</u>
+participants who did not respond to the question about being a native speaker. Of the remaining <u>`r n_remaining_subj`</u> participants, 
+<u>`r n_native`</u> were native speakers and 
+<u>`r n_nonnative`</u> were non-native speakers.
+The mean age of the participants was <u>`r mean_age`</u> years 
+(SD = <u>`r sd_age`</u>).
+
+</div>
+
+Let's start by getting rid of anyone who didn't provide information about their native language.
+
+```{r delete-subjects}
+demog_filt <- filter(demog, !is.na(native_speaker))
+
+## how many people did we exclude?
+nrow(demog) - nrow(demog_filt)
+```
+
+OK, we ended up excluding `r nrow(demog) - nrow(demog_filt)` participants. So we can now define the first two variables in the `answers` code chunk:
+
+```{r p1-1}
+n_subj <- nrow(demog)
+n_deleted_subj <- nrow(demog) - nrow(demog_filt)
+n_remaining_subj <- nrow(demog_filt)
+```
+
+Next, let's count up the number of native and non-native speakers.
+
+```{r count-native-and-nonnative}
+n_native <- demog_filt %>%
+  filter(native_speaker == "yes") %>%
+  nrow()
+
+n_nonnative <- demog_filt %>%
+  filter(native_speaker == "no") %>%
+  nrow()
+```
+
+So this yields `r n_native` native speakers and `r n_nonnative` non-native speakers.
+
+The last thing to do is to calculate mean and standard deviation for age. This is easy.
+
+```{r age-stats}
+age_stats <- demog_filt %>%
+  summarise(m = mean(age), sd = sd(age))
+```
+
+Now we just need to `pull()` out the values.
+
+```{r p1-2}
+mean_age <- age_stats %>% pull(m)
+sd_age <- age_stats %>% pull(sd)
+```
+
+OK, we're done with paragraph 1. The code to fill in the first paragraph looks like this:
+
+```{r p1-3}
+n_subj <- nrow(demog)
+n_deleted_subj <- nrow(demog) - nrow(demog_filt)
+n_remaining_subj <- nrow(demog_filt)
+
+n_native <- demog_filt %>%
+  filter(native_speaker == "yes") %>%
+  nrow()
+
+n_nonnative <- demog_filt %>%
+  filter(native_speaker == "no") %>%
+  nrow()
+
+age_stats <- demog_filt %>%
+  summarise(m = mean(age), sd = sd(age))
+
+mean_age <- age_stats %>% pull(m) %>% round(2)
+sd_age <- age_stats %>% pull(sd) %>% round(2)
+```
+
+Yielding:
+
+<div style="padding:1em; border: 2px solid green;">
+
+We tested <u>`r n_subj`</u> participants on a Stroop task to determine if native speakers show a larger Stroop effect than non-native speakers. 
+There were <u>`r n_deleted_subj`</u>
+participants who did not respond to the question about being a native speaker. Of the remaining <u>`r n_remaining_subj`</u> participants, 
+<u>`r n_native`</u> were native speakers and 
+<u>`r n_nonnative`</u> were non-native speakers.
+The mean age of the participants was <u>`r mean_age`</u> years 
+(SD = <u>`r sd_age`</u>).
+
+</div>
+
+## Paragraph 2: Trial exclusions
+
+The second paragraph contains information about numbers of trials and exclusions.
+
+<div style="padding:1em; border: 2px solid green;">
+
+We excluded <u>`r n_excluded_trials`</u> trials because participants did not respond before the response deadline (resulting in a missing value) and 
+<u>`r n_incorrect`</u> trials because participants responded incorrectly, leaving <u>`r n_correct`</u> trials for analysis.
+
+</div>
+
+To compute the values we need, we'll work with the trial data (`stroop`). First, we only want to keep trials for subjects who specified their native language. We can do this with `semi_join()`, which is a "filtering join". This might take a bit of explaining to grasp.
+
+The command `semi_join(x, y, "id")` matches tables x and y on the "id" variable, and returns the `x` table, but keeping only those observations in `x` (e.g., `stroop`) that have matching `id` values in `y` (e.g., `demog_filt`). This image by [Garrick Aden-Buie](https://github.com/gadenbuie/tidyexplain) illustrates:
+
+![](semi-join.gif)
+
+So, for example, let's imagine that we only removed one subject from `demog` who didn't fill in information about their native language, and that this subject had a value of 5 for `sub_id` .  So `semi_join(stroop, demog_filt, "sub_id")` would return all of the rows from `stroop` except for those with `sub_id = 5`, because there would be no row with `sub_id = 5` in `demog_filt`.  
+
+While we're at it, we'll also code what condition each trial is in, using the variable `congruency`, calling it "congruent" if the value of `ink_colour` for a given row matches the value of `word` for that same row (`ink_colour == word`), and calling it "incongruent" otherwise.
+
+We won't remove the inaccurate trials or the missing values yet, because we need to count them first.
+
+```{r filter-trials}
+stroop2 <- stroop %>%
+  semi_join(demog_filt, "sub_id") %>% # keep subjects with full demographic info
+  mutate(congruency = if_else(ink_colour == word, "congruent", "incongruent"))
+```
+
+Let's now count the timed-out responses (NAs) and the inaccurate responses. To work with `NA` values, you need the function `is.na()` which returns `TRUE` if the value in question is `NA` and `FALSE` otherwise.
+
+We know that a response is inaccurate if the value of `response` doesn't match the value of `ink_colour`.
+
+```{r count-rejects}
+n_excluded_trials <- filter(stroop2, is.na(response)) %>% nrow()
+n_incorrect <- filter(stroop2, response != ink_colour) %>% nrow()
+```
+
+Now let's get rid of the rejects, and store the result in `stroop3`.
+
+```{r delete-trials}
+stroop3 <- stroop2 %>%
+  filter(!is.na(response) & (response == ink_colour))
+```
+
+Counting the remaining trials is easy -- it's just `nrow(stroop3)`.  So our `answers` code chunk for the second paragraph looks like this:
+
+```{r p2}
+stroop2 <- stroop %>%
+  semi_join(demog_filt, "sub_id") %>% # keep subjects with full demographic info
+  mutate(congruency = if_else(ink_colour == word, "congruent", "incongruent"))
+
+n_excluded_trials <- filter(stroop2, is.na(response)) %>% nrow()
+n_incorrect <- filter(stroop2, response != ink_colour) %>% nrow()
+
+stroop3 <- stroop2 %>%
+  filter(!is.na(response) & (response == ink_colour))
+
+n_correct <- nrow(stroop3)
+```
+
+yielding:
+
+<div style="padding:1em; border: 2px solid green;">
+
+We excluded <u>`r n_excluded_trials`</u> trials because participants did not respond before the response deadline (resulting in a missing value) and 
+<u>`r n_incorrect`</u> trials because participants responded incorrectly, leaving <u>`r n_correct`</u> trials for analysis.
+
+</div>
+
+## Paragraph 3: Descriptive statistics
+
+Now we'll hack into the trial data to calculate descriptive statistics and to prepare the data for our inferential test.
+
+<div style="padding:1em; border: 2px solid green;">
+
+The overall mean reaction time was 
+<u>`r mean_congruent`</u> ms (SD = <u>`r sd_congruent`</u>) 
+for congruent trials and 
+<u>`r mean_incongruent`</u> ms (SD = <u>`r sd_incongruent`</u>) 
+for incongruent trials, yielding an overall Stroop effect of 
+<u>`r mean_stroop`</u> ms (SD = <u>`r sd_stroop`</u>). 
+The Stroop effect for native speakers 
+(M = <u>`r mean_native_stroop`</u>; 
+SD = <u>`r sd_native_stroop`</u>) 
+was numerically <u>`r larger_or_smaller`</u>
+than the Stroop effect for non-native speakers
+(M = <u>`r mean_nonnative_stroop`</u>; 
+SD = <u>`r sd_nonnative_stroop`</u>).
+
+</div>
+
+Note that we need to calculate a "Stroop effect", which is defined as the difference between incongruent and congruent response times.  And we will ultimately need to have a Stroop effect calculated for each speaker. So we'll need to (1) calculate means for each condition for each speaker and then (2) calculate the differences.
+
+```{r transform-trial-data}
+subj_means <- stroop3 %>%
+  group_by(sub_id, congruency) %>%
+  summarise(m = mean(rt)) %>%
+  ungroup()
+
+subj_means
+```
+
+OK, that looks good, but how do we now calculate the Stroop effect for each speaker? Let's transform the data from long to wide using `pivot_wider()` from the `tidyr` package, which was loaded when we loaded in the tidyverse. 
+
+(Note: You may have learned to go from long to wide using the `spread()` function; since then, `spread()` has been superceded by `pivot_longer()`, which has a better name and clearer syntax. The `spread()` function will continue to exist in `tidyr` for the foreseeable future, so feel free to continue using it. To use the `pivot_wider()` function, you need to have tidyr version 1.0.0 or higher. The version of the tidyverse packages are printed when you run `library("tidyverse")` inside a fresh R session. If you need to update your tidyverse installation, type `tidyverse::tidyverse_update()` in the console to find out how. Type `vignette("pivot")` in the console to find out more about these new functions.)
+
+```{r pivot-wider}
+wide_data <- subj_means %>%
+  pivot_wider(names_from = congruency, values_from = m) %>%
+  mutate(effect = incongruent - congruent) 
+
+wide_data
+```
+
+There is one thing that we are missing: which group (native or non-native) each subject belongs to. We can get this using an `inner_join()`.
+
+```{r joined}
+joined <- wide_data %>%
+  inner_join(demog_filt, "sub_id")
+
+joined
+```
+
+Now we're ready to calculate means for each of the two congruent/incongruent conditions, and for the Stroop effect.
+
+```{r by-cond}
+by_cond <- joined %>%
+  summarise(m_cong = mean(congruent), sd_cong = sd(congruent),
+            m_incg = mean(incongruent), sd_incg = sd(incongruent),
+            m_eff = mean(effect), sd_eff = sd(effect))
+
+by_cond
+```
+
+Now let's calculate the mean effects for each of the two groups.
+
+```{r stats-by-group}
+stats_by_group <- joined %>%
+  group_by(native_speaker) %>%
+  summarise(m = mean(effect), sd = sd(effect)) %>%
+  ungroup()
+
+stats_by_group
+```
+
+We can get this is into a format that is easier to pull values from by using `pivot_wider()`; this step is not strictly necessary, but will simply help us out in the final section below where we're transcribing the values into the paragraph.
+
+```{r sbyg-wide}
+sbyg_wide <- pivot_wider(stats_by_group, 
+                         names_from = native_speaker, 
+                         values_from = c("m", "sd"))
+
+sbyg_wide
+```
+
+OK, we're done, here's the full code to define the variables for the third paragraph.
+
+```{r p3}
+subj_means <- stroop3 %>%
+  group_by(sub_id, congruency) %>%
+  summarise(m = mean(rt)) %>%
+  ungroup()
+
+wide_data <- subj_means %>%
+  pivot_wider(names_from = congruency, values_from = m) %>%
+  mutate(effect = incongruent - congruent)
+
+joined <- wide_data %>%
+  inner_join(demog_filt, "sub_id")
+
+by_cond <- joined %>%
+  summarise(m_cong = mean(congruent), sd_cong = sd(congruent),
+            m_incg = mean(incongruent), sd_incg = sd(incongruent),
+            m_eff = mean(effect), sd_eff = sd(effect))
+
+mean_congruent <- by_cond %>% pull(m_cong) %>% round(2)
+sd_congruent <- by_cond %>% pull(sd_cong) %>% round(2)
+mean_incongruent <- by_cond %>% pull(m_incg) %>% round(2)
+sd_incongruent <- by_cond %>% pull(sd_incg) %>% round(2)
+mean_stroop <- by_cond %>% pull(m_eff) %>% round(2)
+sd_stroop <- by_cond %>% pull(sd_eff) %>% round(2)
+
+stats_by_group <- joined %>%
+  group_by(native_speaker) %>%
+  summarise(m = mean(effect), sd = sd(effect)) %>%
+  ungroup()
+
+sbyg_wide <- pivot_wider(stats_by_group, 
+                         names_from = native_speaker, 
+                         values_from = c("m", "sd"))
+
+mean_native_stroop <- sbyg_wide %>% pull(m_yes) %>% round(2)
+sd_native_stroop <- sbyg_wide %>% pull(sd_yes) %>% round(2)
+mean_nonnative_stroop <- sbyg_wide %>% pull(m_no) %>% round(2)
+sd_nonnative_stroop <- sbyg_wide %>% pull(sd_no) %>% round(2)
+larger_or_smaller <- if_else(mean_native_stroop > mean_nonnative_stroop,
+                             "larger", "smaller")
+```
+
+Our third paragraph now looks like so:
+
+<div style="padding:1em; border: 2px solid green;">
+
+The overall mean reaction time was 
+<u>`r mean_congruent`</u> ms (SD = <u>`r sd_congruent`</u>) 
+for congruent trials and 
+<u>`r mean_incongruent`</u> ms (SD = <u>`r sd_incongruent`</u>) 
+for incongruent trials, yielding an overall Stroop effect of 
+<u>`r mean_stroop`</u> ms (SD = <u>`r sd_stroop`</u>). 
+The Stroop effect for native speakers 
+(M = <u>`r mean_native_stroop`</u>; 
+SD = <u>`r sd_native_stroop`</u>) 
+was numerically <u>`r larger_or_smaller`</u>
+than the Stroop effect for non-native speakers
+(M = <u>`r mean_nonnative_stroop`</u>; 
+SD = <u>`r sd_nonnative_stroop`</u>).
+
+</div>
+
+## Paragraph 4: Inferential statistics
+
+Now for the easy part: running the t-test. Parsing out the results into variables is, unfortunately, less easy.
+
+<div style="padding:1em; border: 2px solid green;">
+
+According to Welch's t-test (which does not assume equal variances) with $\alpha = .05$, this difference 
+<u>`r was_or_was_not`</u> 
+statistically significant,
+$t$(<u>`r round(degrees_of_freedom, 2)`</u>) = <u>`r round(t_statistic, 2)`</u>, 
+$p$ `r if (p_value <= .001) "< <u>.001</u>" else sprintf("= <u>%.3f</u>", p_value)`. 
+The 95% confidence interval for the mean difference was 
+[<u>`r conf_int_lower`</u>, <u>`r conf_int_upper`</u>], 
+with an effect size (Cohen's $d$) of <u>`r cohen_d`</u>.
+
+</div>
+
+There are different ways of running a `t.test()` in R. We will use the "formula" version, which is `t.test(Y ~ X, data)` where `Y` is the dependent variable (DV) and `X` is the independent variable (IV). Here our DV is `effect` and our IV is `native_language`, both of which are in the `joined` table.  Also the default t-test in R is the Welch t-test for independent samples (`var.equal = FALSE`, `paired = FALSE`), so we are good to go without any further arguments to the function. Our function call is simply:
+
+```{r my-t}
+my_t <- t.test(effect ~ native_speaker, joined)
+
+my_t
+```
+
+Note that almost all of the output we need is here: the $t$ value, the $p$ value, degrees of freedom, confidence interval.  It is also reassuring to find that the means for each group match up with what we got above for `stats_by_group`.
+
+However, note that the subtraction of means went in the opposite direction from what we expected: mean for nonnative minus means for native. This is because R organizes the levels of the IV `native_speaker` in alphabetical order (no, yes), and then subtracts the latter category (yes) from the first category (no). If we want it to go in the other direction, we need to relevel the `native_speaker` factor. This is a tiny thing, and not strictly necessary, but will make the results more sensible. We'll do this using `forcats::fct_relevel()`, which is part of the tidyverse. Then we'll convert `my_t` into a table with the results using `broom::tidy()`.
+
+```{r releveled}
+data_releveled <- joined %>%
+  mutate(native_speaker = fct_relevel(native_speaker, "yes"))
+## you might want to look at data_releveled to see the change
+  
+my_t <- t.test(effect ~ native_speaker, data_releveled)
+
+t_table <- broom::tidy(my_t)
+
+t_table
+```
+
+The one thing that is still missing is Cohen's $d$. If you look it up on the internet, you'll find something like:
+
+$$ \frac{\lvert M_1 - M_2 \rvert}{\sigma_{pooled}} $$
+
+In plain English, take the absolute value of the difference between the two group means, $M_1$ and $M_2$, and divide by $\sigma_{pooled}$, the "pooled"" standard deviation. In this case, $\sigma_{pooled}$ is just the overall standard deviation for the Stroop effect. We can get this with:
+
+```{r sigma-pooled}
+sigma_pooled <- joined %>%
+  summarise(sd = sd(effect)) %>%
+  pull(sd)
+```
+
+So $\sigma_{pooled} = `r round(sigma_pooled, 2)`$.
+
+In sum, here's the full code to fill in the correct values for the fourth paragraph:
+
+```{r p4}
+data_releveled <- joined %>%
+  mutate(native_speaker = fct_relevel(native_speaker, "yes"))
+
+my_t <- t.test(effect ~ native_speaker, data_releveled)
+
+t_table <- broom::tidy(my_t)
+
+degrees_of_freedom <- t_table %>% pull(parameter) %>% round(2)
+t_statistic <- t_table %>% pull(statistic) %>% round(2)
+p_value <- t_table %>% pull(p.value) # don't round; rounding in inline code
+was_or_was_not <- if_else(p_value < .05, "was", "was not")
+conf_int_lower <- t_table %>% pull(conf.low) %>% round(2)
+conf_int_upper <- t_table %>% pull(conf.high) %>% round(2)
+
+sigma_pooled <- joined %>%
+  summarise(sd = sd(effect)) %>%
+  pull(sd)
+
+abs_diff_means <- abs(pull(sbyg_wide, m_no) - pull(sbyg_wide, m_yes))
+cohen_d <-  round(abs_diff_means / sigma_pooled, 2)
+```
+
+and here's how it will look.
+
+<div style="padding:1em; border: 2px solid green;">
+
+According to Welch's t-test (which does not assume equal variances) with $\alpha = .05$, this difference 
+<u>`r was_or_was_not`</u> 
+statistically significant,
+$t$(<u>`r round(degrees_of_freedom, 2)`</u>) = <u>`r round(t_statistic, 2)`</u>, 
+$p$ `r if (p_value <= .001) "< <u>.001</u>" else sprintf("= <u>%.3f</u>", p_value)`. 
+The 95% confidence interval for the mean difference was 
+[<u>`r conf_int_lower`</u>, <u>`r conf_int_upper`</u>], 
+with an effect size (Cohen's $d$) of <u>`r cohen_d`</u>.
+
+</div>
+
+## Pulling it all together
+
+OK, we're done! So your full script would look something like this:
+
+```{r answers}
+## first paragraph
+demog_filt <- filter(demog, !is.na(native_speaker))
+
+n_subj <- nrow(demog)
+n_deleted_subj <- nrow(demog) - nrow(demog_filt)
+n_remaining_subj <- nrow(demog_filt)
+
+n_native <- demog_filt %>%
+  filter(native_speaker == "yes") %>%
+  nrow()
+
+n_nonnative <- demog_filt %>%
+  filter(native_speaker == "no") %>%
+  nrow()
+
+age_stats <- demog_filt %>%
+  summarise(m = mean(age), sd = sd(age))
+
+mean_age <- age_stats %>% pull(m) %>% round(2)
+sd_age <- age_stats %>% pull(sd) %>% round(2)
+
+## second paragraph
+stroop2 <- stroop %>%
+  semi_join(demog_filt, "sub_id") %>% # keep subjects with full demographic info
+  mutate(congruency = if_else(ink_colour == word, "congruent", "incongruent"))
+
+n_excluded_trials <- filter(stroop2, is.na(response)) %>% nrow()
+n_incorrect <- filter(stroop2, response != ink_colour) %>% nrow()
+
+stroop3 <- stroop2 %>%
+  filter(!is.na(response) & (response == ink_colour))
+
+n_correct <- nrow(stroop3)
+
+## third paragraph
+subj_means <- stroop3 %>%
+  group_by(sub_id, congruency) %>%
+  summarise(m = mean(rt)) %>%
+  ungroup()
+
+wide_data <- subj_means %>%
+  pivot_wider(names_from = congruency, values_from = m) %>%
+  mutate(effect = incongruent - congruent)
+
+joined <- wide_data %>%
+  inner_join(demog_filt, "sub_id")
+
+by_cond <- joined %>%
+  summarise(m_cong = mean(congruent), sd_cong = sd(congruent),
+            m_incg = mean(incongruent), sd_incg = sd(incongruent),
+            m_eff = mean(effect), sd_eff = sd(effect))
+
+mean_congruent <- by_cond %>% pull(m_cong) %>% round(2)
+sd_congruent <- by_cond %>% pull(sd_cong) %>% round(2)
+mean_incongruent <- by_cond %>% pull(m_incg) %>% round(2)
+sd_incongruent <- by_cond %>% pull(sd_incg) %>% round(2)
+mean_stroop <- by_cond %>% pull(m_eff) %>% round(2)
+sd_stroop <- by_cond %>% pull(sd_eff) %>% round(2)
+
+stats_by_group <- joined %>%
+  group_by(native_speaker) %>%
+  summarise(m = mean(effect), sd = sd(effect)) %>%
+  ungroup()
+
+sbyg_wide <- pivot_wider(stats_by_group, 
+                         names_from = native_speaker, 
+                         values_from = c("m", "sd"))
+
+mean_native_stroop <- sbyg_wide %>% pull(m_yes) %>% round(2)
+sd_native_stroop <- sbyg_wide %>% pull(sd_yes) %>% round(2)
+mean_nonnative_stroop <- sbyg_wide %>% pull(m_no) %>% round(2)
+sd_nonnative_stroop <- sbyg_wide %>% pull(sd_no) %>% round(2)
+larger_or_smaller <- if_else(mean_native_stroop > mean_nonnative_stroop,
+                             "larger", "smaller")
+
+## fourth paragraph
+data_releveled <- joined %>%
+  mutate(native_speaker = fct_relevel(native_speaker, "yes"))
+
+my_t <- t.test(effect ~ native_speaker, data_releveled)
+
+t_table <- broom::tidy(my_t)
+
+degrees_of_freedom <- t_table %>% pull(parameter) %>% round(2)
+t_statistic <- t_table %>% pull(statistic) %>% round(2)
+p_value <- t_table %>% pull(p.value) # don't round; rounding in inline code
+was_or_was_not <- if_else(p_value < .05, "was", "was not")
+conf_int_lower <- t_table %>% pull(conf.low) %>% round(2)
+conf_int_upper <- t_table %>% pull(conf.high) %>% round(2)
+
+sigma_pooled <- joined %>%
+  summarise(sd = sd(effect)) %>%
+  pull(sd)
+
+abs_diff_means <- abs(pull(sbyg_wide, m_no) - pull(sbyg_wide, m_yes))
+cohen_d <-  round(abs_diff_means / sigma_pooled, 2)
+```
+
+And your results section should turn out like this:
+
+<div style="padding:1em; border: 2px solid green;">
+
+### Results
+
+We tested <u>`r n_subj`</u> participants on a Stroop task to determine if native speakers show a larger Stroop effect than non-native speakers. 
+There were <u>`r n_deleted_subj`</u>
+participants who did not respond to the question about being a native speaker. Of the remaining <u>`r n_remaining_subj`</u> participants, 
+<u>`r n_native`</u> were native speakers and 
+<u>`r n_nonnative`</u> were non-native speakers.
+The mean age of the participants was <u>`r mean_age`</u> years 
+(SD = <u>`r sd_age`</u>).
+
+We excluded <u>`r n_excluded_trials`</u> trials because participants did not respond before the response deadline (resulting in a missing value) and 
+<u>`r n_incorrect`</u> trials because participants responded incorrectly, leaving <u>`r n_correct`</u> trials for analysis.
+
+The overall mean reaction time was 
+<u>`r mean_congruent`</u> ms (SD = <u>`r sd_congruent`</u>) 
+for congruent trials and 
+<u>`r mean_incongruent`</u> ms (SD = <u>`r sd_incongruent`</u>) 
+for incongruent trials, yielding an overall Stroop effect of 
+<u>`r mean_stroop`</u> ms (SD = <u>`r sd_stroop`</u>). 
+The Stroop effect for native speakers 
+(M = <u>`r mean_native_stroop`</u>; 
+SD = <u>`r sd_native_stroop`</u>) 
+was numerically <u>`r larger_or_smaller`</u>
+than the Stroop effect for non-native speakers
+(M = <u>`r mean_nonnative_stroop`</u>; 
+SD = <u>`r sd_nonnative_stroop`</u>).
+
+According to Welch's t-test (which does not assume equal variances) with $\alpha = .05$, this difference 
+<u>`r was_or_was_not`</u> 
+statistically significant,
+$t$(<u>`r round(degrees_of_freedom, 2)`</u>) = <u>`r round(t_statistic, 2)`</u>, 
+$p$ `r if (p_value <= .001) "< <u>.001</u>" else sprintf("= <u>%.3f</u>", p_value)`. 
+The 95% confidence interval for the mean difference was 
+[<u>`r conf_int_lower`</u>, <u>`r conf_int_upper`</u>], 
+with an effect size (Cohen's $d$) of <u>`r cohen_d`</u>.
+
+</div>
+
+**Note: You may have found other, equivalent ways to complete the task, and perhaps your approach was even more efficient! But what matters most is getting the right results, and doing the task in a reproducible and transparent way.**
+
+## Making a graph
+
+Show your data!
+
+But what data to show? All the trial data? Or just speaker means?
+
+In this case, it might be most sensible to show the individual speaker means, since those are the values you are performing inference over.
+
+Note that the observations need to be in **long** format. We'll just use the table `subj_means` computed above, joined with `demog_filt` to get the information about native language.
+
+We'll have lines connecting the two data points for each participant, and superimpose the means on the plot.
+
+```{r the-graph}
+subj_means2 <- subj_means %>%
+  inner_join(demog_filt, "sub_id") %>%
+  mutate(group = if_else(native_speaker == "yes", "native", "nonnative"))
+
+summary_stats <- stroop3 %>%
+  inner_join(demog_filt, "sub_id") %>%
+  mutate(group = if_else(native_speaker == "yes", "native", "nonnative")) %>%
+  group_by(group, congruency) %>%
+  summarise(m = mean(rt))
+
+ggplot(subj_means2, aes(congruency, m)) +
+  geom_violin() +
+  geom_point(alpha = .2) + 
+  geom_line(aes(group = sub_id), alpha = .1) +
+  facet_wrap(~group) + 
+  labs(y = "response time (milliseconds)") +
+  geom_point(data = summary_stats, size = 4, alpha = .5)
+```
+

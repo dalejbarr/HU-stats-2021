@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-04-07 Wed 22:47 -->
+<!-- 2021-04-08 Thu 12:47 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Scoring the AQ-10: Hints and solutions</title>
@@ -248,9 +248,9 @@ for the JavaScript code in this tag.
 </div><div id="content">
 <h1 class="title">Scoring the AQ-10: Hints and solutions</h1>
 
-<div id="outline-container-orgd4e72e8" class="outline-2">
-<h2 id="orgd4e72e8">Scoring the AQ</h2>
-<div class="outline-text-2" id="text-orgd4e72e8">
+<div id="outline-container-orgd6917d8" class="outline-2">
+<h2 id="orgd6917d8">Scoring the AQ</h2>
+<div class="outline-text-2" id="text-orgd6917d8">
 <p>
 As a hint, your solution will involve reshaping using a <code>tidyr</code> function and joining tables using one of the two-table verbs in <code>dplyr</code>.
 </p>
@@ -288,9 +288,9 @@ Error in glimpse(dat) : object 'dat' not found
 </pre>
 </div>
 
-<div id="outline-container-orgd31a792" class="outline-3">
-<h3 id="orgd31a792">Pull out participant information</h3>
-<div class="outline-text-3" id="text-orgd31a792">
+<div id="outline-container-org9bb6162" class="outline-3">
+<h3 id="org9bb6162">Pull out participant information</h3>
+<div class="outline-text-3" id="text-org9bb6162">
 <p>
 The table has a mix of information: participant demographics and responses to survey items.  We want to have separate tables for these.  Next step: pull out the participant information into a separate table called <code>part_info</code>.
 </p>
@@ -316,9 +316,9 @@ Error in select(., Id, Gender, Age, Participate) : object 'dat' not found
 </div>
 </div>
 
-<div id="outline-container-orga61778b" class="outline-3">
-<h3 id="orga61778b">Reshape the question data</h3>
-<div class="outline-text-3" id="text-orga61778b">
+<div id="outline-container-org941adde" class="outline-3">
+<h3 id="org941adde">Reshape the question data</h3>
+<div class="outline-text-3" id="text-org941adde">
 <p>
 Now let&rsquo;s reshape the question data (columns Q1 to Q10) from wide to
 long, and store this in the variable <code>qdat</code>.
@@ -342,9 +342,9 @@ qdat
 </div>
 </div>
 
-<div id="outline-container-org060c0fa" class="outline-3">
-<h3 id="org060c0fa">Deal with the reverse coding</h3>
-<div class="outline-text-3" id="text-org060c0fa">
+<div id="outline-container-org78d0981" class="outline-3">
+<h3 id="org78d0981">Deal with the reverse coding</h3>
+<div class="outline-text-3" id="text-org78d0981">
 <p>
 Now let&rsquo;s create our tables that link responses to scores for the two different formats.  There are different possible solutions to this.
 </p>
@@ -542,9 +542,9 @@ Error in count(., Question, Response, Score) : object 'scored' not found
 </div>
 </div>
 
-<div id="outline-container-org8c17bce" class="outline-3">
-<h3 id="org8c17bce">Calculate the AQ</h3>
-<div class="outline-text-3" id="text-org8c17bce">
+<div id="outline-container-orge2c3985" class="outline-3">
+<h3 id="orge2c3985">Calculate the AQ</h3>
+<div class="outline-text-3" id="text-orge2c3985">
 <p>
 The final thing to do is to calculate the AQ, which is the sum of the 1s for each <code>Id</code> (because each unique value of <code>Id</code> stands in for a unique participant).  
 </p>
@@ -589,9 +589,9 @@ Error: object 'AQ_scores' not found
 </div>
 </div>
 
-<div id="outline-container-org75dcdea" class="outline-3">
-<h3 id="org75dcdea">Plot</h3>
-<div class="outline-text-3" id="text-org75dcdea">
+<div id="outline-container-org345e8af" class="outline-3">
+<h3 id="org345e8af">Plot</h3>
+<div class="outline-text-3" id="text-org345e8af">
 <p>
 Our last task was to generate a histogram using <code>ggplot2</code>.
 </p>
@@ -615,9 +615,9 @@ Our last task was to generate a histogram using <code>ggplot2</code>.
 </div>
 </div>
 
-<div id="outline-container-orgb26e267" class="outline-3">
-<h3 id="orgb26e267">Merge with participant information</h3>
-<div class="outline-text-3" id="text-orgb26e267">
+<div id="outline-container-org8eee886" class="outline-3">
+<h3 id="org8eee886">Merge with participant information</h3>
+<div class="outline-text-3" id="text-org8eee886">
 <p>
 We probably want to link the AQ scores back to participant info (since, for example, we&rsquo;d want to contact participants with particularly high AQs).  To do this you need to use a join.
 </p>
@@ -646,9 +646,9 @@ Error in head(part_AQ, 10) : object 'part_AQ' not found
 </div>
 </div>
 
-<div id="outline-container-org2eaf929" class="outline-2">
-<h2 id="org2eaf929"></h2>
-<div class="outline-text-2" id="text-org2eaf929">
+<div id="outline-container-orgebe4f40" class="outline-2">
+<h2 id="orgebe4f40"></h2>
+<div class="outline-text-2" id="text-orgebe4f40">
 <script>
 
 /* update total correct if #total_correct exists */
@@ -735,7 +735,7 @@ window.onload = function() {
 </div>
 </div>
 <div id="postamble" class="status">
-<p class="date">Created: 2021-04-07 Wed 22:47</p>
+<p class="date">Created: 2021-04-08 Thu 12:47</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

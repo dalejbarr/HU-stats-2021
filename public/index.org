@@ -26,11 +26,11 @@
 | Wed 07-Apr | 10:00-13:00 | Tidy data ([[file:02_more_wrangling/morning_tidydata/index.org][walkthrough]]) ([[file:02_more_wrangling/morning_tidydata/scoring_AQ/index.org][activity: AQ scoring]])                |
 |            | 14:00-17:00 | Data visualization with ggplot2 ([[file:02_more_wrangling/afternoon_dataviz/ggplot_activity/ggplot_activity.html][activity]])                    |
 |------------+-------------+---------------------------------------------------------------|
-| Thu 08-Apr | 10:00-13:00 | Univariate distributions ([[file:03_distributions/morning_univariate/univariate_slides.pdf][slides]]) ([[file:03_distributions/morning_univariate/index.org][walkthrough]])                     |
-|            | 14:00-17:00 | Bivariate distributions / ([[https://dalejbarr.github.io/HU-stats-2021/slides/02_correlation/index.html][slides]]) ([[file:03_distributions/afternoon_bivariate/correlation_walkthrough.html][walkthrough]])       |
+| Thu 08-Apr | 10:00-13:00 | Univariate distributions ([[file:03_distributions/morning_univariate/univariate_slides.pdf][slides]]) ([[file:03_distributions/morning_univariate/index.org][walkthrough]])               |
+|            | 14:00-17:00 | Bivariate distributions / ([[https://dalejbarr.github.io/HU-stats-2021/slides/02_correlation/index.html][slides]]) ([[file:03_distributions/afternoon_bivariate/correlation_walkthrough.html][walkthrough]])              |
 |------------+-------------+---------------------------------------------------------------|
-| Fri 09-Apr | 10:00-13:00 | t-tests: NHST, power, effect size                             |
-|            | 14:00-17:00 | One-way Analysis of Variance (ANOVA)                          |
+| Fri 09-Apr | 10:00-13:00 | t-tests: NHST, power, effect size ([[file:04_ttest_anova/morning_ttest/nhst_slides.pdf][slides]]) ([[file:04_ttest_anova/morning_ttest/ttest.html][walkthrough]])      |
+|            | 14:00-17:00 | One-way Analysis of Variance (ANOVA) ([[file:04_ttest_anova/afternoon_anova/anova_main.pdf][slides]]) ([[file:04_ttest_anova/afternoon_anova/index.org][walkthrough]])   |
 |------------+-------------+---------------------------------------------------------------|
 | Sat 10-Apr | 10:00-13:00 | Regression                                                    |
 |            | 14:00-17:00 | Multiple regression                                           |
@@ -96,7 +96,7 @@ If you need an extra challenge, consider the following materials.
 
 - [[file:extra/disgust/index.org][More data tidying and joins: The =disgust= dataset]]
 - Scoring the EQ-Short and SQ-Short [hard!]: ([[file:extra/EQ_SQ/EQ_SQ_wrangle.Rmd][Rmd_source]]) ([[file:extra/EQ_SQ/solution.html][solution_html]]) ([[file:extra/EQ_SQ/solution.Rmd][solution_Rmd]]) ([[file:extra/EQ_SQ_files.zip][data_files]])
-
+- Analyzing the stroop task: [[file:extra/stroop/data_skills_self_assessment.html][task instructions]] | [[file:extra/stroop/data_skills_stub_file.Rmd]["starter" Rmd file]] | [[file:extra/stroop/data_skills_solution_file.html][solution]]
 
 ** Data simulation
 - [[file:extra/binary/binary.html][Simulating binary data]]

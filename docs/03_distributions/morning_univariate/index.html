@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-04-07 Wed 22:47 -->
+<!-- 2021-04-08 Thu 12:47 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Probability and Probability distributions</title>
@@ -273,27 +273,27 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgc257695">Background</a></li>
-<li><a href="#org608d0f1">A discrete distribution: The binomial distribution</a>
+<li><a href="#orge358eb8">Background</a></li>
+<li><a href="#org448ddad">A discrete distribution: The binomial distribution</a>
 <ul>
-<li><a href="#org5e1d4eb">Empirical distributions</a></li>
-<li><a href="#orga3ed281">Theoretical distributions</a></li>
-<li><a href="#org45a68eb">Data simulation with the binomial distribution</a></li>
+<li><a href="#orgfa38858">Empirical distributions</a></li>
+<li><a href="#org466d3b5">Theoretical distributions</a></li>
+<li><a href="#orgae29657">Data simulation with the binomial distribution</a></li>
 </ul>
 </li>
-<li><a href="#org88d5c90">A continuous distribution: The normal distribution</a>
+<li><a href="#org2df1eb1">A continuous distribution: The normal distribution</a>
 <ul>
-<li><a href="#org7ffa42d">z-scores</a></li>
+<li><a href="#orgbdabe49">z-scores</a></li>
 </ul>
 </li>
-<li><a href="#orga0fa473"></a></li>
+<li><a href="#org37ac2b5"></a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgc257695" class="outline-2">
-<h2 id="orgc257695">Background</h2>
-<div class="outline-text-2" id="text-orgc257695">
+<div id="outline-container-orge358eb8" class="outline-2">
+<h2 id="orge358eb8">Background</h2>
+<div class="outline-text-2" id="text-orge358eb8">
 <p>
 For this session, we will build up a lab exercise on probability and probability distributions.  The idea is to start out with a basic random process that is easy to understand and simulate in R (coin flipping), which introduces the idea of a discrete distribution (the binomial distribution).  Next, we will talk about continuous distributions (the standard normal distribution) and z-scores.
 </p>
@@ -304,9 +304,9 @@ In the process, we will learn about how to write simple functions in R, how to s
 </div>
 </div>
 
-<div id="outline-container-org608d0f1" class="outline-2">
-<h2 id="org608d0f1">A discrete distribution: The binomial distribution</h2>
-<div class="outline-text-2" id="text-org608d0f1">
+<div id="outline-container-org448ddad" class="outline-2">
+<h2 id="org448ddad">A discrete distribution: The binomial distribution</h2>
+<div class="outline-text-2" id="text-org448ddad">
 <p>
 Let&rsquo;s start by simulating a coin flip in R.
 </p>
@@ -317,7 +317,7 @@ Let&rsquo;s start by simulating a coin flip in R.
 </div>
 
 <pre class="example">
-[1] "heads"
+[1] "tails"
 </pre>
 
 
@@ -346,8 +346,8 @@ Whoops!  We already see a problem.  The default for <code>sample()</code> is to 
 </div>
 
 <pre class="example">
- [1] "heads" "heads" "tails" "heads" "tails" "tails" "heads" "heads" "heads"
-[10] "tails"
+ [1] "tails" "tails" "heads" "heads" "tails" "heads" "heads" "tails" "tails"
+[10] "heads"
 </pre>
 
 
@@ -372,7 +372,7 @@ The second statement here counts the number of heads using the <code>sum()</code
 </div>
 
 <pre class="example">
-[1]  TRUE FALSE FALSE  TRUE FALSE  TRUE FALSE FALSE FALSE FALSE
+[1]  TRUE  TRUE FALSE FALSE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE
 </pre>
 
 
@@ -381,9 +381,9 @@ you can see that it is just comparing each value of <code>flips</code> to <code>
 </p>
 </div>
 
-<div id="outline-container-org5e1d4eb" class="outline-3">
-<h3 id="org5e1d4eb">Empirical distributions</h3>
-<div class="outline-text-3" id="text-org5e1d4eb">
+<div id="outline-container-orgfa38858" class="outline-3">
+<h3 id="orgfa38858">Empirical distributions</h3>
+<div class="outline-text-3" id="text-orgfa38858">
 <p>
 OK, we&rsquo;re going to start doing a lot of coin flipping, counting up how many heads we get and then creating distributions of the number of <i>heads</i> in <i>k</i> flips.  Since we&rsquo;re going to be doing the above steps over and over, it&rsquo;s best if we wrap the code we&rsquo;ve written into a function.  This way we don&rsquo;t have to type those steps every time we want to flip a coin and count up the number of heads.
 </p>
@@ -433,9 +433,9 @@ One way to find out is to <i>estimate</i> these probabilities through simulation
 </div>
 
 <pre class="example">
- [1] 6 5 4 4 5 2 6 6 5 9 5 9 3 6 4 5 5 7 4 5 4 4 7 5 4 5 9 4 5 7 2 6 4 6 3 8 5
-[38] 5 5 8 5 4 3 4 6 2 5 4 4 5 6 4 4 5 6 4 5 6 9 6 6 4 4 6 6 8 5 5 5 7 8 4 4 4
-[75] 4 4 5 5 6 0 3 3 7 5 4 6 2 4 4 6 4 6 5 4 6 4 6 3 4 4
+ [1] 2 6 7 4 6 5 3 6 5 7 4 5 5 5 6 7 3 3 4 6 3 5 5 6 6 6 9 6 4 7 7 7 5 3 3 5 8
+[38] 4 3 5 5 4 6 4 8 5 5 3 4 5 5 5 4 5 5 6 5 3 7 5 7 4 3 5 6 6 7 7 3 4 5 3 5 5
+[75] 7 8 8 6 4 4 2 7 6 6 2 5 5 3 8 5 5 6 5 5 7 4 5 5 4 6
 </pre>
 
 
@@ -471,8 +471,8 @@ Note that we can estimate the probability of each of the 11 outcomes (0:10) by c
 
 <pre class="example">
 heads
-  0   1   2   3   4   5   6   7   8   9  10 
-  1   8  49 117 186 247 222 116  43  10   1
+  1   2   3   4   5   6   7   8   9  10 
+  4  39 139 212 234 205 119  37  10   1
 </pre>
 
 
@@ -485,8 +485,8 @@ probs
 <pre class="example">
 
 heads
-    0     1     2     3     4     5     6     7     8     9    10 
-0.001 0.008 0.049 0.117 0.186 0.247 0.222 0.116 0.043 0.010 0.001
+    1     2     3     4     5     6     7     8     9    10 
+0.004 0.039 0.139 0.212 0.234 0.205 0.119 0.037 0.010 0.001
 </pre>
 
 
@@ -517,7 +517,7 @@ Now that we have estimated probabilities of different experimental outcomes, we 
 <div class='solution'><button>Solution</button>
 
 <p>
-This was estimated as <code>0.247</code> from our simulation.
+This was estimated as <code>0.234</code> from our simulation.
 </p>
 
 </div>
@@ -530,7 +530,7 @@ This was estimated as <code>0.247</code> from our simulation.
 <div class='solution'><button>Solution</button>
 
 <p>
-For this we just add up \(P(Y = 0) + P(Y = 1) + P(Y = 2)\), which, from our simulations, yields <code>0.058</code>
+For this we just add up \(P(Y = 0) + P(Y = 1) + P(Y = 2)\), which, from our simulations, yields <code>0.043</code>
 </p>
 
 </div>
@@ -541,9 +541,9 @@ These probabilities are just estimates, and if we ran the experiment again, we&r
 </div>
 </div>
 
-<div id="outline-container-orga3ed281" class="outline-3">
-<h3 id="orga3ed281">Theoretical distributions</h3>
-<div class="outline-text-3" id="text-orga3ed281">
+<div id="outline-container-org466d3b5" class="outline-3">
+<h3 id="org466d3b5">Theoretical distributions</h3>
+<div class="outline-text-3" id="text-org466d3b5">
 <p>
 Fortunately, mathematicians have determined how all the possible outcomes for a &rsquo;coin flipping&rsquo; type experiment can be enumerated such that the probabilities can be calculated exactly.  This is quantified in the form of the <a href="https://en.wikipedia.org/wiki/Binomial_distribution">binomial distribution</a> (Wikipedia).
 </p>
@@ -917,9 +917,9 @@ Let&rsquo;s answer the same three questions above, but let&rsquo;s assume that w
 </div>
 </div>
 
-<div id="outline-container-org45a68eb" class="outline-3">
-<h3 id="org45a68eb">Data simulation with the binomial distribution</h3>
-<div class="outline-text-3" id="text-org45a68eb">
+<div id="outline-container-orgae29657" class="outline-3">
+<h3 id="orgae29657">Data simulation with the binomial distribution</h3>
+<div class="outline-text-3" id="text-orgae29657">
 <p>
 The <code>rbinom()</code> function can be used to simulate data. Let&rsquo;s try it out. 
 </p>
@@ -940,7 +940,7 @@ Above you wrote a function <code>head_count()</code> to simulate the flipping of
 </div>
 
 <pre class="example">
-[1] 4 3 4 4
+[1] 4 4 8 3
 </pre>
 
 
@@ -958,7 +958,7 @@ Above you wrote a function <code>head_count()</code> to simulate the flipping of
 </div>
 
 <pre class="example">
-[1] 19 14 15 13 16 17 19 21 19 18
+[1] 18 12 15 15 14 14 25 16 11 20
 </pre>
 
 
@@ -967,9 +967,9 @@ Above you wrote a function <code>head_count()</code> to simulate the flipping of
 </div>
 </div>
 
-<div id="outline-container-org88d5c90" class="outline-2">
-<h2 id="org88d5c90">A continuous distribution: The normal distribution</h2>
-<div class="outline-text-2" id="text-org88d5c90">
+<div id="outline-container-org2df1eb1" class="outline-2">
+<h2 id="org2df1eb1">A continuous distribution: The normal distribution</h2>
+<div class="outline-text-2" id="text-org2df1eb1">
 <p>
 As the above illustrates, probability distributions are useful for estimating probabilities and determining cutoff values in hypothesis testing.  However, many of the variables we are interested in are continuous rather than discrete.  Many such variables (IQ, height, weight) tend to show a <i>normal</i> distribution such as illustrated below.
 </p>
@@ -1063,9 +1063,9 @@ There are two ways to answer this question.  The easy way is just to use the <co
 </div>
 </div>
 
-<div id="outline-container-org7ffa42d" class="outline-3">
-<h3 id="org7ffa42d">z-scores</h3>
-<div class="outline-text-3" id="text-org7ffa42d">
+<div id="outline-container-orgbdabe49" class="outline-3">
+<h3 id="orgbdabe49">z-scores</h3>
+<div class="outline-text-3" id="text-orgbdabe49">
 <p>
 The other way to do it, which is good to know, is using \(z\) scores.  A z score expresses a score relative to the <i>standard normal distribution</i>, which is a normal distribution that has a mean of zero and a standard deviation of 
 </p>
@@ -1216,9 +1216,9 @@ Only about 4%!  She might want to move to the Netherlands!
 
 
 
-<div id="outline-container-orga0fa473" class="outline-2">
-<h2 id="orga0fa473"></h2>
-<div class="outline-text-2" id="text-orga0fa473">
+<div id="outline-container-org37ac2b5" class="outline-2">
+<h2 id="org37ac2b5"></h2>
+<div class="outline-text-2" id="text-org37ac2b5">
 <script>
 
 /* update total correct if #total_correct exists */
@@ -1305,7 +1305,7 @@ window.onload = function() {
 </div>
 </div>
 <div id="postamble" class="status">
-<p class="date">Created: 2021-04-07 Wed 22:47</p>
+<p class="date">Created: 2021-04-08 Thu 12:47</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

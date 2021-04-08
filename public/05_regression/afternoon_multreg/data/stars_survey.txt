@@ -1,0 +1,52 @@
+item_id	item	scale
+i1	Studying for an examination in a statistics course	Anxiety
+i2	Interpreting the meaning of a table in a journal article	Anxiety
+i3	Going to ask my statistics teacher for individual help with material I am having difficulty understanding	Anxiety
+i4	Doing the coursework for a statistics course	Anxiety
+i5	Making an objective decision based on empirical data	Anxiety
+i6	Reading a journal article that includes some statistical analyses	Anxiety
+i7	Trying to decide which analysis is appropriate for my research project	Anxiety
+i8	Doing an examination in a statistics course	Anxiety
+i9	Reading an advertisement for a car which includes figures on miles per gallon, depreciation, etc.	Anxiety
+i10	Walking into the room to take a statistics test	Anxiety
+i11	Interpreting the meaning of a probability value once I have found it	Anxiety
+i12	Arranging to have a body of data put into the computer	Anxiety
+i13	Finding that another student in class got a different answer than I did to a statistical problem	Anxiety
+i14	Determining whether to reject or retain the null hypothesis	Anxiety
+i15	Waking up in the morning on the day of a statistics test	Anxiety
+i16	Asking one of your lecturers for help in understanding a printout	Anxiety
+i17	Trying to understand the odds in a lottery	Anxiety
+i18	Watching a student search through a load of computer printouts from his/her research	Anxiety
+i19	Asking someone in the computer lab for help in understanding a printout	Anxiety
+i20	Trying to understand the statistical analyses described in the abstract of a journal article	Anxiety
+i21	Enrolling in a statistics course	Anxiety
+i22	Going over a final examination in statistics after it has been marked	Anxiety
+i23	Asking a fellow student for help in understanding a printout	Anxiety
+i24	I am a subjective person, so the objectivity of statistics is inappropriate for me	Agreement
+i25	I have not done maths for a long time. I know I will have problems getting through statistics	Agreement
+i26	I wonder why I have to do all these things in statistics when in actual life I will never use them	Agreement
+i27	Statistics is worthless to me since it is empirical and my area of specialization is abstract	Agreement
+i28	Statistics takes more time than it is worth	Agreement
+i29	I feel statistics is a waste	Agreement
+i30	Statistics teachers are so abstract they seem inhuman	Agreement
+i31	I cannot even understand secondary school maths; how can I possibly do statistics?	Agreement
+i32	Most statistics teachers are not human	Agreement
+i33	I lived this long without knowing statistics, why should I learn it now?	Agreement
+i34	Since I have never enjoyed maths I do not see how I can enjoy statistics	Agreement
+i35	I do not want to learn to like statistics	Agreement
+i36	Statistics is for people who have a natural leaning toward maths	Agreement
+i37	Statistics is a pain I could do without	Agreement
+i38	I do not have enough brains to get through statistics	Agreement
+i39	I could enjoy statistics if it were not so mathematical	Agreement
+i40	I wish the statistics requirement would be removed from my academic program	Agreement
+i41	I do not understand why someone in my field needs statistics	Agreement
+i42	I do not see why I have to fill my head with statistics. It will have no use in my career	Agreement
+i43	Statistics teachers speak a different language	Agreement
+i44	Statisticians are more number oriented than they are people oriented	Agreement
+i45	I cannot tell you why, but I just do not like statistics	Agreement
+i46	Statistics teachers talk so fast you cannot logically follow them	Agreement
+i47	Statistical figures are not fit for human consumption	Agreement
+i48	Statistics is not really bad. It is just too mathematical	Agreement
+i49	Affective (emotional) skills are so important in my (future) profession that I do not want to clutter my thinking with something as cognitive as statistics	Agreement
+i50	I am never going to use statistics so why should I have to take it?	Agreement
+i51	I am too slow in my thinking to get through statistics	Agreement

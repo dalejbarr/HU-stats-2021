@@ -1,0 +1,97 @@
+---
+title: "Contingency Tables and Chi-Square Test"
+author: "Dale Barr"
+date: "4/8/2021"
+output: webex::webex_default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Contingency tables and chi-square
+
+### Contingency tables
+
+You can do this in base R using `xtabs()` (for crosstabs) or by using the tidyverse, with `dplyr::count()`, optionally followed by reshaping with `tidyr::spread()`.
+
+#### Contingency table in base R with `xtabs()`:
+
+```{r xtabs}
+library("tidyverse")
+
+xtabs(~ eye_color + gender, starwars)
+```
+
+- pros: easy
+- cons: results table not guaranteed to be tidy
+
+#### Contingency table with tidyverse
+  
+- pros: more flexible, and results in a tidy tibble
+- cons: more typing
+
+**NB: Major change in behavior with factors in dplyr version 0.8.0 (released in 2019)**.
+
+  - If you use `count()` with the defaults, then it will count only those levels appearing in the data. In other words, counts of zero are not possible.
+
+  - If you use `count()` with the argument `.drop = FALSE`, *and your variables are defined as factors* then it will count all levels, including combinations that don't appear in the data (they will appear in the output with `n = 0`).
+
+See the section entitled [Give factors some love](https://www.tidyverse.org/articles/2019/02/dplyr-0-8-0/) in this article on dplyr.
+
+How do you know which version of dplyr you have? Here's a quick way to check.
+
+```{r pkg-vers}
+packageVersion("dplyr")
+```
+
+If your version is less than 0.8.0 then this doesn't apply (and you should upgrade; use `tidyverse::tidyverse_update()`).
+
+Here is the behavior of `count()` with the defaults.
+
+```{r tidy-xtabs-dplyr-drop}
+starwars %>%
+  filter(!is.na(gender)) %>%
+  count(gender, eye_color) 
+```
+
+Now compare this output to:
+
+```{r tidy-xtabs-dplyr-nodrop}
+## NB: this will only work with dplyr >= 0.8.0
+starwars %>%
+  filter(!is.na(gender)) %>%
+  mutate(gender = factor(gender), eye_color = factor(eye_color)) %>% # make factors
+  count(gender, eye_color, .drop = FALSE) 
+```
+
+If you want to make it into a proper table, you can reshape it using `tidyr::spread()`:
+
+```{r sw-spread}
+sw_data <- starwars %>%
+  filter(!is.na(gender)) %>%
+  mutate(gender = factor(gender), eye_color = factor(eye_color)) %>% # make factors
+  count(gender, eye_color, .drop = FALSE) 
+
+spread(sw_data, key = gender, value = n)
+```
+
+### Chi-square test for independence
+
+Use `chisq.test()`. Note that counts in the table `x` must be independent. `x` can be a vector or a matrix/table.
+
+```{r chi-sq-test}
+  ## example from chisq.test documentation
+  ## From Agresti(2007) p.39
+  M <- as.table(rbind(c(762, 327, 468), c(484, 239, 477)))
+  dimnames(M) <- list(gender = c("F", "M"),
+		      party = c("Democrat","Independent", "Republican"))
+  (Xsq <- chisq.test(M))  # Prints test summary
+  Xsq$observed   # observed counts (same as M)
+  Xsq$expected   # expected counts under the null
+```
+
+
+
+[^1]: Furnham, A. (1986), The Robustness of the Recency Effect: Studies Using Legal Evidence. *The Journal of General Psychology*, *113*, 351--357.
+

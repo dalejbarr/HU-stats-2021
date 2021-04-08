@@ -466,7 +466,256 @@ Next task: re-run the model comparison.
 
 #+CALL: unhide() :results html value
 
-* 2x2 ANOVA
+* One-way ANOVA "by-hand"
+
+A great way to understand the elements of ANOVA is to do one "by hand". In the old days this would mean doing it with pencil and paper; here we're going to do it by writing code. We'll revisit the data from the [[*Worked example][one-factor example above]].  For convenience, let's repeat the data here:
+
+- Control: src_R[:exports results :results value]{paste(.Y[1:4], collapse = ", ")}
+- Buffet: src_R[:exports results :results value]{paste(.Y[5:8], collapse = ", ")}
+- Salad: src_R[:exports results :results value]{paste(.Y[9:12], collapse = ", ")}
+
+If you wish to learn more about the concepts of *estimation equations*, *decomposition matrices*, and *sums of squares*, you can find further information in [[https://www.otago.ac.nz/psychology/otago039309.pdf][this free textbook by Miller and Haden]].
+
+We begin by applying estimation equations.  Our estimate of the population grand mean $\mu$, will be based on the grand mean of the sample.  We will call this $\hat{\mu}$. The "hat" that $\mu$ is wearing ($\hat{\mu}$) is just there to remind us that it is not the actual population mean, but an *estimate* of that value derived from our sample.
+
+The estimation equations for our model are:
+
+$\hat{\mu} = Y_{..}$
+
+$\hat{A}_i = Y_{i.} - \hat{\mu}$
+
+$\hat{e}_{ij} = Y_{ij} - (\hat{\mu} + \hat{A}_i) = Y_{ij} - \hat{\mu} - \hat{A}_i$
+
+where
+
+- $Y_{..}$ is the mean of all 12 observations in the sample;
+- $Y_{i.}$ is the mean of the 4 observations in group $i$;
+- $\hat{A}_i$ is the main effect of $A$ for level $i$, and
+- $\hat{e}_{ij}$ is the residual.
+
+Applying these estimation equations to the data above yields the following decomposition matrix:
+
+#+begin_src R :exports results 
+.dmx <- tibble(i = rep(1:3, each = 4),
+       j = rep(1:4, times = 3),
+       Yij = .Y, mu = .mu, Ai = rep(.meal_eff, each = 4),
+       err = .err)
+
+.dmx
+#+end_src
+
+Note that in this table, =mu= is $\hat{\mu}$, =Ai= is $\hat{A}_i$, and =err= is $\hat{e}_{ij}$.  Take a few moments to understand how this table expresses each of the 12 observed values in our example (the $Y_{ij}$ values) in terms of the linear model $Y_{ij} = \mu + A_i + e_{ij}$.
+
+** Recreate decomposition matrix from the raw data
+
+For this part, your task is to reproduce the tibble shown above, reproduced here:
+
+#+begin_src R :exports results
+.dmx
+#+end_src
+
+You will do this by typing the observed values into a tibble, and then writing code to add columns with estimates of the individual components (feel free to copy the code you already wrote above). At the end, your table should look exactly like the one above.
+
+You already know how to create a tibble (don't forget to load the tidyverse package first). In case you need to refresh your memory, see [page 2 of this cheatsheet on data input in R](https://github.com/rstudio/cheatsheets/raw/master/data-import.pdf).
+
+*** Step 1: Create tibble
+
+Create a tibble named =dmx= (for decomposition matrix). It will eventually contain all of the columns in the one above, but for now, just create the columns =i=, =j=, and =Yij=. You should just type in the values for =Yij=.
+
+ #+CALL: hide("Hint 1") :results html value
+
+ =dmx <- tibble(i = NA, j = NA, Yij = NA)=
+ 
+ #+CALL: unhide() :results html value
+
+
+
+ #+CALL: hide("Hint 2") :results html value
+
+ =rep(1:3, each = 4)=
+ 
+ #+CALL: unhide() :results html value
+
+
+ #+CALL: hide("Solution") :results html value
+
+ #+begin_src R
+ library("tidyverse")
+
+ dmx <- tibble(i = rep(1:3, each = 4), 
+               j = rep(1:4, times = 3),
+               Yij = c(37, 80, 64, 51,
+                     33, 47, 55, 41,
+                     59, 23, 50, 60)) # TYPE THE VALUES
+ #+end_src
+ 
+ #+CALL: unhide() :results html value
+
+
+
+*** Step 2: Estimate $\mu$
+
+ Add a column to the table, called =mu= representing $\hat{\mu}$.  Call the resulting table =dmx2=.  Remember that you can add a column to a table using =mutate()=.
+
+ #+CALL: hide("Hint 1") :results html value
+
+ : dmx2 <- dmx %>% 
+ :    mutate(mu = ???)
+ 
+ #+CALL: unhide() :results html value
+
+
+
+ #+CALL: hide("Solution") :results html value
+
+ #+begin_src R
+ dmx2 <- dmx %>%
+   mutate(mu = mean(Yij))
+ #+end_src
+ 
+ #+CALL: unhide() :results html value
+
+
+
+*** Step 3: Enter the estimates $\hat{A}_1$, $\hat{A}_2$, $\hat{A}_3$
+
+ Add a column to the table =dmx2= called =Ai=, with the three estimates for $\hat{A}_i$.  Store the resulting tibble in =dmx3=.
+
+ #+CALL: hide("Hint") :results html value
+
+ - don't forget to =ungroup()= at the end of the pipeline
+ 
+ #+CALL: unhide() :results html value
+
+
+
+ #+CALL: hide("Solution") :results html value
+
+ #+begin_src R
+ dmx3 <- dmx2 %>%
+   group_by(i) %>% # calculate different values for each i
+   mutate(Ai = mean(Yij) - mu) %>%
+   ungroup()
+ #+end_src
+ 
+ #+CALL: unhide() :results html value
+
+
+
+*** Step 4: Calculate \(\hat{e}_{ij}\)s
+
+Now add a column =err= to =dmx3= and store the result in =dmx4=. The column =err= should contain the residuals (the difference between the observed and fitted values)
+
+ #+CALL: hide("Hint") :results html value
+
+ $\hat{e}_{ij} = Y_{ij} - \hat{Y}_{ij}$
+
+ $\hat{Y}_{ij} = \hat{\mu} + \hat{A}_i$ 
+ 
+ #+CALL: unhide() :results html value
+
+
+
+ #+CALL: hide("Solution") :results html value
+
+ #+begin_src R
+ dmx4 <- dmx3 %>%
+   mutate(err = Yij - (mu + Ai))
+
+ dmx4
+ #+end_src
+ 
+ #+CALL: unhide() :results html value
+
+
+
+ Display =dmx4= in the console and compare it to the table above.  How did you do?
+
+*** Step 5: Sums of squares
+
+Sums of squares are used in calculations for performing tests on model components.
+
+Square the values in the columns =Yij=, =mu=, =Ai=, and =err= in =dmx4=, then sum up the squared values for each of these columns.  Here is an example of how you would square a value =x= in R: =x^2=.  The =^2= means take x to the power of 2.  So typing =3^2= in the console will give you =9= (try it if you're unsure).
+
+ #+CALL: hide("Hint 1") :results html value
+
+ : dmx4 %>% mutate(Yij2 = Yij^2, ...)
+ 
+ #+CALL: unhide() :results html value
+
+
+
+ #+CALL: hide("Hint 2") :results html value
+
+ : summarise(ss_Y = sum(Yij2), ss_mu = ...)
+ 
+ #+CALL: unhide() :results html value
+
+
+
+ #+CALL: hide("Solution") :results html value
+
+ #+begin_src R
+ sstbl <- dmx4 %>%
+   mutate(Yij2 = Yij^2,
+          mu2 = mu^2,
+          Ai2 = Ai^2,
+          err2 = err^2) %>%
+   select(Yij2, mu2, Ai2, err2) %>%
+   summarise(ss_Y = sum(Yij2),
+             ss_mu = sum(mu2),
+             ss_Ai = sum(Ai2),
+             ss_err = sum(err2))
+
+ ## here is a super cool way to do the same thing,
+ ## using dplyr's "scoping" technique 
+ ## (see ?dplyr::scoped and ?dplyr::summarise_all)
+ sstbl <- dmx4 %>%
+   select(Yij:err) %>%
+   summarise_all(funs(sum(.^2)))
+
+ sstbl
+ #+end_src
+ 
+ #+CALL: unhide() :results html value
+
+*** Final step: Calculate \(F\) statistics
+
+\(F = \frac{MS_{A}}{MS_{err}}\)
+
+\(MS_A = \frac{MS_A}{df_A}\)
+
+\(MS_{err} = \frac{MS_{err}}{df_{err}}\)
+
+Get the p-value using the appropriate probability distribution for the \(F\) distribution (Hint: remember =dnorm()=, =pnorm()=, and =qnorm()=?)
+
+Your results should *exactly* reproduce the ones we got from =ezANOVA()=.
+
+#+CALL: hide("Hint (F function)") :results html value
+
+=?pf=
+
+#+CALL: unhide() :results html value
+
+#+CALL: hide("Solution") :results html value
+
+#+begin_src R
+  ms_a <- (sstbl %>% pull(Ai)) / 2L # 2 dfs
+  ms_err <- (sstbl %>% pull(err)) / 9L # 9 dfs
+
+  f_ratio <- ms_a / ms_err
+  p_value <- pf(f_ratio, 2, 9, lower.tail = FALSE)
+
+  cat("F(2, 9) =", round(f_ratio, 2), ", p =", round(p_value, 3), "\n")
+#+end_src
+
+#+RESULTS:
+: F(2, 9) = 0.87 , p = 0.453
+
+#+CALL: unhide() :results html value
+
+
+* 2x2 ANOVA                                                        :noexport:
 
 Consider the following hypothetical data from a 2x2 design (both factors between subjects) from an imaginary study investigating the effects of a new (vs. old) educational programme for rural (vs. urban) schoolchildren.
 
@@ -554,7 +803,7 @@ F-statistic: 0.367 on 3 and 12 DF,  p-value: 0.7781
 
 Compare your results to =ezANOVA= above.
 
-* Mixed-design ANOVA using =ez::ezANOVA()=
+* Mixed-design ANOVA using =ez::ezANOVA()=                         :noexport:
 
 Let's look at a more complicated 'mixed' experiment design.
 
@@ -924,255 +1173,6 @@ Let's look at a more complicated 'mixed' experiment design.
  6       cue:flank   9.40   6 198.00      1.00  <.0001
  7 group:cue:flank   5.71   6 198.00      1.00  <.0001
  #+end_example
-
-
-* Appendix: One-way ANOVA "by-hand"
-
-(This section is optional.) A great way to understand the elements of ANOVA is to do one "by hand". In the old days this would mean doing it with pencil and paper; here we're going to do it by writing code. We'll revisit the data from the [[*Worked example][one-factor example above]].  For convenience, let's repeat the data here:
-
-- Control: src_R[:exports results :results value]{paste(.Y[1:4], collapse = ", ")}
-- Buffet: src_R[:exports results :results value]{paste(.Y[5:8], collapse = ", ")}
-- Salad: src_R[:exports results :results value]{paste(.Y[9:12], collapse = ", ")}
-
-If you wish to learn more about the concepts of *estimation equations*, *decomposition matrices*, and *sums of squares*, you can find further information in [[https://www.otago.ac.nz/psychology/otago039309.pdf][this free textbook by Miller and Haden]].
-
-We begin by applying estimation equations.  Our estimate of the population grand mean $\mu$, will be based on the grand mean of the sample.  We will call this $\hat{\mu}$. The "hat" that $\mu$ is wearing ($\hat{\mu}$) is just there to remind us that it is not the actual population mean, but an *estimate* of that value derived from our sample.
-
-The estimation equations for our model are:
-
-$\hat{\mu} = Y_{..}$
-
-$\hat{A}_i = Y_{i.} - \hat{\mu}$
-
-$\hat{e}_{ij} = Y_{ij} - (\hat{\mu} + \hat{A}_i) = Y_{ij} - \hat{\mu} - \hat{A}_i$
-
-where
-
-- $Y_{..}$ is the mean of all 12 observations in the sample;
-- $Y_{i.}$ is the mean of the 4 observations in group $i$;
-- $\hat{A}_i$ is the main effect of $A$ for level $i$, and
-- $\hat{e}_{ij}$ is the residual.
-
-Applying these estimation equations to the data above yields the following decomposition matrix:
-
-#+begin_src R :exports results 
-.dmx <- tibble(i = rep(1:3, each = 4),
-       j = rep(1:4, times = 3),
-       Yij = .Y, mu = .mu, Ai = rep(.meal_eff, each = 4),
-       err = .err)
-
-.dmx
-#+end_src
-
-Note that in this table, =mu= is $\hat{\mu}$, =Ai= is $\hat{A}_i$, and =err= is $\hat{e}_{ij}$.  Take a few moments to understand how this table expresses each of the 12 observed values in our example (the $Y_{ij}$ values) in terms of the linear model $Y_{ij} = \mu + A_i + e_{ij}$.
-
-** Recreate decomposition matrix from the raw data
-
-For this part, your task is to reproduce the tibble shown above, reproduced here:
-
-#+begin_src R :exports results
-.dmx
-#+end_src
-
-You will do this by typing the observed values into a tibble, and then writing code to add columns with estimates of the individual components (feel free to copy the code you already wrote above). At the end, your table should look exactly like the one above.
-
-You already know how to create a tibble (don't forget to load the tidyverse package first). In case you need to refresh your memory, see [page 2 of this cheatsheet on data input in R](https://github.com/rstudio/cheatsheets/raw/master/data-import.pdf).
-
-*** Step 1: Create tibble
-
-Create a tibble named =dmx= (for decomposition matrix). It will eventually contain all of the columns in the one above, but for now, just create the columns =i=, =j=, and =Yij=. You should just type in the values for =Yij=.
-
- #+CALL: hide("Hint 1") :results html value
-
- =dmx <- tibble(i = NA, j = NA, Yij = NA)=
- 
- #+CALL: unhide() :results html value
-
-
-
- #+CALL: hide("Hint 2") :results html value
-
- =rep(1:3, each = 4)=
- 
- #+CALL: unhide() :results html value
-
-
- #+CALL: hide("Solution") :results html value
-
- #+begin_src R
- library("tidyverse")
-
- dmx <- tibble(i = rep(1:3, each = 4), 
-               j = rep(1:4, times = 3),
-               Yij = c(37, 80, 64, 51,
-                     33, 47, 55, 41,
-                     59, 23, 50, 60)) # TYPE THE VALUES
- #+end_src
- 
- #+CALL: unhide() :results html value
-
-
-
-*** Step 2: Estimate $\mu$
-
- Add a column to the table, called =mu= representing $\hat{\mu}$.  Call the resulting table =dmx2=.  Remember that you can add a column to a table using =mutate()=.
-
- #+CALL: hide("Hint 1") :results html value
-
- : dmx2 <- dmx %>% 
- :    mutate(mu = ???)
- 
- #+CALL: unhide() :results html value
-
-
-
- #+CALL: hide("Solution") :results html value
-
- #+begin_src R
- dmx2 <- dmx %>%
-   mutate(mu = mean(Yij))
- #+end_src
- 
- #+CALL: unhide() :results html value
-
-
-
-*** Step 3: Enter the estimates $\hat{A}_1$, $\hat{A}_2$, $\hat{A}_3$
-
- Add a column to the table =dmx2= called =Ai=, with the three estimates for $\hat{A}_i$.  Store the resulting tibble in =dmx3=.
-
- #+CALL: hide("Hint") :results html value
-
- - don't forget to =ungroup()= at the end of the pipeline
- 
- #+CALL: unhide() :results html value
-
-
-
- #+CALL: hide("Solution") :results html value
-
- #+begin_src R
- dmx3 <- dmx2 %>%
-   group_by(i) %>% # calculate different values for each i
-   mutate(Ai = mean(Yij) - mu) %>%
-   ungroup()
- #+end_src
- 
- #+CALL: unhide() :results html value
-
-
-
-*** Step 4: Calculate \(\hat{e}_{ij}\)s
-
-Now add a column =err= to =dmx3= and store the result in =dmx4=. The column =err= should contain the residuals (the difference between the observed and fitted values)
-
- #+CALL: hide("Hint") :results html value
-
- $\hat{e}_{ij} = Y_{ij} - \hat{Y}_{ij}$
-
- $\hat{Y}_{ij} = \hat{\mu} + \hat{A}_i$ 
- 
- #+CALL: unhide() :results html value
-
-
-
- #+CALL: hide("Solution") :results html value
-
- #+begin_src R
- dmx4 <- dmx3 %>%
-   mutate(err = Yij - (mu + Ai))
-
- dmx4
- #+end_src
- 
- #+CALL: unhide() :results html value
-
-
-
- Display =dmx4= in the console and compare it to the table above.  How did you do?
-
-*** Step 5: Sums of squares
-
-Sums of squares are used in calculations for performing tests on model components.
-
-Square the values in the columns =Yij=, =mu=, =Ai=, and =err= in =dmx4=, then sum up the squared values for each of these columns.  Here is an example of how you would square a value =x= in R: =x^2=.  The =^2= means take x to the power of 2.  So typing =3^2= in the console will give you =9= (try it if you're unsure).
-
- #+CALL: hide("Hint 1") :results html value
-
- : dmx4 %>% mutate(Yij2 = Yij^2, ...)
- 
- #+CALL: unhide() :results html value
-
-
-
- #+CALL: hide("Hint 2") :results html value
-
- : summarise(ss_Y = sum(Yij2), ss_mu = ...)
- 
- #+CALL: unhide() :results html value
-
-
-
- #+CALL: hide("Solution") :results html value
-
- #+begin_src R
- sstbl <- dmx4 %>%
-   mutate(Yij2 = Yij^2,
-          mu2 = mu^2,
-          Ai2 = Ai^2,
-          err2 = err^2) %>%
-   select(Yij2, mu2, Ai2, err2) %>%
-   summarise(ss_Y = sum(Yij2),
-             ss_mu = sum(mu2),
-             ss_Ai = sum(Ai2),
-             ss_err = sum(err2))
-
- ## here is a super cool way to do the same thing,
- ## using dplyr's "scoping" technique 
- ## (see ?dplyr::scoped and ?dplyr::summarise_all)
- sstbl <- dmx4 %>%
-   select(Yij:err) %>%
-   summarise_all(funs(sum(.^2)))
-
- sstbl
- #+end_src
- 
- #+CALL: unhide() :results html value
-
-*** Final step: Calculate \(F\) statistics
-
-\(F = \frac{MS_{A}}{MS_{err}}\)
-
-\(MS_A = \frac{MS_A}{df_A}\)
-
-\(MS_{err} = \frac{MS_{err}}{df_{err}}\)
-
-Get the p-value using the appropriate probability distribution for the \(F\) distribution (Hint: remember =dnorm()=, =pnorm()=, and =qnorm()=?)
-
-Your results should *exactly* reproduce the ones we got from =ezANOVA()=.
-
-#+CALL: hide("Hint (F function)") :results html value
-
-=?pf=
-
-#+CALL: unhide() :results html value
-
-#+CALL: hide("Solution") :results html value
-
-#+begin_src R
-  ms_a <- (sstbl %>% pull(Ai)) / 2L # 2 dfs
-  ms_err <- (sstbl %>% pull(err)) / 9L # 9 dfs
-
-  f_ratio <- ms_a / ms_err
-  p_value <- pf(f_ratio, 2, 9, lower.tail = FALSE)
-
-  cat("F(2, 9) =", round(f_ratio, 2), ", p =", round(p_value, 3), "\n")
-#+end_src
-
-#+RESULTS:
-: F(2, 9) = 0.87 , p = 0.453
-
-#+CALL: unhide() :results html value
 
 
 * 

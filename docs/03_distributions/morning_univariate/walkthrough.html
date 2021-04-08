@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-04-07 Wed 22:47 -->
+<!-- 2021-04-08 Thu 12:47 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Probability &amp; Hypothesis Testing</title>
@@ -266,12 +266,12 @@ for the JavaScript code in this tag.
 <div id="content">
 <h1 class="title">Probability &amp; Hypothesis Testing</h1>
 
-<div id="outline-container-orge416eb7" class="outline-2">
-<h2 id="orge416eb7"><span class="section-number-2">1</span> Working with probabilities</h2>
+<div id="outline-container-org53a15d4" class="outline-2">
+<h2 id="org53a15d4"><span class="section-number-2">1</span> Working with probabilities</h2>
 <div class="outline-text-2" id="text-1">
 </div>
-<div id="outline-container-org4821d96" class="outline-3">
-<h3 id="org4821d96"><span class="section-number-3">1.1</span> Working with the binomial distribution</h3>
+<div id="outline-container-orge1fb0d3" class="outline-3">
+<h3 id="orge1fb0d3"><span class="section-number-3">1.1</span> Working with the binomial distribution</h3>
 <div class="outline-text-3" id="text-1-1">
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
@@ -318,8 +318,8 @@ where \(B=P(X=A)\), \(C\) is \(P(X \ge A)\) (i.e., the blue area),
 </div>
 </div>
 
-<div id="outline-container-orgcedc467" class="outline-3">
-<h3 id="orgcedc467"><span class="section-number-3">1.2</span> BINOMIAL PROBLEMS</h3>
+<div id="outline-container-orgb64de87" class="outline-3">
+<h3 id="orgb64de87"><span class="section-number-3">1.2</span> BINOMIAL PROBLEMS</h3>
 <div class="outline-text-3" id="text-1-2">
 <p>
 Your friend claims that her dog can correctly interpret her verbal
@@ -351,8 +351,8 @@ language abilities, assuming the test is one-tailed, \(\alpha=.05\)?</li>
 </div>
 </div>
 
-<div id="outline-container-org2d9d05f" class="outline-3">
-<h3 id="org2d9d05f"><span class="section-number-3">1.3</span> Probability of &ldquo;success&rdquo;&#xa0;&#xa0;&#xa0;<span class="tag"><span class="answer">answer</span></span></h3>
+<div id="outline-container-org69eb870" class="outline-3">
+<h3 id="org69eb870"><span class="section-number-3">1.3</span> Probability of &ldquo;success&rdquo;&#xa0;&#xa0;&#xa0;<span class="tag"><span class="answer">answer</span></span></h3>
 <div class="outline-text-3" id="text-1-3">
 <p>
 Assuming your friend&rsquo;s dog has no language comprehension abilities:
@@ -374,8 +374,8 @@ choices are (toy, newpaper, slippers, remote, leash)
 </div>
 </div>
 
-<div id="outline-container-org27f3db7" class="outline-3">
-<h3 id="org27f3db7"><span class="section-number-3">1.4</span> Accurate on exactly \(A\) trials&#xa0;&#xa0;&#xa0;<span class="tag"><span class="R">R</span>&#xa0;<span class="answer">answer</span></span></h3>
+<div id="outline-container-orge66b47d" class="outline-3">
+<h3 id="orge66b47d"><span class="section-number-3">1.4</span> Accurate on exactly \(A\) trials&#xa0;&#xa0;&#xa0;<span class="tag"><span class="R">R</span>&#xa0;<span class="answer">answer</span></span></h3>
 <div class="outline-text-3" id="text-1-4">
 <p>
 (2) What is the probability that it will be accurate on exactly 30 trials?
@@ -394,7 +394,7 @@ use <code>R</code> function <code>dbinom(A,N,p)</code>
 </div>
 
 <ol class="org-ol">
-<li><a id="orgd3f6db5"></a>R code&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_block">B_block</span></span><br />
+<li><a id="org57c6927"></a>R code&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_block">B_block</span></span><br />
 <div class="outline-text-4" id="text-1-4-1">
 <div class="org-src-container">
 <pre class="src src-R">dbinom(30, 100, .2)
@@ -409,8 +409,8 @@ use <code>R</code> function <code>dbinom(A,N,p)</code>
 </ol>
 </div>
 
-<div id="outline-container-orgf1d248d" class="outline-3">
-<h3 id="orgf1d248d"><span class="section-number-3">1.5</span> Accuracy between \(A\) and \(B\)&#xa0;&#xa0;&#xa0;<span class="tag"><span class="R">R</span>&#xa0;<span class="answer">answer</span></span></h3>
+<div id="outline-container-org12324ea" class="outline-3">
+<h3 id="org12324ea"><span class="section-number-3">1.5</span> Accuracy between \(A\) and \(B\)&#xa0;&#xa0;&#xa0;<span class="tag"><span class="R">R</span>&#xa0;<span class="answer">answer</span></span></h3>
 <div class="outline-text-3" id="text-1-5">
 <p>
 (3) What is the probability that its accuracy will be between 15% and 25%?
@@ -424,7 +424,7 @@ use <code>R</code> function <code>sum(dbinom(A:B,N,p))</code>
 </div>
 
 <ol class="org-ol">
-<li><a id="org70a733e"></a>R code&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_block">B_block</span></span><br />
+<li><a id="orgde597d4"></a>R code&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_block">B_block</span></span><br />
 <div class="outline-text-4" id="text-1-5-1">
 <div class="org-src-container">
 <pre class="src src-R">dbinom(15:25, 100, .2)
@@ -443,8 +443,8 @@ sum(dbinom(15:25, 100, .2))
 </ol>
 </div>
 
-<div id="outline-container-orgf7ef4b1" class="outline-3">
-<h3 id="orgf7ef4b1"><span class="section-number-3">1.6</span> Critical value for rejecting the null?&#xa0;&#xa0;&#xa0;<span class="tag"><span class="R">R</span>&#xa0;<span class="answer">answer</span></span></h3>
+<div id="outline-container-orga9b0947" class="outline-3">
+<h3 id="orga9b0947"><span class="section-number-3">1.6</span> Critical value for rejecting the null?&#xa0;&#xa0;&#xa0;<span class="tag"><span class="R">R</span>&#xa0;<span class="answer">answer</span></span></h3>
 <div class="outline-text-3" id="text-1-6">
 <p>
 (4) At what accuracy level would you reject the null hypothesis of no language abilities, assuming \(\alpha=.05\)?
@@ -458,7 +458,7 @@ use <code>R</code> function <code>qbinom(alpha, N, p, lower.tail=FALSE)</code>
 </div>
 
 <ol class="org-ol">
-<li><a id="org2fb107d"></a>R code&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_block">B_block</span></span><br />
+<li><a id="orgcffe285"></a>R code&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_block">B_block</span></span><br />
 <div class="outline-text-4" id="text-1-6-1">
 <div class="org-src-container">
 <pre class="src src-R">qbinom(.05, 100, .2, lower.tail=<span style="font-weight: bold; text-decoration: underline;">FALSE</span>)
@@ -471,7 +471,7 @@ use <code>R</code> function <code>qbinom(alpha, N, p, lower.tail=FALSE)</code>
 </div>
 </li>
 
-<li><a id="org03a7f64"></a>back&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_ignoreheading">B_ignoreheading</span></span><br />
+<li><a id="orgf3ad528"></a>back&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_ignoreheading">B_ignoreheading</span></span><br />
 <div class="outline-text-4" id="text-1-6-2">
 <ul class="org-ul">
 <li>So, if the dog gets <b>more than</b> 27 correct (out of 100), this would be
@@ -483,8 +483,8 @@ understanding to lead you to suspect the contrary&#x2026;</li>
 </ol>
 </div>
 
-<div id="outline-container-org848d4fe" class="outline-3">
-<h3 id="org848d4fe"><span class="section-number-3">1.7</span> Working with the standard normal distribution</h3>
+<div id="outline-container-org645e9a6" class="outline-3">
+<h3 id="org645e9a6"><span class="section-number-3">1.7</span> Working with the standard normal distribution</h3>
 <div class="outline-text-3" id="text-1-7">
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
@@ -525,8 +525,8 @@ understanding to lead you to suspect the contrary&#x2026;</li>
 </div>
 </div>
 
-<div id="outline-container-org04d8065" class="outline-3">
-<h3 id="org04d8065"><span class="section-number-3">1.8</span> NORMAL DISTRIBUTION PROBLEMS</h3>
+<div id="outline-container-org5d8b544" class="outline-3">
+<h3 id="org5d8b544"><span class="section-number-3">1.8</span> NORMAL DISTRIBUTION PROBLEMS</h3>
 <div class="outline-text-3" id="text-1-8">
 <p>
 The average height (&mu;) of a 16-24 year old Scotsman is 176.2
@@ -563,8 +563,8 @@ group?</li>
 </div>
 
 
-<div id="outline-container-org684eae8" class="outline-3">
-<h3 id="org684eae8"><span class="section-number-3">1.9</span> Scotswomen taller than typical Scotsman&#xa0;&#xa0;&#xa0;<span class="tag"><span class="answer">answer</span>&#xa0;<span class="R">R</span></span></h3>
+<div id="outline-container-org09824b8" class="outline-3">
+<h3 id="org09824b8"><span class="section-number-3">1.9</span> Scotswomen taller than typical Scotsman&#xa0;&#xa0;&#xa0;<span class="tag"><span class="answer">answer</span>&#xa0;<span class="R">R</span></span></h3>
 <div class="outline-text-3" id="text-1-9">
 <p>
 (1) What is the probability of meeting a 16-24 y.o. Scotswoman who is
@@ -619,7 +619,7 @@ probability of encountering a woman as tall as this or taller, \(P(X
 </div>
 
 <ol class="org-ol">
-<li><a id="org0a14d8d"></a>R code&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_block">B_block</span></span><br />
+<li><a id="orga07dcbf"></a>R code&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_block">B_block</span></span><br />
 <div class="outline-text-4" id="text-1-9-1">
 <div class="org-src-container">
 <pre class="src src-R">pnorm(1.789,lower.tail=<span style="font-weight: bold; text-decoration: underline;">FALSE</span>)
@@ -634,8 +634,8 @@ probability of encountering a woman as tall as this or taller, \(P(X
 </ol>
 </div>
 
-<div id="outline-container-orga5cb019" class="outline-3">
-<h3 id="orga5cb019"><span class="section-number-3">1.10</span> Fiona&rsquo;s dating problems&#xa0;&#xa0;&#xa0;<span class="tag"><span class="R">R</span>&#xa0;<span class="answer">answer</span></span></h3>
+<div id="outline-container-orgf586af3" class="outline-3">
+<h3 id="orgf586af3"><span class="section-number-3">1.10</span> Fiona&rsquo;s dating problems&#xa0;&#xa0;&#xa0;<span class="tag"><span class="R">R</span>&#xa0;<span class="answer">answer</span></span></h3>
 <div class="outline-text-3" id="text-1-10">
 <p>
 (2) Fiona is a very tall Scotswoman (181.12&nbsp;cm) in the 16-24
@@ -689,7 +689,7 @@ The proportion of men at least this tall is:
 </div>
 
 <ol class="org-ol">
-<li><a id="org84a421a"></a>R code&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_block">B_block</span></span><br />
+<li><a id="org7165df6"></a>R code&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_block">B_block</span></span><br />
 <div class="outline-text-4" id="text-1-10-1">
 <div class="org-src-container">
 <pre class="src src-R">pnorm(.729,lower.tail=<span style="font-weight: bold; text-decoration: underline;">FALSE</span>)
@@ -702,7 +702,7 @@ The proportion of men at least this tall is:
 </div>
 </li>
 
-<li><a id="org06039e5"></a>back&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_ignoreheading">B_ignoreheading</span></span><br />
+<li><a id="org7849f2e"></a>back&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_ignoreheading">B_ignoreheading</span></span><br />
 <div class="outline-text-4" id="text-1-10-2">
 <p>
 So about 1 in every 4 Scotsmen her age would be available.
@@ -711,8 +711,8 @@ So about 1 in every 4 Scotsmen her age would be available.
 </li>
 </ol>
 </div>
-<div id="outline-container-org86bd929" class="outline-3">
-<h3 id="org86bd929"><span class="section-number-3">1.11</span> Royal Navy problem&#xa0;&#xa0;&#xa0;<span class="tag"><span class="R">R</span>&#xa0;<span class="answer">answer</span></span></h3>
+<div id="outline-container-org9bc3f01" class="outline-3">
+<h3 id="org9bc3f01"><span class="section-number-3">1.11</span> Royal Navy problem&#xa0;&#xa0;&#xa0;<span class="tag"><span class="R">R</span>&#xa0;<span class="answer">answer</span></span></h3>
 <div class="outline-text-3" id="text-1-11">
 <p>
 (3) Out of 100,000 16-24 y.o. Scotswomen, how many would you predict
@@ -755,7 +755,7 @@ A female who is 151.5 cm tall has a \(z\)-score of \(z =
 </div>
 
 <ol class="org-ol">
-<li><a id="orgcddb0cc"></a>R code&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_block">B_block</span></span><br />
+<li><a id="org798526f"></a>R code&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_block">B_block</span></span><br />
 <div class="outline-text-4" id="text-1-11-1">
 <div class="org-src-container">
 <pre class="src src-R">z <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> (151.5 - 163.8) / 6.931
@@ -776,7 +776,7 @@ round(pnorm(z, lower.tail = <span style="font-weight: bold; text-decoration: und
 </div>
 </li>
 
-<li><a id="orgf04061c"></a>back&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_ignoreheading">B_ignoreheading</span></span><br />
+<li><a id="org1509faa"></a>back&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_ignoreheading">B_ignoreheading</span></span><br />
 <div class="outline-text-4" id="text-1-11-2">
 <p>
 The expected number is given by \(p \times N\), which in this case is
@@ -787,8 +787,8 @@ The expected number is given by \(p \times N\), which in this case is
 </ol>
 </div>
 
-<div id="outline-container-orgd67990e" class="outline-3">
-<h3 id="orgd67990e"><span class="section-number-3">1.12</span> How tall to be in the top 5%?&#xa0;&#xa0;&#xa0;<span class="tag"><span class="answer">answer</span>&#xa0;<span class="R">R</span></span></h3>
+<div id="outline-container-org6e9d35a" class="outline-3">
+<h3 id="org6e9d35a"><span class="section-number-3">1.12</span> How tall to be in the top 5%?&#xa0;&#xa0;&#xa0;<span class="tag"><span class="answer">answer</span>&#xa0;<span class="R">R</span></span></h3>
 <div class="outline-text-3" id="text-1-12">
 <p>
 (4) How tall would a 16-24 y.o. Scotsman have to be in order to be in
@@ -839,7 +839,7 @@ What \(z\) score cuts off the top 5% of the distribution?
 </div>
 
 <ol class="org-ol">
-<li><a id="org29bfdd0"></a>R code&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_block">B_block</span></span><br />
+<li><a id="org41a9caf"></a>R code&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_block">B_block</span></span><br />
 <div class="outline-text-4" id="text-1-12-1">
 <div class="org-src-container">
 <pre class="src src-R">z_crit <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> qnorm(.05, lower.tail = <span style="font-weight: bold; text-decoration: underline;">FALSE</span>)
@@ -856,8 +856,8 @@ print(z_crit)
 </ol>
 </div>
 
-<div id="outline-container-org8708dbd" class="outline-3">
-<h3 id="org8708dbd"><span class="section-number-3">1.13</span> How tall to be in the top 5%? (cont&rsquo;d)&#xa0;&#xa0;&#xa0;<span class="tag"><span class="answer">answer</span></span></h3>
+<div id="outline-container-org0e10311" class="outline-3">
+<h3 id="org0e10311"><span class="section-number-3">1.13</span> How tall to be in the top 5%? (cont&rsquo;d)&#xa0;&#xa0;&#xa0;<span class="tag"><span class="answer">answer</span></span></h3>
 <div class="outline-text-3" id="text-1-13">
 <p>
 So, someone in the top 5% (95th percentile) has a \(z\)-score of at
@@ -872,7 +872,7 @@ the top 5% of the distribution.
 </div>
 
 <ol class="org-ol">
-<li><a id="org22bfcc1"></a>R code&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_block">B_block</span>&#xa0;<span class="answer">answer</span>&#xa0;<span class="R">R</span></span><br />
+<li><a id="org2342dbe"></a>R code&#xa0;&#xa0;&#xa0;<span class="tag"><span class="B_block">B_block</span>&#xa0;<span class="answer">answer</span>&#xa0;<span class="R">R</span></span><br />
 <div class="outline-text-4" id="text-1-13-1">
 <div class="org-src-container">
 <pre class="src src-R">z_crit * 6.748 + 176.2
@@ -887,8 +887,8 @@ the top 5% of the distribution.
 </ol>
 </div>
 
-<div id="outline-container-org8508cf2" class="outline-3">
-<h3 id="org8508cf2"><span class="section-number-3">1.14</span> Submit your homework</h3>
+<div id="outline-container-org814caf1" class="outline-3">
+<h3 id="org814caf1"><span class="section-number-3">1.14</span> Submit your homework</h3>
 <div class="outline-text-3" id="text-1-14">
 <p>
 <a href="http://talklab.psy.gla.ac.uk/L3stats/ps02">http://talklab.psy.gla.ac.uk/L3stats/ps02</a>
@@ -900,7 +900,7 @@ the top 5% of the distribution.
 <div id="postamble" class="status">
 <p class="date">Date: Homework 2</p>
 <p class="author">Author: Level 3 Statistics</p>
-<p class="date">Created: 2021-04-07 Wed 22:47</p>
+<p class="date">Created: 2021-04-08 Thu 12:47</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

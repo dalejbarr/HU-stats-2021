@@ -1,0 +1,269 @@
+---
+title: "Multiple Regression Formative Exercises"
+author: "L3 Teaching Team"
+output: webex::webex_default
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!requireNamespace("webex")) {
+  stop("You must have the 'webex' package installed to knit HTML from this template.\n   devtools::install_github(\"psyteachr/webex\")")
+} else {
+  library("webex")
+}
+```
+
+# Background
+
+For this set of formative exercises, you're going to be working with some real data collected about students from an undergraduate statistics class. The data have been anonymized, and no demographic or other sensitive information has been provided. Each student is identified by a unique value of the variable `id`.
+
+Students were given the STats Anxiety Rating Scale (STARS), a 51-item questionnaire which measures student's attitudes toward statistics (Cruise, Cash, & Bolton, 1985).  In each item, students are asked to rate either agreement with a statement on a 1 to 5 scale (1 = strongly disagree, 5 = strongly agree), or rate how anxious they would feel on a 1 to 5 scale (1 = no anxiety, 5 = strong anxiety). Higher numbers mean more anxiety or more negative attitudes toward statistics.  If you're interested, you can see the individual survey items [here](stars_items.html). The rating data is in the file [stars.csv](data/stars.csv){target="_download"}
+
+The STARS items can be divided up into six different subscales (Hanna, Shevlin, & Dempster, 2008). The subscales and the mapping of items to subscales is given in this [subscales.csv](data/subscales.csv){target="_download"} file.
+
+Students in this course were allowed to freely choose what software they used to perform the class assignments, either SPSS or R. The file [software.csv](data/software.csv){target="_download"} has information about which software each student chose.
+
+Your task is to use multiple regression examine the relationship between the stats anxiety subscales and overall performance in the class, as measured by the students' final grades, which are in the file [grades.csv](data/grades.csv){target="_download"}. At this university, grades are on a 22-point scale.
+
+# Tasks
+
+Open up a new RMarkdown file, and create separate code chunks for each of the following tasks. Name your code chunks `task-1`, `task-2`, etc.
+
+## Task 1: Import the data
+
+You will need to use the **`tidyverse`** package as well as the **`corrr`** package. Load in those packages as well as `stars.csv`, `grades.csv`, `software.csv`, and `subscales.csv`. You might want to look at the [Data Import Cheat Sheet](https://github.com/rstudio/cheatsheets/raw/master/data-import.pdf){target="_blank"}.
+
+`r hide()`
+
+```{r import-data, message=FALSE}
+library("tidyverse") # you're welcome
+library("corrr")
+
+stars <- read_csv("data/stars.csv", 
+                  col_types = cols(.default = col_integer()))
+
+stars_long <- stars %>%
+  pivot_longer(I01:I51,
+    names_to = "item_id", 
+    values_to = "score")
+
+subscales <- read_csv("data/subscales.csv", 
+                      col_types = "cc")
+
+grades <- read_csv("data/grades.csv", col_types = "ii")
+
+software <- read_csv("data/software.csv", col_types = "ic")
+```
+
+`r unhide()`
+
+## Task 2: Calculate subscale means
+
+Calculate the mean score for each subscale for each student.
+
+`r hide("I don't know where to begin")`
+
+Look at the data from `stars.csv`. It is in wide format. Your task will be much easier if you get it into long format. Do you remember how to transform data from wide to long? Look at the [Data Import Cheat Sheet](https://github.com/rstudio/cheatsheets/raw/master/data-import.pdf){target="_blank"}.
+
+`r unhide()`
+
+`r hide("Help me combine the rating and subscale information")`
+
+You need a **`dplyr`** two-table verb; think "mutating join."
+
+And maybe look at the [Data Transformation with dplyr cheat sheet](https://www.rstudio.org/links/data_transformation_cheat_sheet){target="_blank"}.
+
+`r unhide()`
+
+`r hide("Help me calculate means for each subject and subscale")`
+
+`group_by()` and `summarize()` are your friends. And remember that you can have more than one argument to `group_by()`.
+
+`r unhide()`
+
+`r hide()`
+
+```{r subscale-means}
+stars_sub <- inner_join(stars_long, subscales, "item_id")
+
+## calculate means for each subject
+scale_means_by_sub <- stars_sub %>%
+  group_by(id, subscale) %>%
+  summarize(mean_score = mean(score, na.rm = TRUE),
+            .groups = "drop")
+```
+
+`r unhide()`
+
+## Task 3: Create a correlation matrix
+
+Create a correlation matrix using `corrr::correlate()` showing the bivariate correlation between your response variable (`grade`) and the six subscale means.
+
+`r hide("Hint")`
+
+How does your data need to be structured to use the `correlate()` function? Do you need to reshape it first? Look back at the course notes from Lecture 3 where we first used the function. What did those data frames look like?
+
+`r unhide()`
+
+`r hide()`
+
+```{r corr-mx}
+## now put it back in wide format
+subscale_wide <- scale_means_by_sub %>%
+  pivot_wider(names_from = subscale,
+              values_from = mean_score)
+
+## calculate a correlation matrix
+subscale_wide %>%
+  select(-id) %>%
+  correlate() %>%
+  shave() %>%
+  fashion()
+```
+
+`r unhide()`
+
+## Task 4: Visualize all pairwise correlations
+
+Now visualize all of the pairwise correlations.
+
+`r hide("Hint")`
+
+`pairs()`
+
+`r unhide()`
+
+`r hide()`
+
+```{r pairs}
+subscale_wide %>%
+  select(-id) %>%
+  pairs()
+```
+
+`r unhide()`
+
+## Task 5: Run the multiple regression
+
+Estimate the parameters for the multiple regression, with grade as the response variable and the subscale means as the predictors. This should be straightforward if your data are in the right format. Don't forget to display your results using `summary()`, and take a moment to think about what all the numbers mean.
+
+```{r regression}
+dat <- subscale_wide %>%
+  inner_join(grades, "id")
+
+## now run the regression
+mod <- lm(grade ~ Ask_For_Help + Interpretation + Self_Concept + 
+            Teacher + Test, dat)
+
+summary(mod)
+```
+
+## Task 6: Which subscale is the 'best' predictor?
+
+Is there one subscale that is more strongly linked to the final grade? The different subscales have different variances, so you need to re-run the regression after standardizing the variables.
+
+`r hide("Hint")`
+
+$$z = \frac{X - \bar{X}}{\sigma}$$
+
+`mutate()`
+
+`r unhide()`
+
+`r hide()`
+
+```{r best-predictor}
+## standardize your predictors, figure out the "best" one
+dat_stan <- dat %>%
+  mutate(ask_c = (Ask_For_Help - mean(Ask_For_Help)) / sd(Ask_For_Help),
+         interp_c = (Interpretation - mean(Interpretation)) / sd(Interpretation),
+         self_c = (Self_Concept - mean(Self_Concept)) / sd(Self_Concept),
+         teach_c = (Teacher - mean(Teacher)) / sd(Teacher),
+         test_c = (Test - mean(Test)) / sd(Test))
+
+mod_stan <- lm(grade ~ ask_c + interp_c + self_c + teach_c + test_c , dat_stan)
+
+summary(mod_stan)
+
+predictors <- coef(mod_stan)[-1] # -1 gets rid of the intercept
+
+which.max(abs(predictors)) %>% names()
+```
+
+`r unhide()`
+
+## Task 7: Compare models
+
+Could we do just as well predicting grades from the 'best' predictor as we could by including all six subscale predictors? Do an analysis to test this.
+
+`r hide("Hint")`
+
+model comparison
+
+`anova()`
+
+`r unhide()`
+
+`r hide()`
+
+```{r compare-mods}
+## Now see if a model including all subscale predictors explains significantly more variance than a model with your best predictor alone.
+
+mod_best <- lm(grade ~ self_c, dat_stan)
+
+anova(mod_best, mod_stan)
+```
+
+Adding all predictors leads to no significant improvement in the model relative to prediction from the best predictor.
+
+`r unhide()`
+
+## Task 8: Choice of software and grade
+
+Run a simple regression that predicts grades by choice of software (SPSS versus R).
+
+`r hide()`
+
+```{r soft-grades}
+grade_soft <- inner_join(grades, software, c("id" = "ID"))
+
+mod_gsoft <- lm(grade ~ software, grade_soft)
+summary(mod_gsoft)
+```
+
+```{r hidden, include=FALSE}
+diff <- coef(mod_gsoft)[[2]] %>% round(2)
+```
+
+The average grade of an SPSS student was `r abs(diff)` points `r if (sign(diff) > 0) "higher" else "lower"` than the average grade of an R user.
+
+`r unhide()`
+
+## Extra Task (optional): Visualize the subscale means
+
+Use ggplot to create an informative graph of the subscale means.
+
+`r hide()`
+
+```{r the-plot}
+subscale_names <- pull(subscales, subscale) %>% unique()
+
+ggplot(scale_means_by_sub, 
+       aes(subscale, mean_score, 
+           colour = subscale,
+           fill = subscale)) +
+  geom_violin(color = NA, alpha = .2) +
+  geom_jitter(alpha = .2) + 
+  scale_x_discrete(limits = rev(subscale_names)) +
+  coord_flip(ylim = c(1, 5)) +
+  theme(legend.position = "none")
+```
+
+
+`r unhide()`
+
+# References
+
+Cruise, R. J., Cash, R. W., & Bolton, D. L. (1985). Development and validation of an  instrument to measure statistical anxiety. /Paper presented at the proceedings of the American Statistical Association./
+
+Hanna, D., Shevlin, M., & Dempster, M. (2008). The structure of the statistics anxiety rating scale: A confirmatory factor analysis using UK psychology students. /Personality and Individual Differences/, /45/, 68-74.

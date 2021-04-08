@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2018-04-19 Thu 09:07 -->
+<!-- 2021-04-08 Thu 12:55 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Analysis of Variance</title>
@@ -160,6 +160,19 @@
   .footdef  { margin-bottom: 1em; }
   .figure { padding: 1em; }
   .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
   .inlinetask {
     padding: 10px;
     border: 2px solid gray;
@@ -185,7 +198,7 @@
 @licstart  The following is the entire license notice for the
 JavaScript code in this tag.
 
-Copyright (C) 2012-2017 Free Software Foundation, Inc.
+Copyright (C) 2012-2019 Free Software Foundation, Inc.
 
 The JavaScript code in this tag is free software: you can
 redistribute it and/or modify it under the terms of the GNU
@@ -260,45 +273,36 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org178151b">Doing ANOVA in R</a></li>
-<li><a href="#org7427cea">The decomposition matrix and sums of squares in one-way ANOVA</a>
+<li><a href="#org20abc36">Doing ANOVA in R</a></li>
+<li><a href="#org4dff147">One-factor ANOVA</a>
 <ul>
-<li><a href="#org40f461b">Background</a></li>
-<li><a href="#org9a4fc6f">One-factor ANOVA: Worked example</a>
-<ul>
-<li><a href="#orgd784d5e">Results to reproduce</a></li>
-<li><a href="#org19d6225">Estimating model components</a></li>
+<li><a href="#org5615162">Background</a></li>
+<li><a href="#org9e24a13">Worked example</a></li>
+<li><a href="#org7adc294">Repeat the same analysis using regression</a></li>
 </ul>
 </li>
-<li><a href="#org382cc2f">Recreate decomposition matrix from the raw data</a>
+<li><a href="#org42d91eb">One-way ANOVA &ldquo;by-hand&rdquo;</a>
 <ul>
-<li><a href="#org956aa00">Step 1: Create tibble</a></li>
-<li><a href="#orgb653dfe">Step 2: Estimate \(\mu\)</a></li>
-<li><a href="#orgdbe8531">Step 3: Enter the estimates \(\hat{A}_1\), \(\hat{A}_2\), \(\hat{A}_3\)</a></li>
-<li><a href="#org738eedb">Step 4: Calculate \(\widehat{S(A)}_{ij}\)s</a></li>
-<li><a href="#orgb778f5c">Step 5: Sums of squares</a></li>
-<li><a href="#orgc5c5484">Final step: Calculate \(F\) statistics</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href="#org2a161e1">Mixed-design ANOVA using <code>ez::ezANOVA()</code></a>
+<li><a href="#org2cc5396">Recreate decomposition matrix from the raw data</a>
 <ul>
-<li><a href="#org8fee77c">The ANT dataset</a></li>
-<li><a href="#orgdc28a78">Explore the data</a></li>
-<li><a href="#orga409524">Analysis using <code>ezANOVA()</code></a></li>
-<li><a href="#orgce430ff">Compare to SPSS output</a></li>
-<li><a href="#orge51b583">Mixed-effects analysis</a></li>
+<li><a href="#org95e4cec">Step 1: Create tibble</a></li>
+<li><a href="#org1cbd112">Step 2: Estimate \(\mu\)</a></li>
+<li><a href="#org466b6e4">Step 3: Enter the estimates \(\hat{A}_1\), \(\hat{A}_2\), \(\hat{A}_3\)</a></li>
+<li><a href="#orge319047">Step 4: Calculate \(\hat{e}_{ij}\)s</a></li>
+<li><a href="#orgf5c820e">Step 5: Sums of squares</a></li>
+<li><a href="#orgf5fa715">Final step: Calculate \(F\) statistics</a></li>
 </ul>
 </li>
-<li><a href="#org06472cb"></a></li>
+</ul>
+</li>
+<li><a href="#org6a7284e"></a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org178151b" class="outline-2">
-<h2 id="org178151b">Doing ANOVA in R</h2>
-<div class="outline-text-2" id="text-org178151b">
+<div id="outline-container-org20abc36" class="outline-2">
+<h2 id="org20abc36">Doing ANOVA in R</h2>
+<div class="outline-text-2" id="text-org20abc36">
 <p>
 There are three ways to perform analysis of variance (ANOVA) in R.
 </p>
@@ -347,42 +351,24 @@ In the default settings, afex automatically uses appropriate orthogonal contrast
 </div>
 </div>
 
-<div id="outline-container-org7427cea" class="outline-2">
-<h2 id="org7427cea">The decomposition matrix and sums of squares in one-way ANOVA</h2>
-<div class="outline-text-2" id="text-org7427cea">
+<div id="outline-container-org4dff147" class="outline-2">
+<h2 id="org4dff147">One-factor ANOVA</h2>
+<div class="outline-text-2" id="text-org4dff147">
 </div>
-<div id="outline-container-org40f461b" class="outline-3">
-<h3 id="org40f461b">Background</h3>
-<div class="outline-text-3" id="text-org40f461b">
+<div id="outline-container-org5615162" class="outline-3">
+<h3 id="org5615162">Background</h3>
+<div class="outline-text-3" id="text-org5615162">
 <p>
 A key way that we attempt to learn from data is to build a <b>statistical model</b> that captures relationships among variables.  If you want to learn more about one-factor ANOVA as a kind of a General Linear Model (GLM), check out this free PDF textbook by <a href="https://www.otago.ac.nz/psychology/otago039309.pdf">Miller and Haden (2006)</a> (Chs. 1-3).
 </p>
-
-<p>
-A good way to learn about linear models is to do things &ldquo;by hand&rdquo; on a toy dataset.
-</p>
-
-<p>
-The goals of this section are:
-</p>
-
-<ul class="org-ul">
-<li>to learn how to estimate model parameters from data;</li>
-<li>to learn how to derive a <b>decomposition matrix</b> that expresses each observation as a linear sum of model components and error;</li>
-<li>to practice entering data into a &ldquo;tibble&rdquo; (tidyverse data frame).</li>
-</ul>
 </div>
 </div>
 
-<div id="outline-container-org9a4fc6f" class="outline-3">
-<h3 id="org9a4fc6f">One-factor ANOVA: Worked example</h3>
-<div class="outline-text-3" id="text-org9a4fc6f">
+<div id="outline-container-org9e24a13" class="outline-3">
+<h3 id="org9e24a13">Worked example</h3>
+<div class="outline-text-3" id="text-org9e24a13">
 <p>
-First we will walk through an example step by step. Then you will perform the steps in R. We will assume that you are now familiar with <b>estimation equations</b>, <b>decomposition matrices</b>, and <b>sums of squares</b>.  You can find further examples and step-by-step walkthroughs in Miller and Haden (2006), Chapter 3.
-</p>
-
-<p>
-Let&rsquo;s assume that you have data from a one-factor design with three-levels. To make this example concrete, let&rsquo;s pretend you are studying how consuming food before an exam affects student performance.  You randomly assign 12 participants to three separate groups (four per group): (1) no food, glass of water only (Control); (2) all-you-can-eat buffet (Buffet); and (3) side salad (Salad). (We chose a small number of participants to simplify the computations; obviously if you were going to do this study in real life, you&rsquo;d need <b>far more</b> than 12 participants to make this worthwhile). For your dependent variable, you measure the number of questions answered correctly on an a difficult exam (100 points possible). The exam is administered right after consuming the meal (or drinking water, for the control group).
+Let&rsquo;s assume that you have data from a one-factor design with three-levels. To make this example concrete, let&rsquo;s pretend you are studying how consuming food before an exam affects student performance.  You randomly assign 12 participants to three separate groups (four per group): (1) no food, glass of water only (Control); (2) all-you-can-eat buffet (Buffet); and (3) side salad (Salad). (We chose a small number of participants to simplify computations so that you could repeat the analysis ; obviously if you were going to do this study in real life, you&rsquo;d need <b>far more</b> than 12 participants to make this worthwhile). For your dependent variable, you measure the number of questions answered correctly on an a difficult exam (100 points possible). The exam is administered right after consuming the meal (or drinking water, for the control group).
 </p>
 
 <p>
@@ -394,9 +380,9 @@ Here&rsquo;s how the exam performance looks for each of the three groups:
 </p>
 
 <ul class="org-ul">
-<li>Control: 37, 80, 64, 51</li>
-<li>Buffet: 33, 47, 55, 41</li>
-<li>Salad: 59, 23, 50, 60</li>
+<li>Control: <code>37, 51, 64, 80</code></li>
+<li>Buffet: <code>55, 33, 41, 47</code></li>
+<li>Salad: <code>50, 48, 46, 48</code></li>
 </ul>
 
 <p>
@@ -404,7 +390,7 @@ The GLM that we will fit to these data is:
 </p>
 
 <p>
-\(Y_{ij} = \mu + A_i + S(A)_{ij}\)
+\(Y_{ij} = \mu + A_i + e_{ij}\)
 </p>
 
 <p>
@@ -415,792 +401,52 @@ Where:
 <li>\(Y_{ij}\) is the observed value for observation \(j\) of group \(i\);</li>
 <li>\(\mu\) (pronounced &ldquo;mu&rdquo;) is the population grand mean (estimated by the sample grand mean);</li>
 <li>\(A_i\) is the deviation of the population mean of group \(i\) from this grand mean;</li>
-<li>\(S(A)_{ij}\) is the error or &ldquo;residual&rdquo;, defined as the observed value (\(Y_{ij}\)) minus the model prediction (\(\hat{Y}_{ij}\)).</li>
+<li>\(e_{ij}\) is the error or &ldquo;residual&rdquo;, defined as the observed value (\(Y_{ij}\)) minus the model prediction (\(\hat{Y}_{ij}\)).</li>
 </ul>
-</div>
-
-<div id="outline-container-orgd784d5e" class="outline-4">
-<h4 id="orgd784d5e">Results to reproduce</h4>
-<div class="outline-text-4" id="text-orgd784d5e">
-<p>
-We will use <code>ezANOVA()</code> from the <code>ez</code> package to perform a one-way ANOVA. Then we will go back and calculate all of the results <b>by hand</b> (feel free to skip the latter part and jump ahead to the next section if you&rsquo;re not interested in that).
-</p>
 
 <p>
-Let&rsquo;s first type our data into a tibble.  Make it look like the table below (Hint: Use the <code>rep()</code> to save typing; see <code>?rep</code> for examples)
+We will use <code>ezANOVA()</code> from the <code>ez</code> package to perform a one-way ANOVA. Let&rsquo;s first type our data into a tibble.  Make it look like the table below (Hint: Use the <code>rep()</code> to save typing; see <code>?rep</code> for examples)
 </p>
 
 <pre class="example">
+Registered S3 methods overwritten by 'lme4':
+  method                          from
+  cooks.distance.influence.merMod car 
+  influence.merMod                car 
+  dfbeta.influence.merMod         car 
+  dfbetas.influence.merMod        car
+
     Y  A sub_id
 1  37 A1      1
-2  80 A1      2
+2  51 A1      2
 3  64 A1      3
-4  51 A1      4
-5  33 A2      5
-6  47 A2      6
-7  55 A2      7
-8  41 A2      8
-9  59 A3      9
-10 23 A3     10
-11 50 A3     11
-12 60 A3     12
+4  80 A1      4
+5  55 A2      5
+6  33 A2      6
+7  41 A2      7
+8  47 A2      8
+9  50 A3      9
+10 48 A3     10
+11 46 A3     11
+12 48 A3     12
 </pre>
 
 
 <div class='solution'><button>Solution</button>
 
 <pre class="example">
-dat &lt;- tibble(Y = c(37, 80, 64, 51, 33, 47, 55, 41, 59, 23, 50, 60),
+
+dat &lt;- tibble(Y = c(37, 51, 64, 80, 55, 33, 41, 47, 50, 48, 46, 48),
               A = rep(c("A1", "A2", "A3"), each = 4),
               sub_id = 1:12)
-
 </pre>
 
 
+
 </div>
 
 <p>
-Now look at the help page for <code>ez::ezANOVA()</code> and try to figure out how to run the ANOVA. Your results should look like so:
-</p>
-
-<pre class="example">
-Warning: Converting "sub_id" to factor for ANOVA.
-Warning: Converting "A" to factor for ANOVA.
-Coefficient covariances computed by hccm()
-$ANOVA
-  Effect DFn DFd SSn  SSd         F         p p&lt;.05       ges
-1      A   2   9 416 2164 0.8650647 0.4532825       0.1612403
-
-$`Levene's Test for Homogeneity of Variance`
-  DFn DFd      SSn SSd         F        p p&lt;.05
-1   2   9 100.6667 825 0.5490909 0.595658
-</pre>
-
-
-<div class='solution'><button>Solution</button>
-
-<div class="org-src-container">
-<pre class="src src-R">ezANOVA(dat, Y, wid = .(sub_id), between = .(A), detailed = <span style="color: #228b22;">TRUE</span>)
-</pre>
-</div>
-
-
-</div>
-</div>
-</div>
-
-<div id="outline-container-org19d6225" class="outline-4">
-<h4 id="org19d6225">Estimating model components</h4>
-<div class="outline-text-4" id="text-org19d6225">
-<p>
-Now we are going to calculate these results &ldquo;by hand&rdquo;. (Feel free to skip this part)
-</p>
-
-<p>
-We begin by applying the estimation equations.  Our estimate of the population grand mean \(\mu\), will be based on the grand mean of the sample.  We will call this \(\hat{\mu}\). The &ldquo;hat&rdquo; that \(\mu\) is wearing (\(\hat{\mu}\)) is just there to remind us that it is not the actual population mean, but an <b>estimate</b> of that value derived from our sample.
-</p>
-
-<p>
-The estimation equations for our model are:
-</p>
-
-<p>
-\(\mu = Y_{..}\)
-</p>
-
-<p>
-\(\hat{A}_i = Y_{i.} - \hat{\mu}\)
-</p>
-
-<p>
-\(\widehat{S(A)}_{ij} = Y_{ij} - (\hat{\mu} + \hat{A}_i) = Y_{ij} - \hat{\mu} - \hat{A}_i\)
-</p>
-
-<p>
-where
-</p>
-
-<ul class="org-ul">
-<li>\(Y_{..}\) is the mean of all 12 observations in the sample, and</li>
-
-<li>\(Y_{i.}\) is the mean of the 4 observations in group \(i\).</li>
-</ul>
-
-<p>
-Applying these estimation equations to the data above yields the following decomposition matrix:
-</p>
-
-<pre class="example">
-   i j Yij mu Ai err
-1  1 1  37 50  8 -21
-2  1 2  80 50  8  22
-3  1 3  64 50  8   6
-4  1 4  51 50  8  -7
-5  2 1  33 50 -6 -11
-6  2 2  47 50 -6   3
-7  2 3  55 50 -6  11
-8  2 4  41 50 -6  -3
-9  3 1  59 50 -2  11
-10 3 2  23 50 -2 -25
-11 3 3  50 50 -2   2
-12 3 4  60 50 -2  12
-</pre>
-
-<p>
-Note that in this table, <code>mu</code> is \(\hat{\mu}\), <code>Ai</code> is \(\hat{A}_i\), and <code>err</code> is \(\widehat{S(A)}_{ij}\).  Take a few moments to understand how this table expresses each of the 12 observed values in our example (the $Y<sub>ij</sub>$s) in terms of the linear model \(Y_{ij} = \mu + A_i + S(A)_{ij}\).
-</p>
-</div>
-</div>
-</div>
-
-<div id="outline-container-org382cc2f" class="outline-3">
-<h3 id="org382cc2f">Recreate decomposition matrix from the raw data</h3>
-<div class="outline-text-3" id="text-org382cc2f">
-<p>
-For this part, your task is to reproduce the tibble shown above, reproduced here:
-</p>
-
-<pre class="example">
-   i j Yij mu Ai err
-1  1 1  37 50  8 -21
-2  1 2  80 50  8  22
-3  1 3  64 50  8   6
-4  1 4  51 50  8  -7
-5  2 1  33 50 -6 -11
-6  2 2  47 50 -6   3
-7  2 3  55 50 -6  11
-8  2 4  41 50 -6  -3
-9  3 1  59 50 -2  11
-10 3 2  23 50 -2 -25
-11 3 3  50 50 -2   2
-12 3 4  60 50 -2  12
-</pre>
-
-<p>
-You will do this by typing the observed values into a tibble, and then writing code to add columns with estimates of the individual components (feel free to copy the code you already wrote above). At the end, your table should look exactly like the one above.
-</p>
-
-<p>
-You already know how to create a tibble (don&rsquo;t forget to load the tidyverse package first). In case you need to refresh your memory, see [page 2 of this cheatsheet on data input in R](<a href="https://github.com/rstudio/cheatsheets/raw/master/data-import.pdf">https://github.com/rstudio/cheatsheets/raw/master/data-import.pdf</a>).
-</p>
-</div>
-
-<div id="outline-container-org956aa00" class="outline-4">
-<h4 id="org956aa00">Step 1: Create tibble</h4>
-<div class="outline-text-4" id="text-org956aa00">
-<p>
-Create a tibble named <code>dmx</code> (for decomposition matrix). It will eventually contain all of the columns in the one above, but for now, just create the columns <code>i</code>, <code>j</code>, and <code>Yij</code>. You should just type in the values for <code>Yij</code>.
-</p>
-
-
-<div class='solution'><button>Hint 1</button>
-
-<p>
-<code>dmx &lt;- tibble(i = NA, j = NA, Yij = NA)</code>
-</p>
-
-
-</div>
-
-
-
-
-<div class='solution'><button>Hint 2</button>
-
-<p>
-<code>rep(1:3, each = 4)</code>
-</p>
-
-
-</div>
-
-
-
-<div class='solution'><button>Solution</button>
-
-<div class="org-src-container">
-<pre class="src src-R"><span style="color: #008b8b;">library</span>(<span style="color: #8b2252;">"tidyverse"</span>)
-
-dmx <span style="color: #008b8b;">&lt;-</span> tibble(i = rep(1:3, each = 4), 
-              j = rep(1:4, times = 3),
-              Yij = c(37, 80, 64, 51,
-                    33, 47, 55, 41,
-                    59, 23, 50, 60)) <span style="color: #b22222;"># </span><span style="color: #b22222;">TYPE THE VALUES</span>
-</pre>
-</div>
-
-
-</div>
-</div>
-</div>
-
-
-
-<div id="outline-container-orgb653dfe" class="outline-4">
-<h4 id="orgb653dfe">Step 2: Estimate \(\mu\)</h4>
-<div class="outline-text-4" id="text-orgb653dfe">
-<p>
-Add a column to the table, called <code>mu</code> representing \(\hat{\mu}\).  Call the resulting table <code>dmx2</code>.  Remember that you can add a column to a table using <code>mutate()</code>.
-</p>
-
-
-<div class='solution'><button>Hint 1</button>
-
-<pre class="example">
-dmx2 &lt;- dmx %&gt;% 
-   mutate(mu = ???)
-
-</pre>
-
-
-</div>
-
-
-
-
-<div class='solution'><button>Solution</button>
-
-<div class="org-src-container">
-<pre class="src src-R">dmx2 <span style="color: #008b8b;">&lt;-</span> dmx <span style="color: #008b8b;">%&gt;%</span>
-  mutate(mu = mean(Yij))
-</pre>
-</div>
-
-
-</div>
-</div>
-</div>
-
-
-
-<div id="outline-container-orgdbe8531" class="outline-4">
-<h4 id="orgdbe8531">Step 3: Enter the estimates \(\hat{A}_1\), \(\hat{A}_2\), \(\hat{A}_3\)</h4>
-<div class="outline-text-4" id="text-orgdbe8531">
-<p>
-Add a column to the table <code>dmx2</code> called <code>Ai</code>, with the three estimates for \(\hat{A}_i\).  Store the resulting tibble in <code>dmx3</code>.
-</p>
-
-
-<div class='solution'><button>Hint</button>
-
-<ul class="org-ul">
-<li>don&rsquo;t forget to <code>ungroup()</code> at the end of the pipeline</li>
-</ul>
-
-
-</div>
-
-
-
-
-<div class='solution'><button>Solution</button>
-
-<div class="org-src-container">
-<pre class="src src-R">dmx3 <span style="color: #008b8b;">&lt;-</span> dmx2 <span style="color: #008b8b;">%&gt;%</span>
-  group_by(i) <span style="color: #008b8b;">%&gt;%</span> <span style="color: #b22222;"># </span><span style="color: #b22222;">calculate different values for each i</span>
-  mutate(Ai = mean(Yij) - mu) <span style="color: #008b8b;">%&gt;%</span>
-  ungroup()
-</pre>
-</div>
-
-
-</div>
-</div>
-</div>
-
-
-
-<div id="outline-container-org738eedb" class="outline-4">
-<h4 id="org738eedb">Step 4: Calculate \(\widehat{S(A)}_{ij}\)s</h4>
-<div class="outline-text-4" id="text-org738eedb">
-<p>
-Now add a column <code>err</code> to <code>dmx3</code> and store the result in <code>dmx4</code>. The column <code>err</code> should contain the residuals (the difference between the observed and fitted values)
-</p>
-
-
-<div class='solution'><button>Hint</button>
-
-<p>
-\(\widehat{S(A)}_{ij} = Y_{ij} - \hat{Y}_{ij}\)
-</p>
-
-<p>
-\(\hat{Y}_{ij} = \hat{\mu} + \hat{A}_i\) 
-</p>
-
-
-</div>
-
-
-
-
-<div class='solution'><button>Solution</button>
-
-<div class="org-src-container">
-<pre class="src src-R">dmx4 <span style="color: #008b8b;">&lt;-</span> dmx3 <span style="color: #008b8b;">%&gt;%</span>
-  mutate(err = Yij - (mu + Ai))
-
-dmx4
-</pre>
-</div>
-
-<pre class="example">
-   i j Yij mu Ai err
-1  1 1  37 50  8 -21
-2  1 2  80 50  8  22
-3  1 3  64 50  8   6
-4  1 4  51 50  8  -7
-5  2 1  33 50 -6 -11
-6  2 2  47 50 -6   3
-7  2 3  55 50 -6  11
-8  2 4  41 50 -6  -3
-9  3 1  59 50 -2  11
-10 3 2  23 50 -2 -25
-11 3 3  50 50 -2   2
-12 3 4  60 50 -2  12
-</pre>
-
-
-</div>
-
-
-
-<p>
-Display <code>dmx4</code> in the console and compare it to the table above.  How did you do?
-</p>
-</div>
-</div>
-
-<div id="outline-container-orgb778f5c" class="outline-4">
-<h4 id="orgb778f5c">Step 5: Sums of squares</h4>
-<div class="outline-text-4" id="text-orgb778f5c">
-<p>
-Sums of squares are used in calculations for performing tests on model components.
-</p>
-
-<p>
-Square the values in the columns <code>Yij</code>, <code>mu</code>, <code>Ai</code>, and <code>err</code> in <code>dmx4</code>, then sum up the squared values for each of these columns.  Here is an example of how you would square a value <code>x</code> in R: <code>x^2</code>.  The <code>^2</code> means take x to the power of 2.  So typing <code>3^2</code> in the console will give you <code>9</code> (try it if you&rsquo;re unsure).
-</p>
-
-
-<div class='solution'><button>Hint 1</button>
-
-<pre class="example">
-dmx4 %&gt;% mutate(Yij2 = Yij^2, ...)
-
-</pre>
-
-
-</div>
-
-
-
-
-<div class='solution'><button>Hint 2</button>
-
-<pre class="example">
-summarise(ss_Y = sum(Yij2), ss_mu = ...)
-
-</pre>
-
-
-</div>
-
-
-
-
-<div class='solution'><button>Solution</button>
-
-<div class="org-src-container">
-<pre class="src src-R">sstbl <span style="color: #008b8b;">&lt;-</span> dmx4 <span style="color: #008b8b;">%&gt;%</span>
-  mutate(Yij2 = Yij^2,
-         mu2 = mu^2,
-         Ai2 = Ai^2,
-         err2 = err^2) <span style="color: #008b8b;">%&gt;%</span>
-  select(Yij2, mu2, Ai2, err2) <span style="color: #008b8b;">%&gt;%</span>
-  summarise(ss_Y = sum(Yij2),
-            ss_mu = sum(mu2),
-            ss_Ai = sum(Ai2),
-            ss_err = sum(err2))
-
-<span style="color: #b22222;">## </span><span style="color: #b22222;">here is a super cool way to do the same thing,</span>
-<span style="color: #b22222;">## </span><span style="color: #b22222;">using dplyr's "scoping" technique </span>
-<span style="color: #b22222;">## </span><span style="color: #b22222;">(see ?dplyr::scoped and ?dplyr::summarise_all)</span>
-sstbl <span style="color: #008b8b;">&lt;-</span> dmx4 <span style="color: #008b8b;">%&gt;%</span>
-  select(Yij:err) <span style="color: #008b8b;">%&gt;%</span>
-  summarise_all(funs(sum(.^2)))
-
-sstbl
-</pre>
-</div>
-
-<pre class="example">
-    Yij    mu  Ai  err
-1 32580 30000 416 2164
-
-</pre>
-
-
-</div>
-</div>
-</div>
-
-<div id="outline-container-orgc5c5484" class="outline-4">
-<h4 id="orgc5c5484">Final step: Calculate \(F\) statistics</h4>
-<div class="outline-text-4" id="text-orgc5c5484">
-<p>
-\(F = \frac{MS_{A}}{MS_{err}}\)
-</p>
-
-<p>
-\(MS_A = \frac{MS_A}{df_A}\)
-</p>
-
-<p>
-\(MS_{err} = \frac{MS_{err}}{df_{err}}\)
-</p>
-
-<p>
-Get the p-value using the appropriate probability distribution for the \(F\) distribution (Hint: remember <code>dnorm()</code>, <code>pnorm()</code>, and <code>qnorm()</code>?)
-</p>
-
-<p>
-Your results should <b>exactly</b> reproduce the ones we got from <code>ezANOVA()</code>.
-</p>
-
-
-<div class='solution'><button>Hint (F function)</button>
-
-<p>
-<code>?pf</code>
-</p>
-
-
-</div>
-
-
-<div class='solution'><button>Solution</button>
-
-<div class="org-src-container">
-<pre class="src src-R">ms_a <span style="color: #008b8b;">&lt;-</span> (sstbl <span style="color: #008b8b;">%&gt;%</span> pull(Ai)) / 2L <span style="color: #b22222;"># </span><span style="color: #b22222;">2 dfs</span>
-ms_err <span style="color: #008b8b;">&lt;-</span> (sstbl <span style="color: #008b8b;">%&gt;%</span> pull(err)) / 9L <span style="color: #b22222;"># </span><span style="color: #b22222;">9 dfs</span>
-
-f_ratio <span style="color: #008b8b;">&lt;-</span> ms_a / ms_err
-p_value <span style="color: #008b8b;">&lt;-</span> pf(f_ratio, 2, 9, lower.tail = <span style="color: #228b22;">FALSE</span>)
-
-cat(<span style="color: #8b2252;">"F(2, 9) ="</span>, round(f_ratio, 2), <span style="color: #8b2252;">", p ="</span>, round(p_value, 3), <span style="color: #8b2252;">"\n"</span>)
-</pre>
-</div>
-
-<pre class="example">
-F(2, 9) = 0.87 , p = 0.453
-
-</pre>
-
-
-</div>
-</div>
-</div>
-</div>
-</div>
-
-<div id="outline-container-org2a161e1" class="outline-2">
-<h2 id="org2a161e1">Mixed-design ANOVA using <code>ez::ezANOVA()</code></h2>
-<div class="outline-text-2" id="text-org2a161e1">
-<p>
-Let&rsquo;s look at a more complicate experiment design.
-</p>
-</div>
-
-<div id="outline-container-org8fee77c" class="outline-3">
-<h3 id="org8fee77c">The ANT dataset</h3>
-<div class="outline-text-3" id="text-org8fee77c">
-<p>
-We will be using <i>simulated</i> data from the Attention Network Test (ANT) by Fan et al. (2002), which is included as part of the <code>ez</code> package.
-</p>
-
-<div class="org-src-container">
-<pre class="src src-R">?ez::ANT
-</pre>
-</div>
-
-<pre class="example">
-ANT                     package:ez                     R Documentation
-
-ANT data
-
-Description:
-
-     _Simulated_ data from then Attention Network Test (see reference
-     below), consisting of 2 within-Ss variables (“cue” and “flank”), 1
-     between-Ss variable (“group”) and 2 dependent variables (response
-     time, “rt”, and whether an error was made, “error”)
-
-Usage:
-
-     data(ANT)
-
-Format:
-
-     A data frame with 5760 observations on the following 10 variables.
-
-     ‘subnum’ a factor with levels ‘1’ ‘2’ ‘3’ ‘4’ ‘5’ ‘6’ ‘7’ ‘8’ ‘9’
-          ‘10’ ‘11’ ‘12’ ‘13’ ‘14’ ‘15’ ‘16’ ‘17’ ‘18’ ‘19’ ‘20’
-
-     ‘group’ a factor with levels ‘Control’ ‘Treatment’
-
-     ‘block’ a numeric vector
-
-     ‘trial’ a numeric vector
-
-     ‘cue’ a factor with levels ‘None’ ‘Center’ ‘Double’ ‘Spatial’
-
-     ‘flank’ a factor with levels ‘Neutral’ ‘Congruent’ ‘Incongruent’
-
-     ‘location’ a factor with levels ‘down’ ‘up’
-
-     ‘direction’ a factor with levels ‘left’ ‘right’
-
-     ‘rt’ a numeric vector
-
-     ‘error’ a numeric vector
-
-Author(s):
-
-     Michael A. Lawrence &lt;email: mike.lwrnc@gmail.com&gt;
-     Visit the ‘ez’ development site at &lt;
-     http://github.com/mike-lawrence/ez&gt;
-     for the bug/issue tracker and the link to the mailing list.
-
-References:
-
-     J Fan, BD McCandliss, T Sommer, A Raz, MI Posner (2002). Testing
-     the efficiency and independence of attentional networks. _Journal
-     of Cognitive Neuroscience_, *14*, 340-347.
-
-Examples:
-
-     data(ANT)
-     head(ANT)
-     ezPrecis(ANT)
-</pre>
-</div>
-</div>
-
-<div id="outline-container-orgdc28a78" class="outline-3">
-<h3 id="orgdc28a78">Explore the data</h3>
-<div class="outline-text-3" id="text-orgdc28a78">
-<p>
-Let&rsquo;s set up the session environment. The dataset is stored somewhere in the package, and we need to make it accessible to our session using the <code>data()</code> function.  
-</p>
-
-<div class="org-src-container">
-<pre class="src src-R"><span style="color: #008b8b;">library</span>(<span style="color: #8b2252;">"ez"</span>) <span style="color: #b22222;"># </span><span style="color: #b22222;">for inferential analysis using ANOVA</span>
-<span style="color: #008b8b;">library</span>(<span style="color: #8b2252;">"tidyverse"</span>)
-
-data(ANT)
-</pre>
-</div>
-
-<p>
-<code>ez::ezPrecis()</code> and <code>dplyr::glimpse()</code> give useful information about the dataset.
-</p>
-
-<div class="org-src-container">
-<pre class="src src-R">ezPrecis(ANT)
-</pre>
-</div>
-
-<pre class="example">
-Data frame dimensions: 5760 rows, 10 columns
-	     type missing values      min         max
-subnum     factor       0     20        1          20
-group      factor       0      2  Control   Treatment
-block     numeric       0      6        1           6
-trial     numeric       0     48        1          48
-cue        factor       0      4     None     Spatial
-flank      factor       0      3  Neutral Incongruent
-location   factor       0      2     down          up
-direction  factor       0      2     left       right
-rt        numeric       0   5760 179.5972    657.6986
-error     numeric       0      2        0           1
-</pre>
-
-<div class="org-src-container">
-<pre class="src src-R">glimpse(ANT)
-</pre>
-</div>
-
-<pre class="example">
-Observations: 5,760
-Variables: 10
-$ subnum    &lt;fct&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ...
-$ group     &lt;fct&gt; Treatment, Treatment, Treatment, Treatment, Treatment, Tr...
-$ block     &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ...
-$ trial     &lt;int&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17...
-$ cue       &lt;fct&gt; None, Center, Double, Spatial, None, Center, Double, Spat...
-$ flank     &lt;fct&gt; Neutral, Neutral, Neutral, Neutral, Congruent, Congruent,...
-$ location  &lt;fct&gt; up, up, up, up, up, up, up, up, up, up, up, up, down, dow...
-$ direction &lt;fct&gt; left, left, left, left, left, left, left, left, left, lef...
-$ rt        &lt;dbl&gt; 398.6773, 389.1822, 333.2186, 419.7640, 446.4754, 338.976...
-$ error     &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, ...
-</pre>
-
-
-<p>
-Now let&rsquo;s keep only the accurate trials:
-</p>
-
-<div class="org-src-container">
-<pre class="src src-R"><span style="color: #b22222;">## </span><span style="color: #b22222;">keep only the accurate trials</span>
-ANT_acc <span style="color: #008b8b;">&lt;-</span> filter(ANT, error == 0)
-</pre>
-</div>
-
-<p>
-How many subjects do we have?
-</p>
-
-<div class="org-src-container">
-<pre class="src src-R">ANT_acc <span style="color: #008b8b;">%&gt;%</span> count(subnum)
-</pre>
-</div>
-
-<pre class="example">
-   subnum   n
-1       1 264
-2       2 255
-3       3 261
-4       4 258
-5       5 251
-6       6 259
-7       7 259
-8       8 265
-9       9 261
-10     10 264
-11     11 266
-12     12 260
-13     13 256
-14     14 237
-15     15 263
-16     16 264
-17     17 260
-18     18 259
-19     19 264
-20     20 265
-</pre>
-
-<p>
-Let&rsquo;s see which factors are within and which are between.
-</p>
-
-<div class="org-src-container">
-<pre class="src src-R">ANT_acc <span style="color: #008b8b;">%&gt;%</span> count(subnum, group, cue, flank) <span style="color: #008b8b;">%&gt;%</span>
-   filter(subnum <span style="color: #008b8b;">%in%</span> c(1, 11)) <span style="color: #008b8b;">%&gt;%</span>
-   print(n = 100)
-</pre>
-</div>
-
-<pre class="example">
-   subnum     group     cue       flank  n
-1       1 Treatment    None     Neutral 18
-2       1 Treatment    None   Congruent 21
-3       1 Treatment    None Incongruent 23
-4       1 Treatment  Center     Neutral 22
-5       1 Treatment  Center   Congruent 23
-6       1 Treatment  Center Incongruent 23
-7       1 Treatment  Double     Neutral 24
-8       1 Treatment  Double   Congruent 21
-9       1 Treatment  Double Incongruent 22
-10      1 Treatment Spatial     Neutral 22
-11      1 Treatment Spatial   Congruent 21
-12      1 Treatment Spatial Incongruent 24
-13     11   Control    None     Neutral 19
-14     11   Control    None   Congruent 23
-15     11   Control    None Incongruent 23
-16     11   Control  Center     Neutral 23
-17     11   Control  Center   Congruent 24
-18     11   Control  Center Incongruent 22
-19     11   Control  Double     Neutral 24
-20     11   Control  Double   Congruent 23
-21     11   Control  Double Incongruent 19
-22     11   Control Spatial     Neutral 21
-23     11   Control Spatial   Congruent 22
-24     11   Control Spatial Incongruent 23
-</pre>
-
-<p>
-So, we have a mixed design with one between factor (<code>group</code>) and two within factors (<code>cue</code>, <code>flank</code>).  Both of our within-subject factors have more than two levels, so we&rsquo;re going to want to correct for possible violations of sphericity (Greenhouse-Geiser).  Just to make things more fun, the data are unbalanced now that we&rsquo;ve thrown out trials with inaccurate responses.  So if we can handle these data, we can handle anything&#x2026;
-</p>
-
-<p>
-Before doing any analysis, let&rsquo;s look at the cell means.
-</p>
-
-<div class="org-src-container">
-<pre class="src src-R">ANT_means <span style="color: #008b8b;">&lt;-</span> ANT_acc <span style="color: #008b8b;">%&gt;%</span>
-    group_by(group, cue, flank) <span style="color: #008b8b;">%&gt;%</span>
-    summarise(mRT = mean(rt)) <span style="color: #008b8b;">%&gt;%</span> ungroup()
-</pre>
-</div>
-
-<pre class="example">
-       group     cue       flank      mRT
-1    Control    None     Neutral 427.9266
-2    Control    None   Congruent 429.4866
-3    Control    None Incongruent 498.9557
-4    Control  Center     Neutral 378.6429
-5    Control  Center   Congruent 380.7638
-6    Control  Center Incongruent 483.3961
-7    Control  Double     Neutral 379.5458
-8    Control  Double   Congruent 372.6635
-9    Control  Double Incongruent 473.1597
-10   Control Spatial     Neutral 340.7174
-11   Control Spatial   Congruent 343.4821
-12   Control Spatial Incongruent 411.3912
-13 Treatment    None     Neutral 428.1812
-14 Treatment    None   Congruent 426.1165
-15 Treatment    None Incongruent 495.8052
-16 Treatment  Center     Neutral 382.8072
-17 Treatment  Center   Congruent 376.5433
-18 Treatment  Center Incongruent 452.4431
-19 Treatment  Double     Neutral 369.8689
-20 Treatment  Double   Congruent 378.3121
-21 Treatment  Double Incongruent 446.6856
-22 Treatment Spatial     Neutral 339.3939
-23 Treatment Spatial   Congruent 337.8150
-24 Treatment Spatial Incongruent 414.6278
-</pre>
-
-<p>
-Plot them&#x2026;
-</p>
-
-<div class="org-src-container">
-<pre class="src src-R">ggplot(ANT_means, aes(flank, mRT, colour = cue)) +
-  geom_line(aes(group = cue)) +
-  geom_point(aes(shape = cue), size = 3) +
-  facet_wrap(~group)
-</pre>
-</div>
-
-
-<div class="figure">
-<p><img src="ant_means.png" alt="ant_means.png" />
-</p>
-</div>
-</div>
-</div>
-
-<div id="outline-container-orga409524" class="outline-3">
-<h3 id="orga409524">Analysis using <code>ezANOVA()</code></h3>
-<div class="outline-text-3" id="text-orga409524">
-<p>
-So what might we expect from this plot?  Main effects of flank and cue, maybe even a three-way interaction?
-</p>
-
-<p>
-OK let&rsquo;s check out the <code>ez::ezANOVA()</code> documentation before running our function.
+Now look at the help page for <code>ez::ezANOVA()</code> and try to figure out how to run the ANOVA. 
 </p>
 
 <div class="org-src-container">
@@ -1396,224 +642,636 @@ Author(s):
 </pre>
 
 <p>
-Note that we should be using Type III ss if we want to replicate SPSS output.
+Your results should look like so:
 </p>
-
-<p>
-(Note that this is using RM-ANOVA and not mixed-model ANOVA; in the latter case you would have different error terms for the different effects.)
-</p>
-
-<div class="org-src-container">
-<pre class="src src-R">rt_anova <span style="color: #008b8b;">&lt;-</span> ezANOVA(ANT_acc, rt, subnum, within = .(cue, flank),
-                    between = group, type = 3)
-
-print(rt_anova)
-</pre>
-</div>
 
 <pre class="example">
-Warning: Collapsing data to cell means. *IF* the requested effects are a subset of the full design, you must use the "within_full" argument, else results may be inaccurate.
+Warning: Converting "sub_id" to factor for ANOVA.
+Warning: Converting "A" to factor for ANOVA.
+Coefficient covariances computed by hccm()
 $ANOVA
-	   Effect DFn DFd           F            p p&lt;.05        ges
-2           group   1  18   18.430592 4.377562e-04     * 0.07633358
-3             cue   3  54  516.605213 1.005518e-39     * 0.89662286
-5           flank   2  36 1350.598810 1.386546e-34     * 0.92710583
-4       group:cue   3  54    2.553236 6.497492e-02       0.04110445
-6     group:flank   2  36    8.768499 7.900829e-04     * 0.07627434
-7       cue:flank   6 108    5.193357 9.938494e-05     * 0.11436699
-8 group:cue:flank   6 108    6.377225 9.012515e-06     * 0.13686958
+  Effect DFn DFd SSn  SSd        F         p p&lt;.05       ges
+1      A   2   9 416 1278 1.464789 0.2813705       0.2455726
 
-$`Mauchly's Test for Sphericity`
-	   Effect         W         p p&lt;.05
-3             cue 0.7828347 0.5366835      
-4       group:cue 0.7828347 0.5366835      
-5           flank 0.8812738 0.3415406      
-6     group:flank 0.8812738 0.3415406      
-7       cue:flank 0.1737053 0.1254796      
-8 group:cue:flank 0.1737053 0.1254796      
+$`Levene's Test for Homogeneity of Variance`
+  DFn DFd      SSn SSd        F          p p&lt;.05
+1   2   9 338.6667 295 5.166102 0.03204979     *
+</pre>
 
-$`Sphericity Corrections`
-	   Effect       GGe        p[GG] p[GG]&lt;.05       HFe        p[HF]
-3             cue 0.8652559 1.115029e-34         * 1.0239520 1.005518e-39
-4       group:cue 0.8652559 7.472046e-02           1.0239520 6.497492e-02
-5           flank 0.8938738 3.763312e-31         * 0.9858964 3.964046e-34
-6     group:flank 0.8938738 1.297752e-03         * 0.9858964 8.438369e-04
-7       cue:flank 0.6022111 1.546166e-03         * 0.7721473 4.745714e-04
-8 group:cue:flank 0.6022111 3.424499e-04         * 0.7721473 7.170939e-05
-  p[HF]&lt;.05
-3         *
-4          
-5         *
-6         *
-7         *
-8         *
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">ezANOVA(dat, Y, wid = .(sub_id), between = .(A), detailed = <span style="font-weight: bold; text-decoration: underline;">TRUE</span>)
 </pre>
 </div>
+
+
+</div>
+</div>
 </div>
 
-<div id="outline-container-orgce430ff" class="outline-3">
-<h3 id="orgce430ff">Compare to SPSS output</h3>
-<div class="outline-text-3" id="text-orgce430ff">
+<div id="outline-container-org7adc294" class="outline-3">
+<h3 id="org7adc294">Repeat the same analysis using regression</h3>
+<div class="outline-text-3" id="text-org7adc294">
 <p>
-First we have to reshape the data from long to wide.  Better to do this in R using <code>tidyr::spread()</code> than to try to do this in SPSS!
+Previously you learned how to run a regression model using the <code>lm()</code> function.  So you could fit a model to these data using the regression formula <code>Y ~ A</code>.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-R">ANT_agg <span style="color: #008b8b;">&lt;-</span> ANT_acc <span style="color: #008b8b;">%&gt;%</span>
-  group_by(subnum, group, cue, flank) <span style="color: #008b8b;">%&gt;%</span>
-  summarise(RT = mean(rt)) <span style="color: #008b8b;">%&gt;%</span> ungroup()
-
-for_spss <span style="color: #008b8b;">&lt;-</span> ANT_agg <span style="color: #008b8b;">%&gt;%</span>
-  mutate(cond = paste(cue, flank, sep = <span style="color: #8b2252;">"_"</span>)) <span style="color: #008b8b;">%&gt;%</span>
-  select(subnum, group, cond, RT) <span style="color: #008b8b;">%&gt;%</span>
-  spread(cond, RT)
-
-write.csv(for_spss, <span style="color: #8b2252;">"for_spss.csv"</span>, row.names = <span style="color: #228b22;">FALSE</span>)
-glimpse(for_spss)
+<pre class="src src-R">mod <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> lm(Y ~ A, dat)
+summary(mod)
 </pre>
 </div>
 
 <pre class="example">
-Observations: 20
-Variables: 14
-$ subnum              &lt;fct&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, ...
-$ group               &lt;fct&gt; Treatment, Treatment, Treatment, Treatment, Tre...
-$ Center_Congruent    &lt;dbl&gt; 368.6432, 389.7828, 367.9923, 383.2157, 394.601...
-$ Center_Incongruent  &lt;dbl&gt; 473.3917, 455.6889, 436.5402, 438.4868, 471.384...
-$ Center_Neutral      &lt;dbl&gt; 385.2220, 374.2402, 371.2286, 384.8149, 378.096...
-$ Double_Congruent    &lt;dbl&gt; 378.9103, 384.1513, 356.3303, 399.3815, 370.688...
-$ Double_Incongruent  &lt;dbl&gt; 455.3791, 432.9680, 432.6974, 445.8616, 447.052...
-$ Double_Neutral      &lt;dbl&gt; 378.9357, 356.9811, 392.3132, 370.2583, 370.638...
-$ None_Congruent      &lt;dbl&gt; 423.8810, 441.9487, 428.1394, 433.2586, 436.916...
-$ None_Incongruent    &lt;dbl&gt; 490.8676, 483.2877, 503.2587, 498.5326, 499.016...
-$ None_Neutral        &lt;dbl&gt; 433.4563, 436.4319, 428.6568, 415.5254, 429.138...
-$ Spatial_Congruent   &lt;dbl&gt; 350.1803, 337.6057, 334.5602, 342.8093, 329.854...
-$ Spatial_Incongruent &lt;dbl&gt; 407.1928, 421.0479, 431.4388, 407.0074, 418.313...
-$ Spatial_Neutral     &lt;dbl&gt; 328.0655, 339.3997, 331.3369, 320.7324, 332.479...
-</pre>
 
-<p>
-Here is how the data look:
-</p>
+Call:
+lm(formula = Y ~ A, data = dat)
 
+Residuals:
+   Min     1Q Median     3Q    Max 
+-21.00  -4.00   0.00   3.75  22.00 
 
-<div class="figure">
-<p><img src="01_spss_data.png" alt="01_spss_data.png" />
-</p>
-</div>
-
-<p>
-And then we choose <code>Repeated Measures</code> from the analysis menu:
-</p>
-
-
-<div class="figure">
-<p><img src="02_spss_menu.png" alt="02_spss_menu.png" />
-</p>
-</div>
-
-<p>
-Define our within IVs:
-</p>
-
-
-<div class="figure">
-<p><img src="03_spss_repeated_measures.png" alt="03_spss_repeated_measures.png" />
-</p>
-</div>
-
-<p>
-Results:
-</p>
-
-
-<div class="figure">
-<p><img src="04_spss_mauchly.png" alt="04_spss_mauchly.png" />
-</p>
-</div>
-
-
-<div class="figure">
-<p><img src="05_spss_within.png" alt="05_spss_within.png" />
-</p>
-</div>
-
-
-<div class="figure">
-<p><img src="06_spss_between.png" alt="06_spss_between.png" />
-</p>
-</div>
-</div>
-</div>
-
-<div id="outline-container-orge51b583" class="outline-3">
-<h3 id="orge51b583">Mixed-effects analysis</h3>
-<div class="outline-text-3" id="text-orge51b583">
-<div class="org-src-container">
-<pre class="src src-R"><span style="color: #008b8b;">library</span>(<span style="color: #8b2252;">"afex"</span>)
-
-<span style="color: #b22222;">## </span><span style="color: #b22222;">see ?afex::mixed</span>
-<span style="color: #b22222;">## </span><span style="color: #b22222;">NB: random-intercept-only model justified here because of</span>
-<span style="color: #b22222;">##     </span><span style="color: #b22222;">pre-aggregation of the data</span>
-mod <span style="color: #008b8b;">&lt;-</span> mixed(RT ~ group * cue * flank + (1 | subnum), ANT_agg, type = 3,
-             method = <span style="color: #8b2252;">"KR"</span>)
-
-print(mod)
-</pre>
-</div>
-
-<pre class="example">
-Loading required package: lme4
-Loading required package: Matrix
-
-Attaching package: ‘Matrix’
-
-The following object is masked from ‘package:tidyr’:
-
-    expand
-
-Loading required package: emmeans
-************
-Welcome to afex. For support visit: http://afex.singmann.science/
-- Functions for ANOVAs: aov_car(), aov_ez(), and aov_4()
-- Methods for calculating p-values with mixed(): 'KR', 'S', 'LRT', and 'PB'
-- 'afex_aov' and 'mixed' objects can be passed to emmeans() for follow-up tests
-- Get and set global package options with: afex_options()
-- Set orthogonal sum-to-zero contrasts globally: set_sum_contrasts()
-- For example analyses see: browseVignettes("afex")
-************
-
-Attaching package: ‘afex’
-
-The following object is masked from ‘package:lme4’:
-
-    lmer
-Contrasts set to contr.sum for the following variables: group, cue, flank, subnum
-Fitting one lmer() model. [DONE]
-Calculating p-values. [DONE]
-Mixed Model Anova Table (Type 3 tests, KR-method)
-
-Model: RT ~ group * cue * flank + (1 | subnum)
-Data: ANT_agg
-	   Effect     df           F p.value
-1           group  1, 18   17.85 ***   .0005
-2             cue 3, 198  624.48 ***  &lt;.0001
-3           flank 2, 198 1373.60 ***  &lt;.0001
-4       group:cue 3, 198      3.09 *     .03
-5     group:flank 2, 198    8.92 ***   .0002
-6       cue:flank 6, 198    4.65 ***   .0002
-7 group:cue:flank 6, 198    5.71 ***  &lt;.0001
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)   58.000      5.958   9.735 4.47e-06 ***
+AA2          -14.000      8.426  -1.661    0.131    
+AA3          -10.000      8.426  -1.187    0.266    
 ---
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘+’ 0.1 ‘ ’ 1
+codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 11.92 on 9 degrees of freedom
+Multiple R-squared:  0.2456,	Adjusted R-squared:  0.07792 
+F-statistic: 1.465 on 2 and 9 DF,  p-value: 0.2814
+</pre>
+
+<p>
+Note that <code>lm()</code> recognizes that the predictor <code>A</code> is not numeric, and so creates the variables <code>AA2</code> and <code>AA3</code>.  By default, these new variables will be treatment (i.e., dummy) coded.
+</p>
+
+<p>
+To test the main effect of A, you need to compare it to a model where the factor A is removed; i.e., a model with just the intercept. You can specify this using the formula <code>Y ~ 1</code>. Fit this new model and save it in <code>mod_noA</code>.
+</p>
+
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">mod_noA <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> lm(Y ~ 1, dat)
 </pre>
 </div>
+
+
+</div>
+
+<p>
+Now, the way that you test the main effect of A is to use model comparison, which you do using the <code>anova()</code> function. For instance:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">anova(mod, mod_noA)
+</pre>
+</div>
+
+<pre class="example">
+Analysis of Variance Table
+
+Model 1: Y ~ A
+Model 2: Y ~ 1
+  Res.Df  RSS Df Sum of Sq      F Pr(&gt;F)
+1      9 1278                           
+2     11 1694 -2      -416 1.4648 0.2814
+</pre>
+
+
+<p>
+Compare this result with the result of <code>ezANOVA()</code> above.
+</p>
+
+<p>
+Let&rsquo;s take this opportunity to redo the analysis, but creating your own predictor variables. For background on creating categorical predictors, <a href="coding_scheme.html">see this overview</a>.  (How we code the variables should&rsquo;t make any difference for the overall test of the main effect, because there are no interactions.) Create new variables <code>Ad2v1</code> and <code>Ad3v1</code> in <code>dat</code> where the levels of A are coded using deviation coding (baseline category: A1), and store the resulting table in <code>dat2</code>.
+</p>
+
+
+<div class='solution'><button>Hint</button>
+
+<pre class="example">
+mutate(..., Ad1 = if_else(), Ad2 = ...)
+</pre>
+
+
+</div>
+
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">dat2 <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> dat <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  mutate(Ad2v1 = if_else(A == <span style="font-style: italic;">"A2"</span>, 2/3, -1/3),
+         Ad3v1 = if_else(A == <span style="font-style: italic;">"A3"</span>, 2/3, -1/3))
+
+dat2
+</pre>
+</div>
+
+<pre class="example">
+
+    Y  A sub_id      Ad2v1      Ad3v1
+1  37 A1      1 -0.3333333 -0.3333333
+2  51 A1      2 -0.3333333 -0.3333333
+3  64 A1      3 -0.3333333 -0.3333333
+4  80 A1      4 -0.3333333 -0.3333333
+5  55 A2      5  0.6666667 -0.3333333
+6  33 A2      6  0.6666667 -0.3333333
+7  41 A2      7  0.6666667 -0.3333333
+8  47 A2      8  0.6666667 -0.3333333
+9  50 A3      9 -0.3333333  0.6666667
+10 48 A3     10 -0.3333333  0.6666667
+11 46 A3     11 -0.3333333  0.6666667
+12 48 A3     12 -0.3333333  0.6666667
+</pre>
+
+
+</div>
+
+<p>
+Next task: re-run the model comparison.
+</p>
+
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">mod2 <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> lm(Y ~ Ad2v1 + Ad3v1, dat2)
+anova(mod2, mod_noA)
+</pre>
+</div>
+
+<pre class="example">
+
+Analysis of Variance Table
+
+Model 1: Y ~ Ad2v1 + Ad3v1
+Model 2: Y ~ 1
+  Res.Df  RSS Df Sum of Sq      F Pr(&gt;F)
+1      9 1278                           
+2     11 1694 -2      -416 1.4648 0.2814
+</pre>
+
+
+
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org42d91eb" class="outline-2">
+<h2 id="org42d91eb">One-way ANOVA &ldquo;by-hand&rdquo;</h2>
+<div class="outline-text-2" id="text-org42d91eb">
+<p>
+A great way to understand the elements of ANOVA is to do one &ldquo;by hand&rdquo;. In the old days this would mean doing it with pencil and paper; here we&rsquo;re going to do it by writing code. We&rsquo;ll revisit the data from the <a href="#org9e24a13">one-factor example above</a>.  For convenience, let&rsquo;s repeat the data here:
+</p>
+
+<ul class="org-ul">
+<li>Control: <code>37, 51, 64, 80</code></li>
+<li>Buffet: <code>55, 33, 41, 47</code></li>
+<li>Salad: <code>50, 48, 46, 48</code></li>
+</ul>
+
+<p>
+If you wish to learn more about the concepts of <b>estimation equations</b>, <b>decomposition matrices</b>, and <b>sums of squares</b>, you can find further information in <a href="https://www.otago.ac.nz/psychology/otago039309.pdf">this free textbook by Miller and Haden</a>.
+</p>
+
+<p>
+We begin by applying estimation equations.  Our estimate of the population grand mean \(\mu\), will be based on the grand mean of the sample.  We will call this \(\hat{\mu}\). The &ldquo;hat&rdquo; that \(\mu\) is wearing (\(\hat{\mu}\)) is just there to remind us that it is not the actual population mean, but an <b>estimate</b> of that value derived from our sample.
+</p>
+
+<p>
+The estimation equations for our model are:
+</p>
+
+<p>
+\(\hat{\mu} = Y_{..}\)
+</p>
+
+<p>
+\(\hat{A}_i = Y_{i.} - \hat{\mu}\)
+</p>
+
+<p>
+\(\hat{e}_{ij} = Y_{ij} - (\hat{\mu} + \hat{A}_i) = Y_{ij} - \hat{\mu} - \hat{A}_i\)
+</p>
+
+<p>
+where
+</p>
+
+<ul class="org-ul">
+<li>\(Y_{..}\) is the mean of all 12 observations in the sample;</li>
+<li>\(Y_{i.}\) is the mean of the 4 observations in group \(i\);</li>
+<li>\(\hat{A}_i\) is the main effect of \(A\) for level \(i\), and</li>
+<li>\(\hat{e}_{ij}\) is the residual.</li>
+</ul>
+
+<p>
+Applying these estimation equations to the data above yields the following decomposition matrix:
+</p>
+
+<pre class="example">
+
+   i j Yij mu Ai err
+1  1 1  37 50  8 -21
+2  1 2  51 50  8  -7
+3  1 3  64 50  8   6
+4  1 4  80 50  8  22
+5  2 1  55 50 -6  11
+6  2 2  33 50 -6 -11
+7  2 3  41 50 -6  -3
+8  2 4  47 50 -6   3
+9  3 1  50 50 -2   2
+10 3 2  48 50 -2   0
+11 3 3  46 50 -2  -2
+12 3 4  48 50 -2   0
+</pre>
+
+<p>
+Note that in this table, <code>mu</code> is \(\hat{\mu}\), <code>Ai</code> is \(\hat{A}_i\), and <code>err</code> is \(\hat{e}_{ij}\).  Take a few moments to understand how this table expresses each of the 12 observed values in our example (the \(Y_{ij}\) values) in terms of the linear model \(Y_{ij} = \mu + A_i + e_{ij}\).
+</p>
+</div>
+
+<div id="outline-container-org2cc5396" class="outline-3">
+<h3 id="org2cc5396">Recreate decomposition matrix from the raw data</h3>
+<div class="outline-text-3" id="text-org2cc5396">
+<p>
+For this part, your task is to reproduce the tibble shown above, reproduced here:
+</p>
+
+<pre class="example">
+   i j Yij mu Ai err
+1  1 1  37 50  8 -21
+2  1 2  51 50  8  -7
+3  1 3  64 50  8   6
+4  1 4  80 50  8  22
+5  2 1  55 50 -6  11
+6  2 2  33 50 -6 -11
+7  2 3  41 50 -6  -3
+8  2 4  47 50 -6   3
+9  3 1  50 50 -2   2
+10 3 2  48 50 -2   0
+11 3 3  46 50 -2  -2
+12 3 4  48 50 -2   0
+</pre>
+
+<p>
+You will do this by typing the observed values into a tibble, and then writing code to add columns with estimates of the individual components (feel free to copy the code you already wrote above). At the end, your table should look exactly like the one above.
+</p>
+
+<p>
+You already know how to create a tibble (don&rsquo;t forget to load the tidyverse package first). In case you need to refresh your memory, see [page 2 of this cheatsheet on data input in R](<a href="https://github.com/rstudio/cheatsheets/raw/master/data-import.pdf">https://github.com/rstudio/cheatsheets/raw/master/data-import.pdf</a>).
+</p>
+</div>
+
+<div id="outline-container-org95e4cec" class="outline-4">
+<h4 id="org95e4cec">Step 1: Create tibble</h4>
+<div class="outline-text-4" id="text-org95e4cec">
+<p>
+Create a tibble named <code>dmx</code> (for decomposition matrix). It will eventually contain all of the columns in the one above, but for now, just create the columns <code>i</code>, <code>j</code>, and <code>Yij</code>. You should just type in the values for <code>Yij</code>.
+</p>
+
+
+<div class='solution'><button>Hint 1</button>
+
+<p>
+<code>dmx &lt;- tibble(i = NA, j = NA, Yij = NA)</code>
+</p>
+
+
+</div>
+
+
+
+
+<div class='solution'><button>Hint 2</button>
+
+<p>
+<code>rep(1:3, each = 4)</code>
+</p>
+
+
+</div>
+
+
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R"><span style="font-weight: bold; text-decoration: underline;">library</span>(<span style="font-style: italic;">"tidyverse"</span>)
+
+dmx <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> tibble(i = rep(1:3, each = 4), 
+              j = rep(1:4, times = 3),
+              Yij = c(37, 80, 64, 51,
+                    33, 47, 55, 41,
+                    59, 23, 50, 60)) <span style="font-weight: bold; font-style: italic;"># </span><span style="font-weight: bold; font-style: italic;">TYPE THE VALUES</span>
+</pre>
+</div>
+
+
+</div>
 </div>
 </div>
 
 
-<div id="outline-container-org06472cb" class="outline-2">
-<h2 id="org06472cb"></h2>
-<div class="outline-text-2" id="text-org06472cb">
+
+<div id="outline-container-org1cbd112" class="outline-4">
+<h4 id="org1cbd112">Step 2: Estimate \(\mu\)</h4>
+<div class="outline-text-4" id="text-org1cbd112">
+<p>
+Add a column to the table, called <code>mu</code> representing \(\hat{\mu}\).  Call the resulting table <code>dmx2</code>.  Remember that you can add a column to a table using <code>mutate()</code>.
+</p>
+
+
+<div class='solution'><button>Hint 1</button>
+
+<pre class="example">
+dmx2 &lt;- dmx %&gt;% 
+   mutate(mu = ???)
+</pre>
+
+
+
+</div>
+
+
+
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">dmx2 <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> dmx <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  mutate(mu = mean(Yij))
+</pre>
+</div>
+
+
+</div>
+</div>
+</div>
+
+
+
+<div id="outline-container-org466b6e4" class="outline-4">
+<h4 id="org466b6e4">Step 3: Enter the estimates \(\hat{A}_1\), \(\hat{A}_2\), \(\hat{A}_3\)</h4>
+<div class="outline-text-4" id="text-org466b6e4">
+<p>
+Add a column to the table <code>dmx2</code> called <code>Ai</code>, with the three estimates for \(\hat{A}_i\).  Store the resulting tibble in <code>dmx3</code>.
+</p>
+
+
+<div class='solution'><button>Hint</button>
+
+<ul class="org-ul">
+<li>don&rsquo;t forget to <code>ungroup()</code> at the end of the pipeline</li>
+</ul>
+
+
+</div>
+
+
+
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">dmx3 <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> dmx2 <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  group_by(i) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span> <span style="font-weight: bold; font-style: italic;"># </span><span style="font-weight: bold; font-style: italic;">calculate different values for each i</span>
+  mutate(Ai = mean(Yij) - mu) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  ungroup()
+</pre>
+</div>
+
+
+</div>
+</div>
+</div>
+
+
+
+<div id="outline-container-orge319047" class="outline-4">
+<h4 id="orge319047">Step 4: Calculate \(\hat{e}_{ij}\)s</h4>
+<div class="outline-text-4" id="text-orge319047">
+<p>
+Now add a column <code>err</code> to <code>dmx3</code> and store the result in <code>dmx4</code>. The column <code>err</code> should contain the residuals (the difference between the observed and fitted values)
+</p>
+
+
+<div class='solution'><button>Hint</button>
+
+<p>
+\(\hat{e}_{ij} = Y_{ij} - \hat{Y}_{ij}\)
+</p>
+
+<p>
+\(\hat{Y}_{ij} = \hat{\mu} + \hat{A}_i\) 
+</p>
+
+
+</div>
+
+
+
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">dmx4 <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> dmx3 <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  mutate(err = Yij - (mu + Ai))
+
+dmx4
+</pre>
+</div>
+
+<pre class="example">
+
+   i j Yij mu Ai err
+1  1 1  37 50  8 -21
+2  1 2  80 50  8  22
+3  1 3  64 50  8   6
+4  1 4  51 50  8  -7
+5  2 1  33 50 -6 -11
+6  2 2  47 50 -6   3
+7  2 3  55 50 -6  11
+8  2 4  41 50 -6  -3
+9  3 1  59 50 -2  11
+10 3 2  23 50 -2 -25
+11 3 3  50 50 -2   2
+12 3 4  60 50 -2  12
+</pre>
+
+
+</div>
+
+
+
+<p>
+Display <code>dmx4</code> in the console and compare it to the table above.  How did you do?
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgf5c820e" class="outline-4">
+<h4 id="orgf5c820e">Step 5: Sums of squares</h4>
+<div class="outline-text-4" id="text-orgf5c820e">
+<p>
+Sums of squares are used in calculations for performing tests on model components.
+</p>
+
+<p>
+Square the values in the columns <code>Yij</code>, <code>mu</code>, <code>Ai</code>, and <code>err</code> in <code>dmx4</code>, then sum up the squared values for each of these columns.  Here is an example of how you would square a value <code>x</code> in R: <code>x^2</code>.  The <code>^2</code> means take x to the power of 2.  So typing <code>3^2</code> in the console will give you <code>9</code> (try it if you&rsquo;re unsure).
+</p>
+
+
+<div class='solution'><button>Hint 1</button>
+
+<pre class="example">
+dmx4 %&gt;% mutate(Yij2 = Yij^2, ...)
+</pre>
+
+
+
+</div>
+
+
+
+
+<div class='solution'><button>Hint 2</button>
+
+<pre class="example">
+summarise(ss_Y = sum(Yij2), ss_mu = ...)
+</pre>
+
+
+
+</div>
+
+
+
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">sstbl <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> dmx4 <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  mutate(Yij2 = Yij^2,
+         mu2 = mu^2,
+         Ai2 = Ai^2,
+         err2 = err^2) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  select(Yij2, mu2, Ai2, err2) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  summarise(ss_Y = sum(Yij2),
+            ss_mu = sum(mu2),
+            ss_Ai = sum(Ai2),
+            ss_err = sum(err2))
+
+<span style="font-weight: bold; font-style: italic;">## </span><span style="font-weight: bold; font-style: italic;">here is a super cool way to do the same thing,</span>
+<span style="font-weight: bold; font-style: italic;">## </span><span style="font-weight: bold; font-style: italic;">using dplyr's "scoping" technique </span>
+<span style="font-weight: bold; font-style: italic;">## </span><span style="font-weight: bold; font-style: italic;">(see ?dplyr::scoped and ?dplyr::summarise_all)</span>
+sstbl <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> dmx4 <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  select(Yij:err) <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span>
+  summarise_all(funs(sum(.^2)))
+
+sstbl
+</pre>
+</div>
+
+<pre class="example">
+
+Warning message:
+`funs()` was deprecated in dplyr 0.8.0.
+Please use a list of either functions or lambdas: 
+
+  # Simple named list: 
+  list(mean = mean, median = median)
+
+  # Auto named with `tibble::lst()`: 
+  tibble::lst(mean, median)
+
+  # Using lambdas
+  list(~ mean(., trim = .2), ~ median(., na.rm = TRUE))
+[90mThis warning is displayed once every 8 hours.[39m
+[90mCall `lifecycle::last_warnings()` to see where this warning was generated.[39m
+
+    Yij    mu  Ai  err
+1 32580 30000 416 2164
+</pre>
+
+
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgf5fa715" class="outline-4">
+<h4 id="orgf5fa715">Final step: Calculate \(F\) statistics</h4>
+<div class="outline-text-4" id="text-orgf5fa715">
+<p>
+\(F = \frac{MS_{A}}{MS_{err}}\)
+</p>
+
+<p>
+\(MS_A = \frac{MS_A}{df_A}\)
+</p>
+
+<p>
+\(MS_{err} = \frac{MS_{err}}{df_{err}}\)
+</p>
+
+<p>
+Get the p-value using the appropriate probability distribution for the \(F\) distribution (Hint: remember <code>dnorm()</code>, <code>pnorm()</code>, and <code>qnorm()</code>?)
+</p>
+
+<p>
+Your results should <b>exactly</b> reproduce the ones we got from <code>ezANOVA()</code>.
+</p>
+
+
+<div class='solution'><button>Hint (F function)</button>
+
+<p>
+<code>?pf</code>
+</p>
+
+
+</div>
+
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">ms_a <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> (sstbl <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span> pull(Ai)) / 2L <span style="font-weight: bold; font-style: italic;"># </span><span style="font-weight: bold; font-style: italic;">2 dfs</span>
+ms_err <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> (sstbl <span style="font-weight: bold; text-decoration: underline;">%&gt;%</span> pull(err)) / 9L <span style="font-weight: bold; font-style: italic;"># </span><span style="font-weight: bold; font-style: italic;">9 dfs</span>
+
+f_ratio <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> ms_a / ms_err
+p_value <span style="font-weight: bold; text-decoration: underline;">&lt;-</span> pf(f_ratio, 2, 9, lower.tail = <span style="font-weight: bold; text-decoration: underline;">FALSE</span>)
+
+cat(<span style="font-style: italic;">"F(2, 9) ="</span>, round(f_ratio, 2), <span style="font-style: italic;">", p ="</span>, round(p_value, 3), <span style="font-style: italic;">"\n"</span>)
+</pre>
+</div>
+
+<pre class="example">
+
+F(2, 9) = 0.87 , p = 0.453
+</pre>
+
+
+
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-org6a7284e" class="outline-2">
+<h2 id="org6a7284e"></h2>
+<div class="outline-text-2" id="text-org6a7284e">
 <script>
 
 /* update total correct if #total_correct exists */
@@ -1700,7 +1358,7 @@ window.onload = function() {
 </div>
 </div>
 <div id="postamble" class="status">
-<p class="date">Created: 2018-04-19 Thu 09:07</p>
+<p class="date">Created: 2021-04-08 Thu 12:55</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
