@@ -1,0 +1,29 @@
+* create the dataset
+
+#+begin_src R :exports none 
+  ## need three groups
+  ## measure simple RT after drinking 1 cup of
+  ## cup of coffee, glass of wine, glass of water
+
+  library("tidyverse")
+
+  set.seed(62)
+
+  mu <- 600L
+
+  effs <- tibble(group = c("water", "coffee", "wine"),
+		 eff = c(-20L, -40L, 60L))
+
+  n_subj <- 60L
+  dat <- tibble(subj_id = seq_len(n_subj),
+		group = sample(rep(c("water", "coffee", "wine"),
+				   times = n_subj / 3L))) %>%
+    inner_join(effs, c("group")) %>%
+    mutate(mean_rt = as.integer(round(mu + eff + rnorm(nrow(.), sd = 80L))),
+	   group = factor(group, levels = c("water", "coffee", "wine"))) %>%
+    select(-eff)
+
+  summary(aov(mean_rt ~ group, data = dat))
+
+  write_csv(dat, "beverages.csv")
+#+end_src

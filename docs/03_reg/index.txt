@@ -1,0 +1,335 @@
+#+AUTHOR: Statistical Models
+#+DATE: Psychology, University of Glasgow
+
+#+REVEAL_INIT_OPTIONS: width:1200, height:800, margin: 0.1, minScale:0.2, maxScale:2.5, transition:'fade'
+#+OPTIONS: toc:nil num:nil ^:nil
+#+REVEAL_THEME: black
+#+REVEAL_HLEVEL: 2
+#+REVEAL_HEAD_PREAMBLE: <meta name="description" content="Correlation and Regression">
+#+REVEAL_POSTAMBLE: <p> Created by Dale Barr </p>
+#+REVEAL_PLUGINS: (markdown notes)
+#+REVEAL_EXTRA_CSS: ./local.css
+
+#+REVEAL_ROOT: ./reveal.js
+#+REVEAL_HLEVEL: 2
+
+#+REVEAL_TITLE_SLIDE_BACKGROUND: ../img/titlescreen.png
+#+REVEAL_HIGHLIGHT_CSS: %r/lib/css/zenburn.css
+
+#+TITLE: Multiple Regression
+#+AUTHOR: Dale Barr
+#+PROPERTY: header-args:R :session *R* :exports both :results output
+
+* Setup                                                            :noexport:
+
+#+begin_src R
+  set.seed(62)
+  options(crayon.enabled = FALSE)
+  library("readxl")
+  library("tidyverse")
+
+  dat <- read_excel("final_dataset.xlsx")
+
+  .cnames <- c("grade", "GPA", "lecture", "nclicks")
+  .cmx <- matrix(.3, nrow = 4, ncol = 4,
+		dimnames = list(.cnames, .cnames))
+  diag(.cmx) <- 1
+  .sds <- c(1, 1, 2, 15)
+  for (i in 1:nrow(.cmx)) {
+    for (j in 1:ncol(.cmx)) {
+      .cmx[i, j] <- .cmx[i, j] * .sds[i] * .sds[j]
+    }
+  }
+
+  .grades <- MASS::mvrnorm(100,
+		c(grade = 2.5, GPA = 2.5, lecture = 7, nclicks = 100),
+		.cmx) %>%
+    as_tibble() %>%
+    mutate(grade = case_when(grade < 0 ~ 0,
+			 grade > 4 ~ 4,
+			 TRUE ~ grade),
+	   GPA = case_when(GPA < 0 ~ 0,
+			   GPA > 4 ~ 4,
+			   TRUE ~ GPA),
+	   lecture = case_when(lecture < 0 ~ 0L,
+			       lecture > 10 ~ 10L,
+			       TRUE ~ as.integer(round(lecture))),
+	   nclicks = as.integer(round(nclicks)))
+
+  dir.create("data", FALSE)
+  write_csv(.grades, "data/grades.csv")
+#+end_src
+
+* TODO Tweaks                                                      :noexport:
+- added variable plots
+- to select or not to select variables?
+- find a *real* dataset to work with for first part?
+
+* Moving beyond simple regression
+
+1. introduction
+   - estimation and interpretation
+2. using multiple regression
+   - partial variable plots
+   - standardized coefficients
+   - model comparison
+3. categorical predictors
+   - dummy coding schemes
+   - one factor ANOVA using regression
+
+** Multiple regression
+
+General model for single-level data with \(m\) predictors:
+
+\(Y_i = \beta_0 + \beta_1 X_{1i} + \beta_2 X_{2i} + \ldots + \beta_m X_{mi} + e_i \)
+
+individual \(X\)s can be any combination of continuous and categorical predictors (and their interactions)
+
+Each \(\beta_j\) is the *partial effect of \(X_{j}\) holding all other \(X\)s constant*
+
+**(NB: single-level data is rare in psychology)**
+
+** Example
+
+Are lecture attendance and engagement with online materials associated with higher grades in statistics?
+
+Does this relationship hold after controlling for overall GPA?
+
+*** Data import
+
+#+ATTR_HTML: :target _download
+[[file:data/grades.csv][grades.csv]]
+
+#+begin_src R 
+  grades <- read_csv("data/grades.csv",
+		     col_types = "ddii")
+
+  grades
+#+end_src
+
+#+RESULTS:
+#+begin_example
+
+# A tibble: 100 x 4
+   grade   GPA lecture nclicks
+   <dbl> <dbl>   <int>   <int>
+ 1  2.40 1.13        6      88
+ 2  3.67 0.971       6      96
+ 3  2.85 3.34        6     123
+ 4  1.36 2.76        9      99
+ 5  2.31 1.02        4      66
+ 6  2.58 0.841       8      99
+ 7  2.69 4           5      86
+ 8  3.05 2.29        7     118
+ 9  3.21 3.39        9      98
+10  2.24 3.27       10     115
+# … with 90 more rows
+#+end_example
+
+*** Correlations
+
+#+begin_src R
+  library("corrr")
+
+  grades %>%
+    correlate() %>%
+    shave() %>%
+    fashion()
+#+end_src
+
+*** Visualization
+
+#+HEADER: :file pairs.png :width 400 :height 400 :dpi 150
+#+begin_src R :results output graphics file
+grades %>%
+  pairs()
+#+end_src
+
+#+RESULTS:
+[[file:pairs.png]]
+
+*** Estimation and interpretation
+
+\(Y_i = \beta_0 + \beta_1 X_{1i} + \beta_2 X_{2i} + \ldots + \beta_m X_{mi} + e_i\)
+
+=lm(Y ~ X1 + X2 + ... + Xm, data)=
+
+#+begin_src R
+my_model <- lm(grade ~ lecture + nclicks, grades)   
+summary(my_model)
+#+end_src
+
+* Using multiple regression
+
+*** Visualizing partial effects
+
+#+REVEAL_HTML: <div class="column" style="float:left; width: 50%">
+
+#+header: :file predict1.png :width 200 :height 200
+#+begin_src R :results output graphics file
+  dmean <- grades %>% 
+    pull(nclicks) %>% mean()
+
+  new1 <- crossing(lecture = 0:10,
+		   nclicks = dmean)
+
+  new2 <- new1 %>%
+    mutate(grade = predict(my_model, 
+			   new1))
+
+  ggplot(grades, aes(lecture, grade)) +
+    geom_point() +
+    geom_line(data = new2)
+#+end_src
+
+#+RESULTS:
+[[file:predict1.png]]
+
+#+REVEAL_HTML: </div>
+
+#+REVEAL_HTML: <div class="column" style="float:right; width: 50%">
+
+#+header: :file predict2.png :width 200 :height 200
+#+begin_src R :results output graphics file
+  lmean <- grades %>%
+    pull(lecture) %>% mean()
+
+  new3 <- crossing(nclicks = 55:130,
+		   lecture = lmean)
+
+  new4 <- new3 %>%
+    mutate(grade = predict(my_model,
+			   new3))
+
+  ggplot(grades, aes(nclicks, grade)) +
+    geom_point() +
+    geom_line(data = new4)
+#+end_src
+
+#+RESULTS:
+[[file:predict2.png]]
+
+#+REVEAL_HTML: </div>
+
+See =?predict.lm()=, =?tidyr::crossing()=
+
+*** Standardized coefficients
+
+Which predictor matters more?
+
+#+begin_src R
+  grades2 <- grades %>%
+    mutate(lecture_c = (lecture - mean(lecture)) / sd(lecture),
+	   nclicks_c = (nclicks - mean(nclicks)) / sd(nclicks))
+
+  summary(lm(grade ~ lecture_c + nclicks_c, grades2))
+#+end_src
+
+#+RESULTS:
+#+begin_example
+
+Call:
+lm(formula = grade ~ lecture_c + nclicks_c, data = grades2)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-2.21653 -0.40603  0.02267  0.60720  1.38558 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  2.59839    0.08692  29.895   <2e-16 ***
+lecture_c    0.18734    0.09370   1.999   0.0484 *  
+nclicks_c    0.07823    0.09370   0.835   0.4058    
+---
+codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.8692 on 97 degrees of freedom
+Multiple R-squared:  0.06543,	Adjusted R-squared:  0.04616 
+F-statistic: 3.395 on 2 and 97 DF,  p-value: 0.03756
+#+end_example
+
+See =?base::scale()=
+
+*** Standardized vs non-standardized 
+
+#+begin_src R :exports none
+  raw_out <- capture.output(summary(my_model))
+  raw_ix <- grep("^Coefficients:", raw_out)
+  std_out <- capture.output(summary(lm(grade ~ lecture_c + nclicks_c, grades2)))
+  std_ix <- grep("^Coefficients:", std_out)
+#+end_src
+
+- standardized
+
+  #+begin_src R :exports results :results output
+    cat(std_out[std_ix:(std_ix + 4L)], sep = "\n")
+  #+end_src
+
+- not standardized
+
+  #+begin_src R :exports results :results output
+    cat(raw_out[raw_ix:(raw_ix + 4L)], sep = "\n")
+  #+end_src
+
+*** Model comparison
+
+Is engagement (as measured by lecture attendance and downloads) positively associated with final course grade *above and beyond* student ability (as measured by GPA)?
+
+*** Strategy
+
+Create a "base" model with all control vars and compare to a "bigger" model with all control and focal vars
+
+#+begin_src R
+  base_model <- lm(grade ~ GPA, grades)
+  big_model <- lm(grade ~ GPA + lecture + nclicks, grades)
+
+  anova(base_model, big_model)
+#+end_src
+
+\(F(2, 96) = 1.31, p = .275\)
+
+If \(p < \alpha\), bigger model is better.
+
+
+* Categorical predictors
+
+*** Dummy coding binary vars
+
+Arbitrarily assign one of the two levels to 0; assign the other to 1.
+
+*NB: sign of the variable depends on the coding!*
+
+See =?dplyr::if_else()=
+
+*** Factors with \(k > 2\)
+
+Arbitrarily choose one level as "baseline" level.
+
+#+REVEAL_HTML: <div class="column" style="float:left; width: 40%">
+
+- \(k = 3\)
+
+|         | =A2v1= | =A3v1= |
+|---------+--------+--------|
+| \(A_1\) |      0 |      0 |
+| \(A_2\) |      1 |      0 |
+| \(A_3\) |      0 |      1 |
+#+REVEAL_HTML: </div>
+
+#+REVEAL_HTML: <div class="column" style="float:left; width: 60%">
+
+- \(k = 4\)
+
+|         | =A2v1= | =A3v1= | =A4v1= |
+|---------+--------+--------+--------|
+| \(A_1\) |      0 |      0 |      0 |
+| \(A_2\) |      1 |      0 |      0 |
+| \(A_3\) |      0 |      1 |      0 |
+| \(A_4\) |      0 |      0 |      1 |
+#+REVEAL_HTML: </div>
+
+*** One factor ANOVA
+
+\(Y_{ij} = \mu + A_{i} + S(A)_{ij}\) 
+
+\(Y_i = \beta_0 + \beta_1 X_{1i} + \beta_2 X_{2i} + e_i\)

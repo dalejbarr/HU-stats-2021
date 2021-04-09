@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Multiple Regression</title>
+<meta name="author" content="(Statistical Models Dale Barr)"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="./reveal.js/dist/reveal.css"/>
+
+<link rel="stylesheet" href="./reveal.js/dist/theme/black.css" id="theme"/>
+
+<link rel="stylesheet" href="./local.css"/>
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = './reveal.js/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<meta name="description" content="Correlation and Regression">
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide" data-background="../img/titlescreen.png"><h1 class="title">Multiple Regression</h1><h2 class="author">Statistical Models Dale Barr</h2><h2 class="date">Psychology, University of Glasgow</h2><p class="date">Created: 2020-10-11 Sun 16:58</p>
+</section>
+
+<section>
+<section id="slide-org0b8bbb2">
+<h2 id="org0b8bbb2">Moving beyond simple regression</h2>
+<ol>
+<li>introduction
+<ul>
+<li>estimation and interpretation</li>
+
+</ul></li>
+<li>using multiple regression
+<ul>
+<li>partial variable plots</li>
+<li>standardized coefficients</li>
+<li>model comparison</li>
+
+</ul></li>
+<li>categorical predictors
+<ul>
+<li>dummy coding schemes</li>
+<li>one factor ANOVA using regression</li>
+
+</ul></li>
+
+</ol>
+
+</section>
+</section>
+<section>
+<section id="slide-orge93f495">
+<h3 id="orge93f495">Multiple regression</h3>
+<p>
+General model for single-level data with \(m\) predictors:
+</p>
+
+<p>
+\(Y_i = \beta_0 + \beta_1 X_{1i} + \beta_2 X_{2i} + \ldots + \beta_m X_{mi} + e_i \)
+</p>
+
+<p>
+individual \(X\)s can be any combination of continuous and categorical predictors (and their interactions)
+</p>
+
+<p>
+Each \(\beta_j\) is the <b>partial effect of \(X_{j}\) holding all other \(X\)s constant</b>
+</p>
+
+<p>
+<b><b>(NB: single-level data is rare in psychology)</b></b>
+</p>
+
+</section>
+</section>
+<section>
+<section id="slide-orgd0d33e8">
+<h3 id="orgd0d33e8">Example</h3>
+<p>
+Are lecture attendance and engagement with online materials associated with higher grades in statistics?
+</p>
+
+<p>
+Does this relationship hold after controlling for overall GPA?
+</p>
+
+</section>
+<section id="slide-org9c19723">
+<h4 id="org9c19723">Data import</h4>
+<p target="_download">
+<a href="data/grades.csv" target="_download">grades.csv</a>
+</p>
+
+<div class="org-src-container">
+
+<pre  class="src src-R"><code trim>grades <span style="color: #0000bb;">&lt;-</span> read_csv(<span style="color: #223fbf;">"data/grades.csv"</span>,
+                   col_types = <span style="color: #223fbf;">"ddii"</span>)
+
+grades
+</code></pre>
+</div>
+
+<pre class="example">
+
+# A tibble: 100 x 4
+   grade   GPA lecture nclicks
+   &lt;dbl&gt; &lt;dbl&gt;   &lt;int&gt;   &lt;int&gt;
+ 1  2.40 1.13        6      88
+ 2  3.67 0.971       6      96
+ 3  2.85 3.34        6     123
+ 4  1.36 2.76        9      99
+ 5  2.31 1.02        4      66
+ 6  2.58 0.841       8      99
+ 7  2.69 4           5      86
+ 8  3.05 2.29        7     118
+ 9  3.21 3.39        9      98
+10  2.24 3.27       10     115
+# … with 90 more rows
+</pre>
+
+</section>
+<section id="slide-org122b5ac">
+<h4 id="org122b5ac">Correlations</h4>
+<div class="org-src-container">
+
+<pre  class="src src-R"><code trim><span style="color: #0000bb;">library</span>(<span style="color: #223fbf;">"corrr"</span>)
+
+grades <span style="color: #0000bb;">%&gt;%</span>
+  correlate() <span style="color: #0000bb;">%&gt;%</span>
+  shave() <span style="color: #0000bb;">%&gt;%</span>
+  fashion()
+</code></pre>
+</div>
+
+<pre class="example">
+
+
+Correlation method: 'pearson'
+Missing treated using: 'pairwise.complete.obs'
+
+  rowname grade  GPA lecture nclicks
+1   grade                           
+2     GPA   .25                     
+3 lecture   .24  .44                
+4 nclicks   .16  .30     .36
+</pre>
+
+</section>
+<section id="slide-org63e0edf">
+<h4 id="org63e0edf">Visualization</h4>
+<div class="org-src-container">
+
+<pre  class="src src-R"><code trim>grades <span style="color: #0000bb;">%&gt;%</span>
+  pairs()
+</code></pre>
+</div>
+
+
+<div class="figure">
+<p><img src="pairs.png" alt="pairs.png" />
+</p>
+</div>
+
+</section>
+<section id="slide-org0386fb7">
+<h4 id="org0386fb7">Estimation and interpretation</h4>
+<p>
+\(Y_i = \beta_0 + \beta_1 X_{1i} + \beta_2 X_{2i} + \ldots + \beta_m X_{mi} + e_i\)
+</p>
+
+<p>
+<code>lm(Y ~ X1 + X2 + ... + Xm, data)</code>
+</p>
+
+<div class="org-src-container">
+
+<pre  class="src src-R"><code trim>my_model <span style="color: #0000bb;">&lt;-</span> lm(grade ~ lecture + nclicks, grades)   
+summary(my_model)
+</code></pre>
+</div>
+
+<pre class="example">
+
+Call:
+lm(formula = grade ~ lecture + nclicks, data = grades)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-2.21653 -0.40603  0.02267  0.60720  1.38558 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)  
+(Intercept) 1.462037   0.571124   2.560   0.0120 *
+lecture     0.091501   0.045766   1.999   0.0484 *
+nclicks     0.005052   0.006051   0.835   0.4058  
+---
+codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.8692 on 97 degrees of freedom
+Multiple R-squared:  0.06543,	Adjusted R-squared:  0.04616 
+F-statistic: 3.395 on 2 and 97 DF,  p-value: 0.03756
+</pre>
+
+</section>
+</section>
+<section>
+<section id="slide-orga5ea0ba">
+<h2 id="orga5ea0ba">Using multiple regression</h2>
+<div class="outline-text-2" id="text-orga5ea0ba">
+</div>
+</section>
+<section id="slide-org5e489a9">
+<h4 id="org5e489a9">Visualizing partial effects</h4>
+<div class="column" style="float:left; width: 50%">
+
+<div class="org-src-container">
+
+<pre  class="src src-R"><code trim>dmean <span style="color: #0000bb;">&lt;-</span> grades <span style="color: #0000bb;">%&gt;%</span> 
+  pull(nclicks) <span style="color: #0000bb;">%&gt;%</span> mean()
+
+new1 <span style="color: #0000bb;">&lt;-</span> crossing(lecture = 0:10,
+                 nclicks = dmean)
+
+new2 <span style="color: #0000bb;">&lt;-</span> new1 <span style="color: #0000bb;">%&gt;%</span>
+  mutate(grade = predict(my_model, 
+                         new1))
+
+ggplot(grades, aes(lecture, grade)) +
+  geom_point() +
+  geom_line(data = new2)
+</code></pre>
+</div>
+
+
+<div class="figure">
+<p><img src="predict1.png" alt="predict1.png" />
+</p>
+</div>
+
+</div>
+
+<div class="column" style="float:right; width: 50%">
+
+<div class="org-src-container">
+
+<pre  class="src src-R"><code trim>lmean <span style="color: #0000bb;">&lt;-</span> grades <span style="color: #0000bb;">%&gt;%</span>
+  pull(lecture) <span style="color: #0000bb;">%&gt;%</span> mean()
+
+new3 <span style="color: #0000bb;">&lt;-</span> crossing(nclicks = 55:130,
+                 lecture = lmean)
+
+new4 <span style="color: #0000bb;">&lt;-</span> new3 <span style="color: #0000bb;">%&gt;%</span>
+  mutate(grade = predict(my_model,
+                         new3))
+
+ggplot(grades, aes(nclicks, grade)) +
+  geom_point() +
+  geom_line(data = new4)
+</code></pre>
+</div>
+
+
+<div class="figure">
+<p><img src="predict2.png" alt="predict2.png" />
+</p>
+</div>
+
+</div>
+
+<p>
+See <code>?predict.lm()</code>, <code>?tidyr::crossing()</code>
+</p>
+
+</section>
+<section id="slide-org19e6673">
+<h4 id="org19e6673">Standardized coefficients</h4>
+<p>
+Which predictor matters more?
+</p>
+
+<div class="org-src-container">
+
+<pre  class="src src-R"><code trim>grades2 <span style="color: #0000bb;">&lt;-</span> grades <span style="color: #0000bb;">%&gt;%</span>
+  mutate(lecture_c = (lecture - mean(lecture)) / sd(lecture),
+         nclicks_c = (nclicks - mean(nclicks)) / sd(nclicks))
+
+summary(lm(grade ~ lecture_c + nclicks_c, grades2))
+</code></pre>
+</div>
+
+<pre class="example">
+
+Call:
+lm(formula = grade ~ lecture_c + nclicks_c, data = grades2)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-2.21653 -0.40603  0.02267  0.60720  1.38558 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  2.59839    0.08692  29.895   &lt;2e-16 ***
+lecture_c    0.18734    0.09370   1.999   0.0484 *  
+nclicks_c    0.07823    0.09370   0.835   0.4058    
+---
+codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.8692 on 97 degrees of freedom
+Multiple R-squared:  0.06543,	Adjusted R-squared:  0.04616 
+F-statistic: 3.395 on 2 and 97 DF,  p-value: 0.03756
+</pre>
+
+<p>
+See <code>?base::scale()</code>
+</p>
+
+</section>
+<section id="slide-org239c638">
+<h4 id="org239c638">Standardized vs non-standardized</h4>
+<ul>
+<li><p>
+standardized
+</p>
+
+<pre class="example">
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  2.59839    0.08692  29.895   &lt;2e-16 ***
+lecture_c    0.18734    0.09370   1.999   0.0484 *  
+nclicks_c    0.07823    0.09370   0.835   0.4058
+</pre></li>
+
+<li><p>
+not standardized
+</p>
+
+<pre class="example">
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)  
+(Intercept) 1.462037   0.571124   2.560   0.0120 *
+lecture     0.091501   0.045766   1.999   0.0484 *
+nclicks     0.005052   0.006051   0.835   0.4058
+</pre></li>
+
+</ul>
+
+</section>
+<section id="slide-orgfea38d4">
+<h4 id="orgfea38d4">Model comparison</h4>
+<p>
+Is engagement (as measured by lecture attendance and downloads) positively associated with final course grade <b>above and beyond</b> student ability (as measured by GPA)?
+</p>
+
+</section>
+<section id="slide-org6982c61">
+<h4 id="org6982c61">Strategy</h4>
+<p>
+Create a &ldquo;base&rdquo; model with all control vars and compare to a &ldquo;bigger&rdquo; model with all control and focal vars
+</p>
+
+<div class="org-src-container">
+
+<pre  class="src src-R"><code trim>base_model <span style="color: #0000bb;">&lt;-</span> lm(grade ~ GPA, grades)
+big_model <span style="color: #0000bb;">&lt;-</span> lm(grade ~ GPA + lecture + nclicks, grades)
+
+anova(base_model, big_model)
+</code></pre>
+</div>
+
+<pre class="example">
+
+Analysis of Variance Table
+
+Model 1: grade ~ GPA
+Model 2: grade ~ GPA + lecture + nclicks
+  Res.Df    RSS Df Sum of Sq      F Pr(&gt;F)
+1     98 73.528                           
+2     96 71.578  2    1.9499 1.3076 0.2752
+</pre>
+
+
+<p>
+\(F(2, 96) = 1.31, p = .275\)
+</p>
+
+<p>
+If \(p < \alpha\), bigger model is better.
+</p>
+
+
+</section>
+</section>
+<section>
+<section id="slide-orgd4819a7">
+<h2 id="orgd4819a7">Categorical predictors</h2>
+<div class="outline-text-2" id="text-orgd4819a7">
+</div>
+</section>
+<section id="slide-org60742f4">
+<h4 id="org60742f4">Dummy coding binary vars</h4>
+<p>
+Arbitrarily assign one of the two levels to 0; assign the other to 1.
+</p>
+
+<p>
+<b>NB: sign of the variable depends on the coding!</b>
+</p>
+
+<p>
+See <code>?dplyr::if_else()</code>
+</p>
+
+</section>
+<section id="slide-org94707bb">
+<h4 id="org94707bb">Factors with \(k > 2\)</h4>
+<p>
+Arbitrarily choose one level as &ldquo;baseline&rdquo; level.
+</p>
+
+<div class="column" style="float:left; width: 40%">
+
+<ul>
+<li>\(k = 3\)</li>
+
+</ul>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">&#xa0;</th>
+<th scope="col" class="org-right"><code>A2v1</code></th>
+<th scope="col" class="org-right"><code>A3v1</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">\(A_1\)</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+</tr>
+
+<tr>
+<td class="org-left">\(A_2\)</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+</tr>
+
+<tr>
+<td class="org-left">\(A_3\)</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<div class="column" style="float:left; width: 60%">
+
+<ul>
+<li>\(k = 4\)</li>
+
+</ul>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">&#xa0;</th>
+<th scope="col" class="org-right"><code>A2v1</code></th>
+<th scope="col" class="org-right"><code>A3v1</code></th>
+<th scope="col" class="org-right"><code>A4v1</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">\(A_1\)</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+</tr>
+
+<tr>
+<td class="org-left">\(A_2\)</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+</tr>
+
+<tr>
+<td class="org-left">\(A_3\)</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+</tr>
+
+<tr>
+<td class="org-left">\(A_4\)</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+</section>
+<section id="slide-orgd1c4bac">
+<h4 id="orgd1c4bac">One factor ANOVA</h4>
+<p>
+\(Y_{ij} = \mu + A_{i} + S(A)_{ij}\) 
+</p>
+
+<p>
+\(Y_i = \beta_0 + \beta_1 X_{1i} + \beta_2 X_{2i} + e_i\)
+</p>
+</section>
+</section>
+</div>
+</div>
+<p> Created by Dale Barr </p>
+<script src="./reveal.js/dist/reveal.js"></script>
+<script src="./reveal.js/plugin/markdown/markdown.js"></script>
+<script src="./reveal.js/plugin/notes/notes.js"></script>
+
+
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+plugins: [RevealMarkdown,RevealNotes],
+width:1200, height:800, margin: 0.1, minScale:0.2, maxScale:2.5, transition:'fade',
+multiplex: {
+    secret: '', // null if client
+    id: '', // id, obtained from socket.io server
+    url: '' // Location of socket.io server
+},
+
+// Optional libraries used to extend on reveal.js
+dependencies: [
+]
+});
+</script>
+</body>
+</html>
