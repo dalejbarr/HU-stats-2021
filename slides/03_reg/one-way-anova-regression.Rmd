@@ -1,0 +1,29 @@
+---
+title: "One-way ANOVA with regression"
+output: html_document
+---
+
+You conduct a study looking at the effect of drinking different beverages on response times in a simple task where participants are instructed to press a button in response to a flashing light. You measure the mean response time for each subject, after drinking one of three drinks: (1) water (control condition); (2) coffee; (3) wine. The factor `group` is a between-subjects variable. The data are available in the file [beverages.csv](beverages.csv).
+
+## Task 1
+
+Import the data and create boxplots showing summary information for mean RT in each of the three groups.
+
+```{r import-and-plot}
+```
+
+## Task 2
+
+Use the `aov()` function to run a one-way ANOVA on the data.
+
+```{r one-way-aov}
+```
+
+## Task 3
+
+Now repeat the analysis, except using regression (R function `lm()`) instead of `aov()`. NOTE: you should create your own dummy variable(s) to code the `group` variable. HINT: you wil need to use model comparison to test the main effect.
+
+```{r one-way-lm}
+```
+
+If you have done this correctly, you should get the same $p$-value for both analyses.

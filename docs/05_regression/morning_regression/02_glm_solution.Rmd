@@ -1,0 +1,195 @@
+---
+title: "Walkthrough: Basic Regression & GLM"
+output: webex::webex_default
+---
+
+```{r setup, include=FALSE}
+## don't change this block
+knitr::opts_chunk$set(echo = TRUE)
+
+library("webex")
+library("tidyverse")
+```
+
+*NOTE: For any equations that appear in this document (which are enclosed in `$` characters), you can knit this file to html to see formatted versions. You can hover your mouse pointer over the equations to see the formatted versions without knitting.* 
+
+## Task 1: Simulating two-sample data
+
+Imagine you read a study comparing the effectiveness of a new intervention for children with mood disorders to a traditional intervention. The study randomly assigned 50 children to each of two treatment conditions, new or traditional. Following the intervention, the researchers measured how positive their moods were. Some children dropped out before they could be measured. The study reports that children in the traditional intervention showed lower mood ($N = 20$; $M = 57.2$) than children who received the new intervention ($N = 14$; $M = 60.4$).  The pooled standard deviation was 7.3.
+
+### task 1.1: create the simulated data
+
+Simulate data from this study with the same Ns as above (N = 20 for traditional and N = 14 for the new intervention) and treat the estimated means and pooled SD as the population parameters for your DGP (data-generating process). Assume the scores are normally distributed, and make the simplifying assumption that the the mood scale is continuous and unbounded.
+
+`r hide()`
+
+```{r my-simulated-data}
+# replace the rep(x, xx)s with your answer
+dat_new <- rnorm(14, 60.4, 7.3)  # vector with mood scores from the new treatment
+dat_trad <- rnorm(20, 57.2, 7.3) # vector with mood scores from the traditional treatment
+```
+
+`r unhide()`
+
+### task 1.2: run a t-test
+
+Run a t-test on these data assuming equal variances and print out the result.
+
+`r hide()`
+
+```{r t-equal-var}
+my_t_equal_vars <- t.test(dat_new, dat_trad, var.equal = TRUE)
+
+my_t_equal_vars # print it
+```
+
+`r unhide()`
+
+### task 1.3: ANOVA 'by hand'
+
+Now we're going to run a one-factor ANOVA 'by hand' on the data you just simulated, and look at the correspondence to the results of the t-test. Well, we won't really do it by hand, since we're going to have R do all the calculations for us. (You might want to revisit the materials on ANOVA.)
+
+The code below will help get you started by making your simulated data into a tibble. (Be sure to look at `mood_dat` to see what's going on, and make sure you understand what the code below is doing).
+
+```{r make-tibble}
+mood_dat <- tibble(
+  Y = c(dat_new, dat_trad), # the dependent variable (DV)
+  group = factor(rep(c("new", "trad"), 
+                     c(length(dat_new), length(dat_trad)))))
+```
+
+#### task 1.3.1: create the decomposition table
+
+Use the estimation equations and decompose `Y` into: `int` (intercept), `group_eff` (main effect of group), and `err` (the residual). In other words, the resulting table `decomp_table` should include these new columns. Remember that `mutate()` is the function you use to create new columns.
+
+`r hide("Hint")`
+
+`group_by()` + `mutate()` to create the main effect; see the ANOVA materials. Also, don't forget `ungroup()`.
+
+`r unhide()`
+
+`r hide()`
+
+```{r decomp-table}
+## do stuff to create the decomposition table
+decomp_table <- mood_dat %>%
+  mutate(int = mean(Y)) %>%
+  group_by(group) %>%
+  mutate(group_eff = mean(Y) - int) %>%
+  ungroup() %>%
+  mutate(err = Y - group_eff - int)
+```
+
+`r unhide()`
+
+#### task 1.3.2 calculate sums of squares
+
+Replace the NULL values below with code so that the variables are defined with the correct values.
+
+`r hide()`
+
+```{r sum-squares}
+my_ss <- decomp_table %>%
+  summarise(ss_g = sum(group_eff^2),
+            ss_e = sum(err^2))
+
+# n_levels of the 'group' variable
+n_levels <- decomp_table %>% pull(group) %>% levels() %>% length()
+
+ss_group <- my_ss %>% pull(ss_g) # group effect Sum of Squares
+ss_err <- my_ss %>% pull(ss_e)   # error Sum of Squares
+df_group <- n_levels - 1L # degrees of freedom for group effect
+df_err <- nrow(decomp_table) - df_group - 1L # error degrees of freedom
+f_ratio <- (ss_group / df_group) / (ss_err / df_err) # ms_group / ms_err
+p_value <- pf(f_ratio, df_group, df_err, lower.tail = FALSE)
+```
+
+`r unhide()`
+
+#### task 1.3.3: check your results against ANOVA
+
+Run `ez::ezANOVA()` or `aov()` and check its results against your results.
+
+`r hide()`
+
+```{r ezanova}
+my_anova <- aov(Y ~ group, mood_dat) # something with ez::ezANOVA()
+
+summary(my_anova) # print it
+```
+
+`r unhide()`
+
+Note the correspondence with the t-test ($F$ = $t^2$, and the $p$-values are the same.)
+
+### task 1.4: Fit a linear model using `lm()`
+
+Now fit a linear model to `mood_dat` using the `lm()` function, and compare your results across the three techniques (t-test, ANOVA, and regression.) Which values match? Which don't?
+
+`r hide()`
+
+```{r lm}
+mod <- lm(Y ~ group, mood_dat) # something like lm(..., mood_dat)
+
+summary(mod) # print it
+```
+
+`r unhide()`
+
+## Task 2: Simulating data from the linear model
+
+For this task, you'll get population parameter values and the form of the linear model. Your task is to generate simulated data for a simple regression model.
+
+### task 2.1: generate data
+
+Write code to simulate 1000 Y values from a simple linear regression model with an intercept of 3 and a slope of -7.  Recall the form of the linear model:
+
+$Y_i = \beta_0 + \beta_1 X_i + e_i$
+
+$e_i \sim N(0, \sigma^2)$
+
+The residuals ($e_i$s) should have a variance of $\sigma^2 = 4$, and the predictor variable $X$ should just be randomly chosen integer values within the range 1 to 10.
+
+Here are some functions that you might need:
+- `rnorm()`
+- `sample()`
+
+You are to make a decomposition table (tibble) having the following four columns (names must *exactly* match, but you can define them in any order; hint: it is easiest to define the Y values last).
+
+- `Y`: the response values
+- `b0`: $\beta_0$, the y-intercept
+- `b1`: $\beta_1$, the slope
+- `X` : the $X_i$ values
+- `err`: the $e_i$ values
+
+`r hide()`
+
+```{r decomp-tibble}
+## TODO: define variables inside the tibble() function
+my_decomp <- tibble(b0 = 3,
+                    b1 = -7,
+                    X = sample(1:10, 1000, TRUE),
+                    err = rnorm(1000, sd = 2),
+                    Y = b0 + b1 * X + err)
+```
+
+`r unhide()`
+
+### task 2.2: analyze the data
+
+Check your work by estimating regression parameters for your simulated data. Did you recover the parameter values you put in?
+
+`r hide()`
+
+```{r run-regression}
+## TODO: fit a regression model
+my_lm <- lm(Y ~ X, my_decomp)
+
+summary(my_lm)
+```
+
+`r unhide()`
+
+## Congratulations!
+
+If you completed the assignment, you now have some idea about how to simulate data corresponding to a (1) independent-samples t-test, (2) one-factor ANOVA, and (3) a simple regression.
