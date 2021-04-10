@@ -1,6 +1,5 @@
 ---
-title: "Multiple Regression Formative Exercises"
-author: "L3 Teaching Team"
+title: "Multiple Regression"
 output: webex::webex_default
 ---
 
@@ -147,6 +146,8 @@ subscale_wide %>%
 
 Estimate the parameters for the multiple regression, with grade as the response variable and the subscale means as the predictors. This should be straightforward if your data are in the right format. Don't forget to display your results using `summary()`, and take a moment to think about what all the numbers mean.
 
+`r hide()`
+
 ```{r regression}
 dat <- subscale_wide %>%
   inner_join(grades, "id")
@@ -157,6 +158,8 @@ mod <- lm(grade ~ Ask_For_Help + Interpretation + Self_Concept +
 
 summary(mod)
 ```
+
+`r unhide()`
 
 ## Task 6: Which subscale is the 'best' predictor?
 
