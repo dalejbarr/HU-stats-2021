@@ -190,6 +190,33 @@ summary(my_lm)
 
 `r unhide()`
 
+## Task 3: Correlation and regression
+
+Here is an example Results section from a (made-up) study reporting results from a correlation analysis relating hours children spend playing videogames to aggressive incidents. 
+
+<div style="padding:1em; border: 2px solid green;">
+
+On average, children spent 4.3 hours per week (SD = 3.2) playing videogames. The average number of incidents of aggression per week was 2.7 (SD = .9). Playing videogames showed a positive, statistically significant association with aggressive incidents, $r(233) = .09, p = .047$.
+
+</div>
+
+Based on these results, what is the expected number of incidents of aggression would you predict for a child who spends 20 hours per week playing videogames? (report your answer to at least two decimal places or use code to define it more precisely)
+
+`r hide()`
+
+```{r aggression}
+b1 <- .09 * (.9 / 3.2)
+b0 <- 2.7 - b1 * 4.3
+
+n_incidents <- b0 + b1 * 20
+
+cat("b0 = ", b0, "\n")
+cat("b1 = ", b1, "\n")
+cat("n_incidents = ", n_incidents, "\n")
+```
+
+`r unhide()`
+
 ## Congratulations!
 
 If you completed the assignment, you now have some idea about how to simulate data corresponding to a (1) independent-samples t-test, (2) one-factor ANOVA, and (3) a simple regression.

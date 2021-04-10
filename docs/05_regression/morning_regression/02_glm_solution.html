@@ -223,13 +223,13 @@ my_t_equal_vars # print it</code></pre>
 ##  Two Sample t-test
 ## 
 ## data:  dat_new and dat_trad
-## t = 0.47465, df = 32, p-value = 0.6383
+## t = 2.8912, df = 32, p-value = 0.006843
 ## alternative hypothesis: true difference in means is not equal to 0
 ## 95 percent confidence interval:
-##  -3.262568  5.245011
+##   2.018759 11.645855
 ## sample estimates:
 ## mean of x mean of y 
-##  60.59203  59.60081</code></pre>
+##  62.79186  55.95955</code></pre>
 </div>
 </div>
 <div id="task-1.3-anova-by-hand" class="section level3">
@@ -294,9 +294,11 @@ Solution
 <pre class="r"><code>my_anova &lt;- aov(Y ~ group, mood_dat) # something with ez::ezANOVA()
 
 summary(my_anova) # print it</code></pre>
-<pre><code>##             Df Sum Sq Mean Sq F value Pr(&gt;F)
-## group        1    8.1    8.09   0.225  0.638
-## Residuals   32 1149.3   35.92</code></pre>
+<pre><code>##             Df Sum Sq Mean Sq F value  Pr(&gt;F)   
+## group        1  384.4   384.4   8.359 0.00684 **
+## Residuals   32 1471.7    46.0                   
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 </div>
 <p>Note the correspondence with the t-test (<span class="math inline">\(F\)</span> = <span class="math inline">\(t^2\)</span>, and the <span class="math inline">\(p\)</span>-values are the same.)</p>
 </div>
@@ -316,19 +318,19 @@ summary(mod) # print it</code></pre>
 ## lm(formula = Y ~ group, data = mood_dat)
 ## 
 ## Residuals:
-##      Min       1Q   Median       3Q      Max 
-## -13.0985  -4.1589   0.3932   3.8861  10.7598 
+##     Min      1Q  Median      3Q     Max 
+## -17.991  -3.328   1.048   4.536  11.379 
 ## 
 ## Coefficients:
 ##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)  60.5920     1.6017  37.830   &lt;2e-16 ***
-## grouptrad    -0.9912     2.0883  -0.475    0.638    
+## (Intercept)   62.792      1.812  34.645  &lt; 2e-16 ***
+## grouptrad     -6.832      2.363  -2.891  0.00684 ** 
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Residual standard error: 5.993 on 32 degrees of freedom
-## Multiple R-squared:  0.006991,   Adjusted R-squared:  -0.02404 
-## F-statistic: 0.2253 on 1 and 32 DF,  p-value: 0.6383</code></pre>
+## Residual standard error: 6.782 on 32 degrees of freedom
+## Multiple R-squared:  0.2071, Adjusted R-squared:  0.1823 
+## F-statistic: 8.359 on 1 and 32 DF,  p-value: 0.006843</code></pre>
 </div>
 </div>
 </div>
@@ -378,20 +380,44 @@ summary(my_lm)</code></pre>
 ## lm(formula = Y ~ X, data = my_decomp)
 ## 
 ## Residuals:
-##    Min     1Q Median     3Q    Max 
-## -6.183 -1.425  0.019  1.434  6.101 
+##     Min      1Q  Median      3Q     Max 
+## -6.4242 -1.2646 -0.0648  1.2716  6.5872 
 ## 
 ## Coefficients:
 ##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)   2.9160     0.1405   20.76   &lt;2e-16 ***
-## X            -6.9827     0.0226 -308.93   &lt;2e-16 ***
+## (Intercept)  3.13482    0.12601   24.88   &lt;2e-16 ***
+## X           -7.01823    0.02058 -341.04   &lt;2e-16 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Residual standard error: 2.053 on 998 degrees of freedom
-## Multiple R-squared:  0.9897, Adjusted R-squared:  0.9896 
-## F-statistic: 9.544e+04 on 1 and 998 DF,  p-value: &lt; 2.2e-16</code></pre>
+## Residual standard error: 1.859 on 998 degrees of freedom
+## Multiple R-squared:  0.9915, Adjusted R-squared:  0.9915 
+## F-statistic: 1.163e+05 on 1 and 998 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
+</div>
+</div>
+<div id="task-3-correlation-and-regression" class="section level2">
+<h2>Task 3: Correlation and regression</h2>
+<p>Here is an example Results section from a (made-up) study reporting results from a correlation analysis relating hours children spend playing videogames to aggressive incidents.</p>
+<div style="padding:1em; border: 2px solid green;">
+<p>On average, children spent 4.3 hours per week (SD = 3.2) playing videogames. The average number of incidents of aggression per week was 2.7 (SD = .9). Playing videogames showed a positive, statistically significant association with aggressive incidents, <span class="math inline">\(r(233) = .09, p = .047\)</span>.</p>
+</div>
+<p>Based on these results, what is the expected number of incidents of aggression would you predict for a child who spends 20 hours per week playing videogames? (report your answer to at least two decimal places or use code to define it more precisely)</p>
+<div class="solution">
+<button>
+Solution
+</button>
+<pre class="r"><code>b1 &lt;- .09 * (.9 / 3.2)
+b0 &lt;- 2.7 - b1 * 4.3
+
+n_incidents &lt;- b0 + b1 * 20
+
+cat(&quot;b0 = &quot;, b0, &quot;\n&quot;)</code></pre>
+<pre><code>## b0 =  2.591156</code></pre>
+<pre class="r"><code>cat(&quot;b1 = &quot;, b1, &quot;\n&quot;)</code></pre>
+<pre><code>## b1 =  0.0253125</code></pre>
+<pre class="r"><code>cat(&quot;n_incidents = &quot;, n_incidents, &quot;\n&quot;)</code></pre>
+<pre><code>## n_incidents =  3.097406</code></pre>
 </div>
 </div>
 <div id="congratulations" class="section level2">

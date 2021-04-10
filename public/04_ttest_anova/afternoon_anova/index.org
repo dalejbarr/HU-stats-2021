@@ -377,7 +377,7 @@ Your results should look like so:
 
 #+CALL: unhide() :results html value
 
-** Repeat the same analysis using regression
+** Repeat the same analysis using regression                       :noexport:
 
 Previously you learned how to run a regression model using the =lm()= function.  So you could fit a model to these data using the regression formula =Y ~ A=.
 
@@ -466,6 +466,7 @@ Next task: re-run the model comparison.
 
 #+CALL: unhide() :results html value
 
+
 * One-way ANOVA "by-hand"
 
 A great way to understand the elements of ANOVA is to do one "by hand". In the old days this would mean doing it with pencil and paper; here we're going to do it by writing code. We'll revisit the data from the [[*Worked example][one-factor example above]].  For convenience, let's repeat the data here:
@@ -550,7 +551,6 @@ Create a tibble named =dmx= (for decomposition matrix). It will eventually conta
  #+end_src
  
  #+CALL: unhide() :results html value
-
 
 
 *** Step 2: Estimate $\mu$

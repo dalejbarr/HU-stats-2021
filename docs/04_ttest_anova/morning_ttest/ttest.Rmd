@@ -127,14 +127,16 @@ guilt
 Now restructure the data into the tibble `guilt_wide` so that it looks like this:
 
 ```{r guilt-wide, echo=FALSE}
-guilt_wide <- spread(guilt, timepoint, rating)
+guilt_wide <- guilt %>%
+  pivot_wider(names_from = timepoint,
+              values_from = rating)
+
 guilt_wide
 ```
 
 `r hide()`
 
-```{r guilt-wide-sol}
-guilt_wide <- spread(guilt, timepoint, rating)
+```{r guilt-wide-sol, ref.label="guilt-wide", eval=FALSE}
 ```
 
 `r unhide()`
