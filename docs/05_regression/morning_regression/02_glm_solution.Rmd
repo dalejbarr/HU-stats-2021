@@ -84,7 +84,7 @@ decomp_table <- mood_dat %>%
 
 #### task 1.3.2 calculate sums of squares
 
-Replace the NULL values below with code so that the variables are defined with the correct values.
+Calculate sums of squares from the decomposition table.
 
 `r hide()`
 
