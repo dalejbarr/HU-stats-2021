@@ -114,6 +114,7 @@ subscale_wide <- scale_means_by_sub %>%
 
 ## calculate a correlation matrix
 subscale_wide %>%
+  inner_join(grades, "id") %>%
   select(-id) %>%
   correlate() %>%
   shave() %>%
