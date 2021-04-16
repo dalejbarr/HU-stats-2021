@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Linear Mixed-Effects Modeling</title>
+<meta name="author" content="(Statistical Models)"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="./reveal.js/dist/reveal.css"/>
+
+<link rel="stylesheet" href="./reveal.js/dist/theme/black.css" id="theme"/>
+
+<link rel="stylesheet" href="./local.css"/>
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = './reveal.js/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<meta name="description" content="Correlation and Regression">
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide" data-background="../img/titlescreen.png"><h1 class="title">Linear Mixed-Effects Modeling</h1><h2 class="author">Statistical Models</h2><h2 class="date">Psychology, University of Glasgow</h2><p class="date">Created: 2020-10-23 Fri 11:20</p>
+</section>
+
+<section>
+<section id="slide-org4a373a9">
+<h2 id="org4a373a9">Overview</h2>
+<ul>
+<li>introduction to linear mixed-effects modeling</li>
+<li>example: sleepstudy data
+<ul>
+<li>distinguish complete pooling, no pooling and partial pooling approaches</li>
+
+</ul></li>
+<li>understand the DGP behind multi-level data and estimation with <code>lme4::lmer()</code></li>
+
+</ul>
+
+</section>
+<section id="slide-org23fed95">
+<h4 id="org23fed95"></h4>
+
+<div class="figure">
+<p><img src="scooby_doo_sritchie.png" alt="scooby_doo_sritchie.png" />
+</p>
+</div>
+
+</section>
+<section id="slide-orgbb62fb8">
+<h4 id="orgbb62fb8">Multilevel data</h4>
+<ul>
+<li>All parametric models assume model residuals are IID (&ldquo;independently and identically distributed&rdquo;)</li>
+<li>Data often has &rsquo;clusters&rsquo; of correlated observations due to
+<ul>
+<li>natural clustering</li>
+<li>multistage sampling</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org15ecff0">
+<h4 id="org15ecff0">pros and cons of LMEMs</h4>
+<div class="column" style="float:left; width: 50%">
+
+<p>
+<b>Pros</b>
+</p>
+
+<ul>
+<li>powerful and expressive</li>
+<li>modeling of continuous &amp; categorical predictors</li>
+<li>unbalanced/missing data (partial pooling)</li>
+<li>multiple random factors</li>
+<li>discrete DVs and/or non-normal distributions</li>
+
+</ul>
+
+</div><div class="column" style="float:right; width: 45%">
+
+<p>
+<b>Cons</b>
+</p>
+
+<ul>
+<li>complex</li>
+<li>estimated iteratively and may not converge!</li>
+
+</ul>
+
+</div>
+
+</section>
+</section>
+<section>
+<section id="slide-orgdf09104">
+<h2 id="orgdf09104">Understanding multi-level modeling</h2>
+<p>
+Worked example: Belenky et al. (2003) <code>sleepstudy</code> data
+</p>
+
+</section>
+<section id="slide-orgf459f38">
+<h4 id="orgf459f38">Belenky et al. (2003)</h4>
+
+<div class="figure">
+<p><img src="sleepstudy_article.png" alt="sleepstudy_article.png" />
+</p>
+</div>
+
+</section>
+<section id="slide-orgef07a3a">
+<h4 id="orgef07a3a">Belenky et al. (2003)</h4>
+
+<div class="figure">
+<p><img src="belenky_summary.png" alt="belenky_summary.png" />
+</p>
+</div>
+
+</section>
+<section id="slide-org83db993">
+<h4 id="org83db993">Belenky et al. (2003)</h4>
+
+<div class="figure">
+<p><img src="sleepstudy_design.png" alt="sleepstudy_design.png" />
+</p>
+</div>
+
+<div class="smaller">
+<p>
+<b>TIB</b>: time in bed
+</p>
+
+</div>
+
+</section>
+<section id="slide-org1eefcae">
+<h4 id="org1eefcae">Psychomotor vigilance test</h4>
+
+<div class="figure">
+<p><img src="psychomotor_vigilance_test.png" alt="psychomotor_vigilance_test.png" />
+</p>
+</div>
+
+</section>
+<section id="slide-orgbeb09c1">
+<h4 id="orgbeb09c1"><code>lme4::sleepstudy</code></h4>
+<div class="column" style="float:left; width: 50%">
+
+<div class="org-src-container">
+
+<pre  class="src src-R" id="ssplot"><code trim><span style="color: #0000bb;">library</span>(<span style="color: #223fbf;">"lme4"</span>)
+
+ggplot(sleepstudy, aes(Days, Reaction)) + 
+  geom_point() +
+  geom_smooth(method = <span style="color: #223fbf;">"lm"</span>, se = <span style="color: #8f0075;">FALSE</span>) +
+  scale_x_discrete(limits = 0:9) +
+  facet_wrap(~Subject)
+</code></pre>
+</div>
+
+<ul>
+<li>but: observations within subject <b>not</b> independent</li>
+
+</ul>
+
+</div><div class="column" style="float:right; width: 50%">
+
+
+<div class="figure">
+<p><img src="ssdata.png" alt="ssdata.png" />
+</p>
+</div>
+
+</div>
+
+</section>
+<section id="slide-org05df756">
+<h4 id="org05df756">Approaches to ML data</h4>
+<ol>
+<li>complete pooling
+<ul>
+<li>ignore dependencies in the data</li>
+
+</ul></li>
+<li>no pooling
+<ul>
+<li>account for dependencies by fitting each subject independently</li>
+
+</ul></li>
+<li>partial pooling
+<ul>
+<li>account for dependencies by explicitly modeling them</li>
+<li>fit for each subject informed by the fits for other subjects</li>
+
+</ul></li>
+
+</ol>
+
+</section>
+<section id="slide-orgbff6cec">
+<h4 id="orgbff6cec">multilevel app</h4>
+<p>
+<a href="https://shiny.psy.gla.ac.uk/Dale/multilevel">shiny.psy.gla.ac.uk/Dale/multilevel</a>
+</p>
+
+</section>
+</section>
+<section>
+<section id="slide-org17235ec">
+<h2 id="org17235ec">DGP and estimation</h2>
+<div class="outline-text-2" id="text-org17235ec">
+</div>
+</section>
+<section id="slide-org70e3d75">
+<h4 id="org70e3d75">GLM for sleepstudy</h4>
+<div class="org-center">
+<p>
+<b>Level 1:</b>
+</p>
+</div>
+
+<p>
+\(Y_{ij} = \beta_0 + \beta_1 X_{ij} + e_{ij} \)
+</p>
+
+<div class="org-center">
+<p>
+<b>Level 2:</b>
+</p>
+</div>
+
+<p>
+\(\beta_0 = \gamma_{00} + S_{0i}\)
+</p>
+
+<p>
+\(\beta_1 = \gamma_{10} + S_{1i}\)
+</p>
+
+</section>
+<section id="slide-orgeaed138">
+<h4 id="orgeaed138">Variance Components</h4>
+<p>
+\( \left< S_{0i}, S_{1i} \right> \sim N(\left< 0, 0 \right>, \mathbf{\Sigma})\)
+</p>
+
+<p>
+\(\mathbf \Sigma = \left( 
+  \begin{array}{cc}
+  {\tau_{00}}^2 & \rho\tau_{00}\tau_{11} \\
+  \rho\tau_{00}\tau_{11} & {\tau_{11}}^2 \\ 
+  \end{array} \right)\)
+</p>
+
+<p>
+\(e_{ij} \sim N(0, \sigma^2)\) 
+</p>
+
+</section>
+<section id="slide-org7016d78">
+<h4 id="org7016d78">Estimating</h4>
+<div class="column" style="float:left; width: 40%">
+
+<div class="org-src-container">
+
+<pre  class="src src-R" id="ssest"><code trim><span style="color: #0000bb;">library</span>(<span style="color: #223fbf;">"lme4"</span>)
+
+mod <span style="color: #0000bb;">&lt;-</span> lmer(Reaction ~ Days + 
+              (Days | Subject), 
+            data = sleepstudy)
+summary(mod)
+</code></pre>
+</div>
+
+</div><div class="column" style="float:right; width: 60%">
+
+<pre class="example">
+
+Linear mixed model fit by REML ['lmerMod']
+Formula: Reaction ~ Days + (Days | Subject)
+   Data: sleepstudy
+
+REML criterion at convergence: 1743.6
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.9536 -0.4634  0.0231  0.4634  5.1793 
+
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr
+ Subject  (Intercept) 612.10   24.741       
+	  Days         35.07    5.922   0.07
+ Residual             654.94   25.592       
+Number of obs: 180, groups:  Subject, 18
+
+Fixed effects:
+	    Estimate Std. Error t value
+(Intercept)  251.405      6.825  36.838
+Days          10.467      1.546   6.771
+
+Correlation of Fixed Effects:
+     (Intr)
+Days -0.138
+</pre>
+
+</div>
+
+</section>
+<section id="slide-org9e9c5f4">
+<h4 id="org9e9c5f4">model syntax</h4>
+<p>
+<code>DV ~ iv1 + iv2 + (iv1 | random_factor)</code>
+</p>
+
+<div class="org-src-container">
+
+<pre  class="src src-R"><code trim>lmer(Reaction ~ Days + (1 | Subject), sleepstudy) <span style="color: #505050;"># </span><span style="color: #505050;">(1) random intercept</span>
+
+lmer(Reaction ~ Days + (1 + Days | Subject), sleepstudy) <span style="color: #505050;"># </span><span style="color: #505050;">(2) random slope model.</span>
+lmer(Reaction ~ Days + (Days | Subject), sleepstudy) <span style="color: #505050;"># </span><span style="color: #505050;">(3) identical to (2)</span>
+
+lmer(Reaction ~ Days + (1 | Subject) + (0 + Days | Subject) <span style="color: #505050;"># </span><span style="color: #505050;">(4) zero-covariances</span>
+lmer(Reaction ~ Days + (Days || Subject), sleepstudy) <span style="color: #505050;"># </span><span style="color: #505050;">(5) identical to (4)</span>
+</code></pre>
+</div>
+
+</section>
+<section id="slide-org777767f">
+<h4 id="org777767f">p-values: model comparison</h4>
+<ul>
+<li>NB: use REML=FALSE!</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre  class="src src-R"><code trim>mod1 <span style="color: #0000bb;">&lt;-</span> lmer(Reaction ~ Days + (Days | Subject), sleepstudy, REML = <span style="color: #8f0075;">FALSE</span>)
+mod2 <span style="color: #0000bb;">&lt;-</span> lmer(Reaction ~ (Days | Subject), sleepstudy, REML = <span style="color: #8f0075;">FALSE</span>)
+<span style="color: #505050;"># </span><span style="color: #505050;">or:</span>
+<span style="color: #505050;"># </span><span style="color: #505050;">mod2 &lt;- update(mod1, . ~ . -Days)</span>
+anova(mod1, mod2)
+</code></pre>
+</div>
+
+<pre class="example">
+
+Data: sleepstudy
+Models:
+mod2: Reaction ~ (Days | Subject)
+mod1: Reaction ~ Days + (Days | Subject)
+     npar    AIC    BIC  logLik deviance  Chisq Df Pr(&gt;Chisq)    
+mod2    5 1785.5 1801.4 -887.74   1775.5                         
+mod1    6 1763.9 1783.1 -875.97   1751.9 23.537  1  1.226e-06 ***
+---
+codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+</pre>
+
+</section>
+<section id="slide-orgad75a51">
+<h4 id="orgad75a51">p-values: t-as-z</h4>
+<div class="org-src-container">
+
+<pre  class="src src-R"><code trim>mod <span style="color: #0000bb;">&lt;-</span> lmer(Reaction ~ Days + (Days | Subject), sleepstudy, REML = <span style="color: #8f0075;">FALSE</span>)
+
+stderr <span style="color: #0000bb;">&lt;-</span> sqrt(diag(vcov(mod)))
+tvals <span style="color: #0000bb;">&lt;-</span> fixef(mod) / stderr
+
+2 * (1 - pnorm(abs(tvals)))
+</code></pre>
+</div>
+
+<pre class="example">
+
+ (Intercept)         Days 
+0.000000e+00 3.218759e-12
+</pre>
+</section>
+</section>
+</div>
+</div>
+<p> Created by Dale Barr </p>
+<script src="./reveal.js/dist/reveal.js"></script>
+<script src="./reveal.js/plugin/markdown/markdown.js"></script>
+<script src="./reveal.js/plugin/notes/notes.js"></script>
+
+
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+plugins: [RevealMarkdown,RevealNotes],
+width:1200, height:800, margin: 0.1, minScale:0.2, maxScale:2.5, transition:'fade',
+multiplex: {
+    secret: '', // null if client
+    id: '', // id, obtained from socket.io server
+    url: '' // Location of socket.io server
+},
+
+// Optional libraries used to extend on reveal.js
+dependencies: [
+]
+});
+</script>
+</body>
+</html>

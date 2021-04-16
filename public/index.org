@@ -27,7 +27,7 @@
 |            | 14:00-17:00 | Data visualization with ggplot2 ([[file:02_more_wrangling/afternoon_dataviz/ggplot_activity/ggplot_activity.html][activity]])                    |
 |------------+-------------+---------------------------------------------------------------|
 | Thu 08-Apr | 10:00-13:00 | Univariate distributions ([[file:03_distributions/morning_univariate/univariate_slides.pdf][slides]]) ([[file:03_distributions/morning_univariate/index.org][walkthrough]])               |
-|            | 14:00-17:00 | Bivariate distributions / ([[https://dalejbarr.github.io/HU-stats-2021/slides/02_correlation/index.html][slides]]) ([[file:03_distributions/afternoon_bivariate/correlation_walkthrough.html][walkthrough]])              |
+|            | 14:00-17:00 | Bivariate distributions / ([[file:slides/02_correlation/index.html][slides]]) ([[file:03_distributions/afternoon_bivariate/correlation_walkthrough.html][walkthrough]])              |
 |------------+-------------+---------------------------------------------------------------|
 | Fri 09-Apr | 10:00-13:00 | t-tests: NHST, power, effect size ([[file:04_ttest_anova/morning_ttest/nhst_slides.pdf][slides]]) ([[file:04_ttest_anova/morning_ttest/ttest.html][walkthrough]])      |
 |            | 14:00-17:00 | One-way Analysis of Variance (ANOVA) ([[file:04_ttest_anova/afternoon_anova/anova_main.pdf][slides]]) ([[file:04_ttest_anova/afternoon_anova/index.org][walkthrough]])   |
@@ -35,10 +35,10 @@
 | Sat 10-Apr | 10:00-13:00 | Regression ([[file:05_regression/morning_regression/regression_slides.pdf][slides]]) ([[file:05_regression/morning_regression/02_glm_solution.html][walkthrough]])                             |
 |            | 14:00-17:00 | Multiple regression ([[https://dalejbarr.github.io/HU-stats-2021/slides/03_reg/index.html][slides]]) ([[file:05_regression/afternoon_multreg/multreg_walkthru.html][walkthrough]])                    |
 |------------+-------------+---------------------------------------------------------------|
-| Sat 17-Apr | 10:00-13:00 | Interactions ([[https://dalejbarr.github.io/HU-stats-2021/slides/interactions_slides/index.html][slides]]) ([[file:06_interactions/interactions_walkthru/interactions_stub.Rmd][activity]]) ([[file:06_interactions/interactions_walkthru/interactions_solution.html][solution]])                                   |
-|            | 14:00-17:00 | Linear Mixed-Effects Models                                   |
+| Sat 17-Apr | 10:00-13:00 | Interactions ([[file:slides/interactions_slides/index.html][slides]]) ([[file:06_interactions/interactions_walkthru/interactions_stub.Rmd][activity]]) ([[file:06_interactions/interactions_walkthru/interactions_solution.html][solution]])                   |
+|            | 14:00-17:00 | Linear Mixed-Effects Models ([[file:slides/lmems_1/index.html][slides]]) ([[file:07_lmm_1/lmem1_stub.Rmd][activity]]) ([[file:07_lmm_1/lmem1_solution.html][solution]])    |
 |------------+-------------+---------------------------------------------------------------|
-| Sat 24-Apr | 10:00-13:00 | Linear Mixed-Effects Models (LMMs)                            |
+| Sat 24-Apr | 10:00-13:00 | Linear Mixed-Effects Models 2                                 |
 |            | 14:00-17:00 | LMMs with crossed random effects of subjects and stimuli      |
 |------------+-------------+---------------------------------------------------------------|
 | Sat 08-May | 10:00-13:00 | Catch-up / review / Q&A                                       |

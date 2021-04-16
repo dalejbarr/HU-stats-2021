@@ -1,0 +1,196 @@
+---
+title: "Formative Assignment 5: Simulating Linear Mixed-Effects Data"
+author: "L3 Teaching Team"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# DO NOT REMOVE THIS BLOCK NOR ALTER ANYTHING IN THIS BLOCK!
+knitr::opts_chunk$set(echo = TRUE)
+
+# these functions are here for validation
+.chk_numeric <- function(x) {if (exists(x)) {is.numeric(get(x))} else FALSE}
+.chk_tibble <- function(x) {if (exists(x)) {is.tibble(get(x))} else FALSE}
+.chk_matrix <- function(x) {if (exists(x)) {is.matrix(get(x))} else FALSE}
+.has_only_cols <- function(x, y) {
+  if (.chk_tibble(x)) {
+    setequal(names(get(x)), y)
+  } else FALSE
+}
+
+.my_seed <- 83154549L
+set.seed(.my_seed)
+.assign_id <- 
+"06_lmem1"
+
+library("tidyverse") # you're welcome
+```
+
+# Part I: Interpreting output
+
+Consider the output below from a linear mixed-effects analysis of data simulated based on the `lme4::sleepstudy` data.
+
+## GLM
+
+$$Y_{ij} = \beta_0 + \beta_1 X_{ij} + e_{ij}$$
+
+$$\beta_0 = \gamma_{00} + S_{0i}$$
+
+$$\beta_1 = \gamma_{10} + S_{1i}$$
+
+$$\left< S_{0i}, S_{1i} \right> \sim N\left(\left<0, 0\right>, \mathbf \Sigma\right)$$
+
+$$\mathbf\Sigma = \left(\begin{array}{cc}{\tau_{00}}^2 & \rho\tau_{00}\tau_{11}\\\rho\tau_{00}\tau_{11} & {\tau_{11}}^2\end{array}\right)$$
+
+$$e_{ij} \sim N(0, \sigma^2)$$
+
+
+## Output
+
+```
+Linear mixed model fit by REML ['lmerMod']
+Formula: Reaction ~ Day + (Day | Subject)
+   Data: dat
+
+REML criterion at convergence: 1822.1
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-2.33628 -0.52823 -0.05326  0.60517  2.13807 
+
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr 
+ Subject  (Intercept) 1077.2   32.82         
+          Day         1225.2   35.00    -0.06
+ Residual              718.9   26.81         
+Number of obs: 180, groups:  Subject, 18
+
+Fixed effects:
+            Estimate Std. Error t value
+(Intercept)  -32.980      8.581  -3.843
+Day            9.341      8.280   1.128
+
+Correlation of Fixed Effects:
+    (Intr)
+Day -0.088
+convergence code: 0
+Model failed to converge with max|grad| = 0.00372352 (tol = 0.002, component 1)
+
+```
+
+Answer the following questions about the output.
+
+The parameter estimate for $\tau_{00}$ equals:
+
+```{r output_01}
+t00 <- NULL
+```
+
+The parameter estimate for ${\tau_{11}}^2$ equals:
+
+```{r output_02}
+t11_sq <- NULL
+```
+
+The grand intercept $\gamma_{00}$ is:
+
+```{r output_03}
+gamma_00 <- NULL
+```
+
+The grand slope $\gamma_{11}$ is:
+
+```{r output_04}
+gamma_10 <- NULL
+```
+
+The error variance $\sigma^2$ is:
+
+```{r output_05}
+sig_sq <- NULL
+```
+
+# Part II: Data simulation
+
+In this part, we will be making our own simulated `sleepstudy` data for 18 subjects.  Your parameter values should reflect the data-generating process below (knit to HTML to better see):
+
+$$Y_{ij} = \beta_0 + \beta_1 X_{ij} + e_{ij}$$
+$$\beta_0 = 310 + S_{0i}$$
+$$\beta_1 = 4 + S_{1i}$$
+$$\left< S_{0i}, S_{1i} \right> \sim N\left(\left<0, 0\right>, \mathbf \Sigma\right)$$
+$$\mathbf\Sigma = \left(\begin{array}{cc}{30}^2
+& (0.9)(30)(33)\\
+(0.9)(30)(33) & 
+{33}^2\end{array}\right)$$
+$$e_{ij} \sim N(0, 25^2)\\$$
+<!-- assessr: datasim -->
+
+We will proceed in three steps.
+
+1. Generate random effects (intercept and slope offsets) for 18 subjects from a bivariate normal distribution using the parameter values for the variance components.
+
+2. Generate a tibble containing the fixed effects $\gamma_{00}$ and $\gamma_{10}$, and random noise according to the value of $\sigma^2$.
+
+3. Combine the random effects generated in part 1 with the fixed effects and error generated in part 2, and calculate the $Y$ values according to the DGP.
+
+## Step 1: Generate random effects
+
+You will need to generate data for the matrix `rmx`, where the first column should have the random intercepts $S_{0i}$ and the second column should have the random slopes $S_{1i}$.
+
+```{r make_vcov}
+## TODO: write code to randomly generate 18 bivariate observations
+
+## Hint: How do you randomly generate bivariate data based on a covariance matrix?
+## You've done this before, most recently on PST1.
+
+## 'rmx' should be an 18x2 matrix
+## the call to matrix() is just a placeholder
+## it shows you how the resulting matrix should be structured
+## you should be using a different function to create the matrix
+
+rmx <- matrix(rep(0, 36), nrow = 18,
+              dimnames = list(NULL, c("S_0s", "S_1s")))
+```
+
+## Step 2: Make a tibble with fixed effects and random error (noise)
+
+In the next chunk, make a table containing the values for $\gamma_{00}$, $\gamma_{10}$, and $e_{ij}$.
+
+This should be a tibble with 180 observations (18 subjects, observed over 10 days).
+
+```{r obs}
+obs <- tibble(Subject = factor(rep(seq_len(18), each = 10)),
+              Days = rep(0:9, 18),
+              gamma_00 = 0,  # replace with correct values
+              gamma_10 = 0,  # replace with correct values
+              e_ij = 0)      # replace with correct values
+```
+
+## Step 3: Combine
+
+Now find a way to combine the information in the `obs` table with the info in `rmx` so that you create a table that looks like the `sleepstudy` table. (*Hint: you know how to columns in two tables already (two-table tidyverse verb), but `rmx` is a matrix rather than a tibble. It needs to be converted to a tibble before you combine it with the other table. You can convert it using `as_tibble()`.*)
+
+The resulting `simdata` table should *only* have the columns `Reaction`, `Days`, and `Subject`. Hint: check the simulated tables of data in the [multilevel web app](http://shiny.psy.gla.ac.uk/Dale/multilevel).
+
+```{r combine}
+simdata <- NULL
+
+# print it out
+simdata
+```
+
+# Validation
+
+The rest of this file simply validates the answers you entered above, and checks that you are working with the right data.
+
+Knit your file and look at the resulting HTML. If you pass all of the checks below, you are ready to submit!
+
+- `t00` exists and is numeric: `r .chk_numeric("t00")`
+- `t11_sq` exists and is numeric: `r .chk_numeric("t11_sq")`
+- `gamma_00` exists and is numeric: `r .chk_numeric("gamma_00")`
+- `gamma_11` exists and is numeric: `r .chk_numeric("gamma_10")`
+- `sig_sq` exists and is numeric: `r .chk_numeric("sig_sq")`
+- `rmx` exists and is a numeric matrix: `r .chk_matrix("rmx")`
+- `obs` exists and is a tibble: `r .chk_tibble("obs")`
+- `simdata` exists and is a tibble: `r .chk_tibble("simdata")`
+- `simdata` has only the columns `Reaction`, `Days`, and `Subject`: `r .has_only_cols("simdata", c("Subject", "Days", "Reaction"))`
