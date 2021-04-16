@@ -33,10 +33,10 @@
 |            | 14:00-17:00 | One-way Analysis of Variance (ANOVA) ([[file:04_ttest_anova/afternoon_anova/anova_main.pdf][slides]]) ([[file:04_ttest_anova/afternoon_anova/index.org][walkthrough]])   |
 |------------+-------------+---------------------------------------------------------------|
 | Sat 10-Apr | 10:00-13:00 | Regression ([[file:05_regression/morning_regression/regression_slides.pdf][slides]]) ([[file:05_regression/morning_regression/02_glm_solution.html][walkthrough]])                             |
-|            | 14:00-17:00 | Multiple regression ([[https://dalejbarr.github.io/HU-stats-2021/slides/03_reg/index.html][slides]]) ([[file:05_regression/afternoon_multreg/multreg_walkthru.html][walkthrough]])                          |
+|            | 14:00-17:00 | Multiple regression ([[https://dalejbarr.github.io/HU-stats-2021/slides/03_reg/index.html][slides]]) ([[file:05_regression/afternoon_multreg/multreg_walkthru.html][walkthrough]])                    |
 |------------+-------------+---------------------------------------------------------------|
-| Sat 17-Apr | 10:00-13:00 | Continuous-by-categorical interactions                        |
-|            | 14:00-17:00 | Factorial ANOVA                                               |
+| Sat 17-Apr | 10:00-13:00 | Interactions ([[https://dalejbarr.github.io/HU-stats-2021/slides/interactions_slides/index.html][slides]]) ([[file:06_interactions/interactions_walkthru/interactions_stub.Rmd][activity]]) ([[file:06_interactions/interactions_walkthru/interactions_solution.html][solution]])                                   |
+|            | 14:00-17:00 | Linear Mixed-Effects Models                                   |
 |------------+-------------+---------------------------------------------------------------|
 | Sat 24-Apr | 10:00-13:00 | Linear Mixed-Effects Models (LMMs)                            |
 |            | 14:00-17:00 | LMMs with crossed random effects of subjects and stimuli      |

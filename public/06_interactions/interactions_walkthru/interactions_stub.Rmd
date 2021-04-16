@@ -1,0 +1,280 @@
+---
+title: "Activity: Interactions"
+author: "Dale Barr"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# please ignore this code chunk; do not edit
+knitr::opts_chunk$set(echo = TRUE)
+
+# some functions for validation
+chk_numeric <- function(x) {if (exists(x)) {is.numeric(get(x))} else FALSE}
+chk_logical <- function(x) {if (exists(x)) {is.logical(get(x))} else FALSE}
+chk_tibble <- function(x) {if (exists(x)) {is.tibble(get(x))} else FALSE}
+has_cols <- function(x, y) {if (chk_tibble(x)) {length(intersect(names(get(x)), y))==length(y)} else FALSE}
+
+library("tidyverse") # you're welcome
+```
+
+# Categorical-by-continuous interactions
+
+Are cat owners more frugal than dog owners? You run a study looking at the relationship between age (`AGE`) and net savings in pounds (`SAVE`) for dog versus cat owners (`HAS_DOG`: 0 = cat owner, 1 = dog owner). You run a multiple regression and get the following output (numbers are made up):
+
+```
+Call:
+lm(formula = SAVE ~ HAS_DOG * AGE, data = dat)
+
+Coefficients:
+            Estimate Std.Error t value    Pr(>|t|)
+(Intercept)   1043.3  58.28492   17.90 0.000000000
+HAS_DOG        -97.8 -48.17734    2.03 0.042356539
+AGE            165.9  53.51613    3.10 0.001935206
+HAS_DOG:AGE    -14.1 -10.07143    1.40 0.161513318
+```
+
+## Answer the following questions about this output
+
+What is the intercept of the regression line relating age to savings for cat owners (to 1 decimal place)?
+
+```{r T01}
+cat_int <- NULL
+
+print(cat_int)
+```
+
+What is the slope of the regression line relating age to savings for cat owners?
+
+```{r T02}
+cat_slp <- NULL
+
+print(cat_slp)
+```
+
+How much savings would you predict for a 46-year-old cat owner?
+
+```{r T02_cat}
+cat_sav <- NULL
+
+print(cat_sav)
+```
+
+What is the intercept of the regression line relating age to savings for dog owners?
+
+```{r T03}
+dog_int <- NULL
+
+print(dog_int)
+```
+
+What is the slope of the regression line relating age to savings for dog owners?
+
+```{r T04}
+dog_slp <- NULL
+
+print(dog_slp)
+```
+
+How much savings would you predict for a 18-year-old dog owner?
+
+```{r T04_dog}
+dog_sav <- NULL
+
+print(dog_sav)
+```
+
+
+True or false: There is a significantly different relationship ($\alpha = .05$) in the age/savings relationship for dog and cat owners. (Replace `NULL` below with the word `TRUE` or `FALSE`, without quotes or backticks.)
+
+```{r T05}
+sig_diff <- NULL
+```
+
+
+# 2x2 Factorial designs: Data simulation
+
+Create a decomposition table named `decomp` with 12 simulated observations from a 2x2 between-subjects factorial design with factors A and B, according to the following requirements:
+
+* $\mu$ = 100;
+* $A_1$ = -5;
+* $B_1$ = 10;
+* $AB_{11}$ = 2; $AB_{12}$ = -2; $AB_{21}$ = -2; $AB_{22}$ = 2;
+* $\sigma$ = 4.
+
+Your table should have actual values instead of zeroes; the zeroes are just there as placeholders to show how the final table should be structured. 
+
+* *Hint*: view the table and look at make sure you understand how the `rep()` functions work.
+* *Tip*: Define Y last.
+
+```{r T06}
+# this is your 'starter' table
+# leave columns A, B as they are.
+# you need to fill in values for: Y, mu, A_i, B_i, AB_ij, err
+decomp <- tibble(A = rep(c("A1", "A2"), c(6, 6)),
+                 B = rep(rep(c("B1", "B2"), c(3, 3)), 2),
+                 mu =    0,
+                 A_i =   0,
+                 B_j =   0,
+                 AB_ij = 0,
+                 err =   0) %>%
+  group_by(A, B) %>%
+  mutate(err = err - mean(err)) %>%
+  ungroup() %>%
+  mutate(Y = mu + A_i + B_j + AB_ij + err)
+
+
+print(decomp)
+```
+
+# Factorial plot
+
+Write tidyverse code to calculate cell means for the data in the tibble `my_data`.  The resulting table of means should be stored in `cell_means`, with the column of means named *exactly* `y_mean`.
+
+```{r T07}
+my_data <- read_csv("subj_id,A,B,Y
+                      1,A2,B1,-1.8115203909794269
+                      2,A2,B2,-1.4406205948473265
+                      3,A1,B2,-1.5208066149589117
+                      4,A2,B1,0.5621490559754134
+                      5,A1,B1,-3.289099091526972
+                      6,A1,B2,3.808829093141069
+                      7,A2,B1,-1.779770282688184
+                      8,A1,B1,-2.676949065196
+                      9,A1,B1,-4.531527397207272
+                      10,A1,B2,-1.5818842067491712
+                      11,A2,B2,0.7062981596402913
+                      12,A2,B2,1.4059036893200894")
+
+cell_means <- NULL
+
+print(cell_means)
+```
+
+Now create a factorial plot of `cell_means` using `ggplot()`.
+
+```{r T08}
+## TODO: something with ggplot()
+```
+
+
+# Interpreting interactions
+
+## Dataset 1
+
+Consider dataset 1 below, representing the population cell means from a 2x2 factorial design (i.e. these values are measured without error).  Answer the following questions about data set 1: 
+
+|   | B1| B2|
+|:--|--:|--:|
+|A1 | 83| 77| 
+|A2 | 83| 77| 
+
+Is there a main effect of A? (TRUE or FALSE)
+
+```{r T09}
+ds1_A <- NULL
+```
+
+Is there a main effect of B?
+
+```{r T10}
+ds1_B <- NULL
+```
+
+Is there an AB interaction?
+
+```{r T11}
+ds1_AB <- NULL
+```
+
+## Dataset 2
+
+Consider dataset 2 below, representing the population cell means from a 2x2 factorial design (i.e. these values are measured without error).  Answer the following questions about data set 2: 
+
+|   | B1| B2|
+|:--|--:|--:|
+|A1 | 82| 92| 
+|A2 | 92| 82| 
+
+Is there a main effect of A? (TRUE or FALSE)
+
+```{r T12}
+ds2_A <- NULL
+```
+
+Is there a main effect of B?
+
+```{r T13}
+ds2_B <- NULL
+```
+
+Is there an AB interaction?
+
+```{r T14}
+ds2_AB <- NULL
+```
+
+## Dataset 3
+
+Consider dataset 3 below, representing the population cell means from a 2x2 factorial design (i.e. these values are measured without error).  Answer the following questions about data set 3: 
+
+|   |  B1| B2|
+|:--|---:|--:|
+|A1 |  69| 85|
+|A2 | 101| 93|
+       
+Is there a main effect of A? (TRUE or FALSE)
+
+```{r T15}
+ds3_A <- NULL
+```
+
+Is there a main effect of B?
+
+```{r T16}
+ds3_B <- NULL
+```
+
+Is there an AB interaction?
+
+```{r T17}
+ds3_AB <- NULL
+```
+
+<hr>
+
+## Validating your code
+
+You don't need to do anything here, but you can knit your document and look at this section in the resulting HTML file to make sure that you have provided valid answers to each question.  If so, each of the following tests should return `TRUE`. If a test returns `FALSE`, go back and check the corresponding code chunk to make sure you have defined variables properly. When all result as `TRUE`, you are ready to submit.
+
+### Categorical-by-continuous interactions
+
+- variable `cat_int` exists and is numeric: `r chk_numeric("cat_int")`
+- variable `cat_slp` exists and is numeric: `r chk_numeric("cat_slp")`
+- variable `cat_sav` exists and is numeric: `r chk_numeric("cat_sav")`
+- variable `dog_int` exists and is numeric: `r chk_numeric("dog_int")`
+- variable `dog_slp` exists and is numeric: `r chk_numeric("dog_slp")`
+- variable `dog_sav` exists and is numeric: `r chk_numeric("dog_sav")`
+- variable `sig_diff` exists and is logical: `r chk_logical("sig_diff")`
+
+### Decomposition
+
+- variable `decomp` is a tibble: `r chk_tibble("decomp")`
+- `decomp` has the correct column names: `r has_cols("decomp", c("Y", "A", "B", "A_i", "B_j", "AB_ij", "err"))`
+- columns of `decomp` have correct data types: `r if (chk_tibble("decomp")) all(sapply(decomp[-(1:2)], is.numeric)) else FALSE`
+
+### Factorial plot
+
+- tibble `cell_means` is a tibble: `r chk_tibble("cell_means")`
+- tibble `cell_means` has column `y_mean`: `r has_cols("cell_means", "y_mean")`
+
+### Interpreting interactions
+
+- variable `ds1_A` exists and is logical: `r chk_logical("ds1_A")`
+- variable `ds1_B` exists and is logical: `r chk_logical("ds1_B")`
+- variable `ds1_AB` exists and is logical: `r chk_logical("ds1_AB")`
+- variable `ds2_A` exists and is logical: `r chk_logical("ds2_A")`
+- variable `ds2_B` exists and is logical: `r chk_logical("ds2_B")`
+- variable `ds2_AB` exists and is logical: `r chk_logical("ds2_AB")`
+- variable `ds3_A` exists and is logical: `r chk_logical("ds3_A")`
+- variable `ds3_B` exists and is logical: `r chk_logical("ds3_B")`
+- variable `ds3_AB` exists and is logical: `r chk_logical("ds3_AB")`

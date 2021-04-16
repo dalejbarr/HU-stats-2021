@@ -1,0 +1,283 @@
+#+AUTHOR: Statistical Models
+#+DATE: Psychology, University of Glasgow
+
+#+REVEAL_INIT_OPTIONS: width:1200, height:800, margin: 0.1, minScale:0.2, maxScale:2.5, transition:'fade'
+#+OPTIONS: toc:nil num:nil ^:nil
+#+REVEAL_THEME: black
+#+REVEAL_HLEVEL: 2
+#+REVEAL_HEAD_PREAMBLE: <meta name="description" content="Correlation and Regression">
+#+REVEAL_POSTAMBLE: <p> Created by Dale Barr </p>
+#+REVEAL_PLUGINS: (markdown notes)
+#+REVEAL_EXTRA_CSS: ./local.css
+
+#+REVEAL_ROOT: ./reveal.js
+#+REVEAL_HLEVEL: 2
+
+#+REVEAL_TITLE_SLIDE_BACKGROUND: ../img/titlescreen.png
+#+REVEAL_HIGHLIGHT_CSS: %r/lib/css/zenburn.css
+
+#+TITLE: Interactions
+#+PROPERTY: header-args:R :session *R* :exports both :results output
+
+* Setup                                                            :noexport:
+
+#+begin_src R :exports none :results silent
+  options(crayon.enabled = FALSE)
+  library("tidyverse")
+  source("../theme_jetblack.R")
+  theme_set(theme_jetblack(14L))
+
+  hgs <- readxl::read_excel("data/Han_et_al.xlsx") %>%
+    mutate(ID = as.integer(ID)) %>%
+    select(ID, sex, HGS, F0)
+#+end_src
+
+* TODO Tweaks                                                      :noexport:
+** R model syntax
+   =Y ~ A * B * C=, what it expands out to
+
+* Interactions
+
+"It depends."
+
+*The effect of a predictor variable on the response variable may depend upon
+the value(s) of one or more other predictor variables.*
+
+** Do stronger people have lower voices?
+
+- HGS: Hand grip strength
+- F0: voice fundamental frequency
+
+#+begin_src R :exports results
+hgs
+#+end_src
+
+#+RESULTS:
+#+begin_example
+# A tibble: 221 x 4
+      ID sex     HGS    F0
+   <int> <chr> <dbl> <dbl>
+ 1     4 male   45.5 115. 
+ 2     7 male   31   147. 
+ 3     8 male   40   123. 
+ 4    19 male   37   120. 
+ 5    21 male   45    94.7
+ 6    22 male   50    98.8
+ 7    30 male   31    94.7
+ 8    31 male   47.5 124. 
+ 9    35 male   34    92.6
+10    36 male   30   111. 
+# … with 211 more rows
+#+end_example
+
+#+begin_citation
+Han, C., Wang, H., Fasolt, V., Hahn, A., Holzleitner, I. J., Lao, J., DeBruine, L., Feinberg, D., Jones, B. C. Open Science Framework, retrieved from https://osf.io/na6be/.
+#+end_citation
+
+*** 
+
+#+HEADER: :file img/scatterplot1.png
+#+begin_src R :exports results :results output graphics file :width 800 :height 600
+ggplot(hgs, aes(F0, HGS)) + 
+  geom_point(colour = "white", alpha = .2) +
+  geom_smooth(method = "lm", se = FALSE)
+#+end_src
+
+#+RESULTS:
+[[file:img/scatterplot1.png]]
+
+N = src_R[:exports results :results value]{nrow(hgs)}
+
+*** GLM
+
+\(HGS_i = \beta_0 + \beta_1 F0_i + e_i\)
+
+#+REVEAL_HTML: <div class="column" style="float:left; width: 30%">
+[[file:img/scatterplot1.png]]
+#+REVEAL_HTML: </div>
+
+#+REVEAL_HTML: <div class="column" style="float:right; width: 70%">
+#+begin_src R :exports results :results output
+  summary(lm(HGS ~ F0, hgs))
+#+end_src
+
+#+REVEAL_HTML: </div>
+
+*** 
+
+#+HEADER: :file img/scatterplot2.png
+#+begin_src R :exports both :results output graphics file :width 800 :height 600
+ggplot(hgs, aes(F0, HGS, color = sex)) + 
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE)
+#+end_src
+
+#+RESULTS:
+[[file:img/scatterplot2.png]]
+
+*** GLM
+
+\(HGS_i = \beta_0 + \beta_1 F0_i + \beta_2 SEX_i + \beta_3 F0_i SEX_i + e_i\)
+
+\(= \beta_0 + \beta_2 SEX_i + (\beta_1 + \beta_3 SEX_i) F0_i + e_i \)
+
+=HGS ~ F0 + sex + F0:sex=
+
+=HGS ~ F0 * sex=
+
+#+HTML: <hr>
+
+#+REVEAL_HTML: <div class="column" style="float:left; width: 30%">
+[[file:img/scatterplot2.png]]
+#+REVEAL_HTML: </div>
+
+#+REVEAL_HTML: <div class="column" style="float:left; width: 70%">
+- SEX: 0 = female, 1 = male
+
+- female: \(\beta_0 + \beta_1 F0_i\)
+- male: \(\beta_0 + \beta_2 + (\beta_1 + \beta_3) F0_i\)
+#+REVEAL_HTML: </div>
+
+*** Analysis
+
+#+REVEAL_HTML: <div class="column" style="float:left; width: 30%">
+[[file:img/scatterplot2.png]]
+#+REVEAL_HTML: </div>
+
+#+REVEAL_HTML: <div class="column" style="float:left; width: 70%">
+#+begin_src R :exports both :results output
+  hgs2 <- hgs %>%
+    mutate(sex_male = if_else(sex == "male", 1, 0))
+
+  lm(HGS ~ sex_male * F0, hgs2) %>% summary()
+#+end_src
+
+#+RESULTS:
+#+begin_example
+
+Call:
+lm(formula = HGS ~ sex_male * F0, data = hgs2)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-21.859  -3.540  -0.421   3.361  33.163 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept) 29.75789    6.50985   4.571 8.14e-06 ***
+sex_male    15.91254    7.87733   2.020   0.0446 *  
+F0          -0.02508    0.02965  -0.846   0.3985    
+sex_male:F0 -0.01642    0.04847  -0.339   0.7351    
+---
+codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 6.643 on 217 degrees of freedom
+Multiple R-squared:  0.6163,	Adjusted R-squared:  0.611 
+F-statistic: 116.2 on 3 and 217 DF,  p-value: < 2.2e-16
+#+end_example
+
+#+REVEAL_HTML: </div>
+
+* Two-Factor ANOVA
+  
+*** Rationale for Factorial ANOVA
+
+- Used to address question involving more than one factor that can
+  influence a DV, with each factor acting alone /or in combination
+  with other factors/
+
+  - What are the effects of cognitive therapy and drug therapy on mood
+    in depressed individuals?
+  - Do male and female students learn better with male or female
+    teachers?
+
+*** Full Factorial Designs
+
+- A study has a full factorial design if it has more than one IV and
+  the levels of the IVs are "fully crossed"
+- designs are designated using RxC (row-by-column) format
+- *cell:* unique combination of the levels of the factors
+
+[[file:img/factorial.png]]
+
+*** Factorial Plots and Interpretation
+
+[[file:img/scenarios.png]]
+
+*** Effects in Factorial Designs
+
+- Main Effects: tests of /marginal means/
+    - \(H_0: \mu_{A_1} = \mu_{A_2}\)
+    - \(H_0: \mu_{B_1} = \mu_{B_2}\)
+
+- Simple Effects: effect of factor at level of other
+    - eff of \(B\) at \(A_1\), \(H_0: \mu_{A_1B_1} = \mu_{A_1B_2} \)
+    - eff of \(B\) at \(A_2\), \(H_0: \mu_{A_2B_1} = \mu_{A_2B_2} \)
+
+- Interaction: equivalence of simple effects
+    - \(H_0: \mu_{A_1B_2}-\mu_{A_1B_1} = \mu_{A_2B_2}-\mu_{A_2B_1}\)
+
+*** A Common Fallacy
+
+#+REVEAL_HTML: <div style="border: 2px solid white;">
+
+"The percentage of neurons showing cue-related activity increased with training in the mutant mice ($p < 0.05$), but not in the control mice ($p > 0.05$)."
+
+#+REVEAL_HTML: </div>
+
+- saying the simple effect is significant in one case but not in another does not imply that the simple effects are statistically different
+
+#+begin_citation
+Gelman, A., & Stern, H. (2012). [[https://amstat.tandfonline.com/doi/abs/10.1198/000313006X152649#.XbAog_fTXeQ][The difference between "significant" and "not significant" is not itself statistically significant.]] /The American Statistician/, /60/, 328--331.
+
+Nieuwenhuis, S., Forstmann, B. U., & Wagenmakers, E. J. (2011). [[https://www.nature.com/articles/nn.2886?draft=collection][Erroneous analyses of interactions in neuroscience: a problem of significance.]] /Nature Neuroscience/, /14/, 1105-1107.
+#+end_citation
+
+
+* GLM for 2-factor ANOVA
+
+\(Y_{ijk} = \mu + A_i + B_j + AB_{ij} + S(AB)_{ijk}\)
+
+#+REVEAL_HTML: <div class="column" style="float:left; width: 20%">
+[[file:img/2x2.png]]
+#+REVEAL_HTML: </div>
+
+#+REVEAL_HTML: <div class="column" style="float:right; width: 75%">
+| \(Y_{ijk}\)     | DV, sub \(k\) in row \(i\) col \(j\) |
+| \(\mu\)         | grand mean                           |
+| \(A_i\)         | effect of \(A\) (level \(i\))        |
+| \(B_j\)         | effect of \(B\) (level \(j\))        |
+| \(AB_{ij}\)     | interaction (cell \(ij\))            |
+| \(S(AB)_{ijk}\) | error, sub \(k\) in cell \(ij\)      |
+#+REVEAL_HTML: </div>
+
+*** Estimation Equations
+
+\(Y_{ijk} = \mu + A_i + B_j + AB_{ij} + S(AB)_{ijk}\)
+
+#+REVEAL_HTML: <div class="column" style="float:left; width: 20%">
+[[file:img/cell_means.png]]
+#+REVEAL_HTML: </div>
+
+#+REVEAL_HTML: <div class="column" style="float:right; width: 80%">
+| \(\hat{\mu}\)             | \(Y_{...}\)                                                 |
+| \(\hat{A}_i\)             | \(Y_{i..}-\hat{\mu}\)                                       |
+| \(\hat{B}_j\)             | \(Y_{.j.}-\hat{\mu}\)                                       |
+| \(\widehat{AB}_{ij}\)     | \(Y_{ij.}-\hat{\mu}-\hat{A}_i-\hat{B}_j\)                   |
+| \(S(\widehat{AB})_{ijk}\) | \(Y_{ijk}-\hat{\mu}-\hat{A}_i-\hat{B}_j-\widehat{AB}_{ij}\) |
+#+REVEAL_HTML: </div>
+
+*** Decomposition
+
+#+REVEAL_HTML: <div class="column" style="float:left; width: 15%">
+[[file:img/2x2.png]]
+#+REVEAL_HTML: </div>
+
+#+REVEAL_HTML: <div class="column" style="float:right; width: 80%">
+[[file:img/decomp.png]]
+#+REVEAL_HTML: </div>
+
+
+*** web app
+
+[[http://shiny.psy.gla.ac.uk/Dale/factorial2]]
