@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Interactions</title>
+<meta name="author" content="(Statistical Models)"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="./reveal.js/dist/reveal.css"/>
+
+<link rel="stylesheet" href="./reveal.js/dist/theme/black.css" id="theme"/>
+
+<link rel="stylesheet" href="./local.css"/>
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = './reveal.js/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<meta name="description" content="Correlation and Regression">
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide" data-background="../img/titlescreen.png"><h1 class="title">Interactions</h1><h2 class="author">Statistical Models</h2><h2 class="date">Psychology, University of Glasgow</h2><p class="date">Created: 2020-10-15 Thu 16:25</p>
+</section>
+
+<section>
+<section id="slide-org4d20dea">
+<h2 id="org4d20dea">Interactions</h2>
+<p>
+&ldquo;It depends.&rdquo;
+</p>
+
+<p>
+<b>The effect of a predictor variable on the response variable may depend upon
+the value(s) of one or more other predictor variables.</b>
+</p>
+
+</section>
+</section>
+<section>
+<section id="slide-org1635358">
+<h3 id="org1635358">Do stronger people have lower voices?</h3>
+<ul>
+<li>HGS: Hand grip strength</li>
+<li>F0: voice fundamental frequency</li>
+
+</ul>
+
+<pre class="example">
+# A tibble: 221 x 4
+      ID sex     HGS    F0
+   &lt;int&gt; &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt;
+ 1     4 male   45.5 115. 
+ 2     7 male   31   147. 
+ 3     8 male   40   123. 
+ 4    19 male   37   120. 
+ 5    21 male   45    94.7
+ 6    22 male   50    98.8
+ 7    30 male   31    94.7
+ 8    31 male   47.5 124. 
+ 9    35 male   34    92.6
+10    36 male   30   111. 
+# … with 211 more rows
+</pre>
+
+<div class="citation">
+<p>
+Han, C., Wang, H., Fasolt, V., Hahn, A., Holzleitner, I. J., Lao, J., DeBruine, L., Feinberg, D., Jones, B. C. Open Science Framework, retrieved from <a href="https://osf.io/na6be/">https://osf.io/na6be/</a>.
+</p>
+
+</div>
+
+</section>
+<section id="slide-org83e77d0">
+<h4 id="org83e77d0"></h4>
+
+<div class="figure">
+<p><img src="img/scatterplot1.png" alt="scatterplot1.png" />
+</p>
+</div>
+
+<p>
+N = <code>221</code>
+</p>
+
+</section>
+<section id="slide-org592d4c8">
+<h4 id="org592d4c8">GLM</h4>
+<p>
+\(HGS_i = \beta_0 + \beta_1 F0_i + e_i\)
+</p>
+
+<div class="column" style="float:left; width: 30%">
+
+<div class="figure">
+<p><img src="img/scatterplot1.png" alt="scatterplot1.png" />
+</p>
+</div>
+</div>
+
+<div class="column" style="float:right; width: 70%">
+<pre class="example">
+
+Call:
+lm(formula = HGS ~ F0, data = hgs)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-23.408  -4.115  -0.161   4.252  34.157 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 56.699687   1.491239   38.02   &lt;2e-16 ***
+F0          -0.144729   0.008509  -17.01   &lt;2e-16 ***
+---
+codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 7.008 on 219 degrees of freedom
+Multiple R-squared:  0.5692,	Adjusted R-squared:  0.5672 
+F-statistic: 289.3 on 1 and 219 DF,  p-value: &lt; 2.2e-16
+</pre>
+
+</div>
+
+</section>
+<section id="slide-orgff04ac9">
+<h4 id="orgff04ac9"></h4>
+<div class="org-src-container">
+
+<pre  class="src src-R"><code trim>ggplot(hgs, aes(F0, HGS, color = sex)) + 
+  geom_point() + 
+  geom_smooth(method = <span style="color: #223fbf;">"lm"</span>, se = <span style="color: #8f0075;">FALSE</span>)
+</code></pre>
+</div>
+
+
+<div class="figure">
+<p><img src="img/scatterplot2.png" alt="scatterplot2.png" />
+</p>
+</div>
+
+</section>
+<section id="slide-orgb6a6e6c">
+<h4 id="orgb6a6e6c">GLM</h4>
+<p>
+\(HGS_i = \beta_0 + \beta_1 F0_i + \beta_2 SEX_i + \beta_3 F0_i SEX_i + e_i\)
+</p>
+
+<p>
+\(= \beta_0 + \beta_2 SEX_i + (\beta_1 + \beta_3 SEX_i) F0_i + e_i \)
+</p>
+
+<p>
+<code>HGS ~ F0 + sex + F0:sex</code>
+</p>
+
+<p>
+<code>HGS ~ F0 * sex</code>
+</p>
+
+<hr>
+
+<div class="column" style="float:left; width: 30%">
+
+<div class="figure">
+<p><img src="img/scatterplot2.png" alt="scatterplot2.png" />
+</p>
+</div>
+</div>
+
+<div class="column" style="float:left; width: 70%">
+<ul>
+<li>SEX: 0 = female, 1 = male</li>
+
+<li>female: \(\beta_0 + \beta_1 F0_i\)</li>
+<li>male: \(\beta_0 + \beta_2 + (\beta_1 + \beta_3) F0_i\)</li>
+
+</ul>
+</div>
+
+</section>
+<section id="slide-orgc58942e">
+<h4 id="orgc58942e">Analysis</h4>
+<div class="column" style="float:left; width: 30%">
+
+<div class="figure">
+<p><img src="img/scatterplot2.png" alt="scatterplot2.png" />
+</p>
+</div>
+</div>
+
+<div class="column" style="float:left; width: 70%">
+<div class="org-src-container">
+
+<pre  class="src src-R"><code trim>hgs2 <span style="color: #0000bb;">&lt;-</span> hgs <span style="color: #0000bb;">%&gt;%</span>
+  mutate(sex_male = if_else(sex == <span style="color: #223fbf;">"male"</span>, 1, 0))
+
+lm(HGS ~ sex_male * F0, hgs2) <span style="color: #0000bb;">%&gt;%</span> summary()
+</code></pre>
+</div>
+
+<pre class="example">
+
+Call:
+lm(formula = HGS ~ sex_male * F0, data = hgs2)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-21.859  -3.540  -0.421   3.361  33.163 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 29.75789    6.50985   4.571 8.14e-06 ***
+sex_male    15.91254    7.87733   2.020   0.0446 *  
+F0          -0.02508    0.02965  -0.846   0.3985    
+sex_male:F0 -0.01642    0.04847  -0.339   0.7351    
+---
+codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 6.643 on 217 degrees of freedom
+Multiple R-squared:  0.6163,	Adjusted R-squared:  0.611 
+F-statistic: 116.2 on 3 and 217 DF,  p-value: &lt; 2.2e-16
+</pre>
+
+</div>
+
+</section>
+</section>
+<section>
+<section id="slide-org49ab45f">
+<h2 id="org49ab45f">Two-Factor ANOVA</h2>
+<div class="outline-text-2" id="text-org49ab45f">
+</div>
+</section>
+<section id="slide-org3f4382e">
+<h4 id="org3f4382e">Rationale for Factorial ANOVA</h4>
+<ul>
+<li>Used to address question involving more than one factor that can
+influence a DV, with each factor acting alone <i>or in combination
+with other factors</i>
+
+<ul>
+<li>What are the effects of cognitive therapy and drug therapy on mood
+in depressed individuals?</li>
+<li>Do male and female students learn better with male or female
+teachers?</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org25e134c">
+<h4 id="org25e134c">Full Factorial Designs</h4>
+<ul>
+<li>A study has a full factorial design if it has more than one IV and
+the levels of the IVs are &ldquo;fully crossed&rdquo;</li>
+<li>designs are designated using RxC (row-by-column) format</li>
+<li><b>cell:</b> unique combination of the levels of the factors</li>
+
+</ul>
+
+
+<div class="figure">
+<p><img src="img/factorial.png" alt="factorial.png" />
+</p>
+</div>
+
+</section>
+<section id="slide-org7d218fe">
+<h4 id="org7d218fe">Factorial Plots and Interpretation</h4>
+
+<div class="figure">
+<p><img src="img/scenarios.png" alt="scenarios.png" />
+</p>
+</div>
+
+</section>
+<section id="slide-orga72c92f">
+<h4 id="orga72c92f">Effects in Factorial Designs</h4>
+<ul>
+<li>Main Effects: tests of <i>marginal means</i>
+<ul>
+<li>\(H_0: \mu_{A_1} = \mu_{A_2}\)</li>
+<li>\(H_0: \mu_{B_1} = \mu_{B_2}\)</li>
+
+</ul></li>
+
+<li>Simple Effects: effect of factor at level of other
+<ul>
+<li>eff of \(B\) at \(A_1\), \(H_0: \mu_{A_1B_1} = \mu_{A_1B_2} \)</li>
+<li>eff of \(B\) at \(A_2\), \(H_0: \mu_{A_2B_1} = \mu_{A_2B_2} \)</li>
+
+</ul></li>
+
+<li>Interaction: equivalence of simple effects
+<ul>
+<li>\(H_0: \mu_{A_1B_2}-\mu_{A_1B_1} = \mu_{A_2B_2}-\mu_{A_2B_1}\)</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org03eff7a">
+<h4 id="org03eff7a">A Common Fallacy</h4>
+<div style="border: 2px solid white;">
+
+<p>
+&ldquo;The percentage of neurons showing cue-related activity increased with training in the mutant mice (\(p < 0.05\)), but not in the control mice (\(p > 0.05\)).&rdquo;
+</p>
+
+</div>
+
+<ul>
+<li>saying the simple effect is significant in one case but not in another does not imply that the simple effects are statistically different</li>
+
+</ul>
+
+<div class="citation">
+<p>
+Gelman, A., &amp; Stern, H. (2012). <a href="https://amstat.tandfonline.com/doi/abs/10.1198/000313006X152649#.XbAog_fTXeQ">The difference between &ldquo;significant&rdquo; and &ldquo;not significant&rdquo; is not itself statistically significant.</a> <i>The American Statistician</i>, <i>60</i>, 328&#x2013;331.
+</p>
+
+<p>
+Nieuwenhuis, S., Forstmann, B. U., &amp; Wagenmakers, E. J. (2011). <a href="https://www.nature.com/articles/nn.2886?draft=collection">Erroneous analyses of interactions in neuroscience: a problem of significance.</a> <i>Nature Neuroscience</i>, <i>14</i>, 1105-1107.
+</p>
+
+</div>
+
+
+</section>
+</section>
+<section>
+<section id="slide-org2929e1e">
+<h2 id="org2929e1e">GLM for 2-factor ANOVA</h2>
+<p>
+\(Y_{ijk} = \mu + A_i + B_j + AB_{ij} + S(AB)_{ijk}\)
+</p>
+
+<div class="column" style="float:left; width: 20%">
+
+<div class="figure">
+<p><img src="img/2x2.png" alt="2x2.png" />
+</p>
+</div>
+</div>
+
+<div class="column" style="float:right; width: 75%">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">\(Y_{ijk}\)</td>
+<td class="org-left">DV, sub \(k\) in row \(i\) col \(j\)</td>
+</tr>
+
+<tr>
+<td class="org-left">\(\mu\)</td>
+<td class="org-left">grand mean</td>
+</tr>
+
+<tr>
+<td class="org-left">\(A_i\)</td>
+<td class="org-left">effect of \(A\) (level \(i\))</td>
+</tr>
+
+<tr>
+<td class="org-left">\(B_j\)</td>
+<td class="org-left">effect of \(B\) (level \(j\))</td>
+</tr>
+
+<tr>
+<td class="org-left">\(AB_{ij}\)</td>
+<td class="org-left">interaction (cell \(ij\))</td>
+</tr>
+
+<tr>
+<td class="org-left">\(S(AB)_{ijk}\)</td>
+<td class="org-left">error, sub \(k\) in cell \(ij\)</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+</section>
+<section id="slide-org0a0e70b">
+<h4 id="org0a0e70b">Estimation Equations</h4>
+<p>
+\(Y_{ijk} = \mu + A_i + B_j + AB_{ij} + S(AB)_{ijk}\)
+</p>
+
+<div class="column" style="float:left; width: 20%">
+
+<div class="figure">
+<p><img src="img/cell_means.png" alt="cell_means.png" />
+</p>
+</div>
+</div>
+
+<div class="column" style="float:right; width: 80%">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">\(\hat{\mu}\)</td>
+<td class="org-left">\(Y_{...}\)</td>
+</tr>
+
+<tr>
+<td class="org-left">\(\hat{A}_i\)</td>
+<td class="org-left">\(Y_{i..}-\hat{\mu}\)</td>
+</tr>
+
+<tr>
+<td class="org-left">\(\hat{B}_j\)</td>
+<td class="org-left">\(Y_{.j.}-\hat{\mu}\)</td>
+</tr>
+
+<tr>
+<td class="org-left">\(\widehat{AB}_{ij}\)</td>
+<td class="org-left">\(Y_{ij.}-\hat{\mu}-\hat{A}_i-\hat{B}_j\)</td>
+</tr>
+
+<tr>
+<td class="org-left">\(S(\widehat{AB})_{ijk}\)</td>
+<td class="org-left">\(Y_{ijk}-\hat{\mu}-\hat{A}_i-\hat{B}_j-\widehat{AB}_{ij}\)</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+</section>
+<section id="slide-org589867f">
+<h4 id="org589867f">Decomposition</h4>
+<div class="column" style="float:left; width: 15%">
+
+<div class="figure">
+<p><img src="img/2x2.png" alt="2x2.png" />
+</p>
+</div>
+</div>
+
+<div class="column" style="float:right; width: 80%">
+
+<div class="figure">
+<p><img src="img/decomp.png" alt="decomp.png" />
+</p>
+</div>
+</div>
+
+
+</section>
+<section id="slide-orgbe63550">
+<h4 id="orgbe63550">web app</h4>
+<p>
+<a href="http://shiny.psy.gla.ac.uk/Dale/factorial2">http://shiny.psy.gla.ac.uk/Dale/factorial2</a>
+</p>
+</section>
+</section>
+</div>
+</div>
+<p> Created by Dale Barr </p>
+<script src="./reveal.js/dist/reveal.js"></script>
+<script src="./reveal.js/plugin/markdown/markdown.js"></script>
+<script src="./reveal.js/plugin/notes/notes.js"></script>
+
+
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+plugins: [RevealMarkdown,RevealNotes],
+width:1200, height:800, margin: 0.1, minScale:0.2, maxScale:2.5, transition:'fade',
+multiplex: {
+    secret: '', // null if client
+    id: '', // id, obtained from socket.io server
+    url: '' // Location of socket.io server
+},
+
+// Optional libraries used to extend on reveal.js
+dependencies: [
+]
+});
+</script>
+</body>
+</html>
