@@ -1,0 +1,1472 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2021-04-17 Sat 07:55 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Linear mixed-effects models with crossed random factors of subjects and stimuli</title>
+<meta name="generator" content="Org mode" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<link rel="stylesheet" type="text/css" href="../../css/my_css.css" />
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2020 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="org-div-home-and-up">
+ <a accesskey="h" href="../../index.html"> UP </a>
+ |
+ <a accesskey="H" href="../../index.html"> HOME </a>
+</div><div id="content">
+<h1 class="title">Linear mixed-effects models with crossed random factors of subjects and stimuli</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org75ff43a">Script</a></li>
+<li><a href="#org4659d65">Generating multilevel data</a>
+<ul>
+<li><a href="#org9209854">Set up the environment and define the parameters for the DGP</a></li>
+<li><a href="#orged67f58">Generate a sample of stimuli</a></li>
+<li><a href="#org482d39d">Generate a sample of subjects</a></li>
+<li><a href="#org516fa04">Generate a sample of encounters (trials)</a></li>
+<li><a href="#orgb3071f0">Join <code>subjects</code>, <code>items</code>, and <code>trials</code></a></li>
+<li><a href="#orga8a0cca">Create the response variable</a></li>
+<li><a href="#org931a244">Fitting the model</a></li>
+</ul>
+</li>
+<li><a href="#org0704a73">Estimating LMEMs: Keysar et al. (2000)</a>
+<ul>
+<li><a href="#org3b911fe">Wrangle the data</a></li>
+<li><a href="#orga8f90bf">Linear mixed-effects model analysis</a></li>
+</ul>
+</li>
+<li><a href="#orge0c98ed"></a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org75ff43a" class="outline-2">
+<h2 id="org75ff43a">Script</h2>
+<div class="outline-text-2" id="text-org75ff43a">
+<p>
+The scripts below contain the full solutions to the problems below. Please attempt the problems before consulting them.
+</p>
+
+<ul class="org-ul">
+<li>(optional) download <a href="script_sim.R">the full script for the data simulation section</a></li>
+<li>(optional) download <a href="script_kbbb_2000.R">the full script for the KBBB (2000) re-analysis</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org4659d65" class="outline-2">
+<h2 id="org4659d65">Generating multilevel data</h2>
+<div class="outline-text-2" id="text-org4659d65">
+<p>
+For this first set of exercises, we will generate simulated data corresponding to an experiment with a single, two-level factor (independent variable) that is within-subjects and between-items.  Let&rsquo;s imagine that the experiment involves lexical decisions to a set of words (e.g., is &ldquo;PINT&rdquo; a word or nonword?), and the dependent variable is response time (in milliseconds), and the independent variable is word type (noun vs verb).  We want to treat both subjects and words as random factors (so that we can generalize to the population of events where subjects encounter words).
+</p>
+
+<p>
+The general linear model for our study is:
+</p>
+
+<div class="org-center">
+<p>
+\(Y_{si} = \beta_0 + S_{0s} + I_{0i} + (\beta_1 + S_{1s})X_{i} + e_{si}\)
+</p>
+</div>
+
+<p>
+where:
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">\(Y_{si}\)</td>
+<td class="org-left"><code>Y</code></td>
+<td class="org-left">RT for subject \(s\) responding to item \(i\);</td>
+</tr>
+
+<tr>
+<td class="org-left">\(\beta_0\)</td>
+<td class="org-left"><code>mu</code></td>
+<td class="org-left">grand mean;</td>
+</tr>
+
+<tr>
+<td class="org-left">\(S_{0s}\)</td>
+<td class="org-left"><code>sri</code></td>
+<td class="org-left">random intercept for subject \(s\);</td>
+</tr>
+
+<tr>
+<td class="org-left">\(I_{0i}\)</td>
+<td class="org-left"><code>iri</code></td>
+<td class="org-left">random intercept for item \(i\);</td>
+</tr>
+
+<tr>
+<td class="org-left">\(\beta_1\)</td>
+<td class="org-left"><code>eff</code></td>
+<td class="org-left">fixed effect of word type (slope);</td>
+</tr>
+
+<tr>
+<td class="org-left">\(S_{1s}\)</td>
+<td class="org-left"><code>srs</code></td>
+<td class="org-left">by-subject random slope;</td>
+</tr>
+
+<tr>
+<td class="org-left">\(X_{i}\)</td>
+<td class="org-left"><code>x</code></td>
+<td class="org-left">deviation-coded predictor variable for word type;</td>
+</tr>
+
+<tr>
+<td class="org-left">\(e_{si}\)</td>
+<td class="org-left"><code>err</code></td>
+<td class="org-left">residual error.</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<ul class="org-ul">
+<li><a id="org42224b0"></a>Subjects<br />
+<div class="outline-text-4" id="text-org42224b0">
+<p>
+\(&lt;S_{0i},S_{1i}&gt; \sim N(&lt;0,0&gt;, \Sigma)\), where
+</p>
+
+<p>
+\(\Sigma = \left(\begin{array}{cc}{\tau_{00}}^2 & \rho\tau_{00}\tau_{11} \\
+         \rho\tau_{00}\tau_{11} & {\tau_{11}}^2 \\
+         \end{array}\right) \)
+</p>
+
+
+<div class="figure">
+<p><img src="img/bivariatedist.jpg" alt="bivariatedist.jpg" />
+</p>
+</div>
+</div>
+</li>
+
+<li><a id="orgbd22c7a"></a>Items<br />
+<div class="outline-text-4" id="text-orgbd22c7a">
+<p>
+\(I_{0i} \sim N(0, \omega_{00}^2)\)
+</p>
+</div>
+</li>
+</ul>
+
+<div id="outline-container-org9209854" class="outline-3">
+<h3 id="org9209854">Set up the environment and define the parameters for the DGP</h3>
+<div class="outline-text-3" id="text-org9209854">
+<p>
+If you want to get the same results as everyone else for this exercise, then we all should seed the random number generator with the same value.  While we&rsquo;re at it, let&rsquo;s load in the packages we need.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R"><span style="color: #0000bb;">library</span>(<span style="color: #223fbf;">"lme4"</span>)
+<span style="color: #0000bb;">library</span>(<span style="color: #223fbf;">"tidyverse"</span>)
+
+set.seed(11709)  
+</pre>
+</div>
+
+<p>
+Now let&rsquo;s define the parameters for the DGP (data generating process).
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">nsubj <span style="color: #0000bb;">&lt;-</span> 100 <span style="color: #505050;"># </span><span style="color: #505050;">number of subjects</span>
+nitem <span style="color: #0000bb;">&lt;-</span> 50  <span style="color: #505050;"># </span><span style="color: #505050;">must be an even number</span>
+
+mu <span style="color: #0000bb;">&lt;-</span> 800 <span style="color: #505050;"># </span><span style="color: #505050;">grand mean</span>
+eff <span style="color: #0000bb;">&lt;-</span> 80 <span style="color: #505050;"># </span><span style="color: #505050;">80 ms difference</span>
+effc <span style="color: #0000bb;">&lt;-</span> c(-.5, .5) <span style="color: #505050;"># </span><span style="color: #505050;">deviation codes</span>
+
+iri_sd <span style="color: #0000bb;">&lt;-</span> 80 <span style="color: #505050;"># </span><span style="color: #505050;">by-item random intercept sd (omega_00)</span>
+
+<span style="color: #505050;">## </span><span style="color: #505050;">for the by-subjects variance-covariance matrix</span>
+sri_sd <span style="color: #0000bb;">&lt;-</span> 100 <span style="color: #505050;"># </span><span style="color: #505050;">by-subject random intercept sd</span>
+srs_sd <span style="color: #0000bb;">&lt;-</span> 40 <span style="color: #505050;"># </span><span style="color: #505050;">by-subject random slope sd</span>
+rcor <span style="color: #0000bb;">&lt;-</span> .2 <span style="color: #505050;"># </span><span style="color: #505050;">correlation between intercept and slope</span>
+
+err_sd <span style="color: #0000bb;">&lt;-</span> 200 <span style="color: #505050;"># </span><span style="color: #505050;">residual (standard deviation)</span>
+</pre>
+</div>
+
+<p>
+You&rsquo;ll create three tables:
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left"><code>subjects</code></td>
+<td class="org-left">table of subject data including <code>subj_id</code> and subject random effects</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>items</code></td>
+<td class="org-left">table of stimulus data including <code>item_id</code> and item random effect</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>trials</code></td>
+<td class="org-left">table of trials enumerating encounters between subjects/stimuli</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Then you will merge together the information in the three tables, and calculate the response variable according to the model formula above.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orged67f58" class="outline-3">
+<h3 id="orged67f58">Generate a sample of stimuli</h3>
+<div class="outline-text-3" id="text-orged67f58">
+<p>
+Let&rsquo;s randomly generate our <code>50</code> items. Create a tibble called <code>item</code> like the one below, where <code>iri</code> are the by-item random intercepts (drawn from a normal distribution with variance \(\omega_{00}^2\) = <code>iri_sd^2</code>).  Half of the words are of type NOUN (<code>cond</code> = -.5) and half of type VERB (<code>cond</code> = .5).
+</p>
+
+<pre class="example">
+# A tibble: 50 x 3
+   item_id  cond   iri
+     &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;
+ 1       1  -0.5  14.9
+ 2       2   0.5 -86.3
+ 3       3  -0.5 -12.8
+ 4       4   0.5 -13.9
+ 5       5  -0.5  55.6
+ 6       6   0.5 -45.9
+ 7       7  -0.5 -42.0
+ 8       8   0.5 -87.6
+ 9       9  -0.5 -97.4
+10      10   0.5 -85.2
+# … with 40 more rows
+</pre>
+
+
+<div class='solution'><button>Hint (cond)</button>
+
+<p>
+<code>rep()</code>
+</p>
+
+
+</div>
+
+
+<div class='solution'><button>Hint (iri)</button>
+
+<pre class="example">
+rnorm(nitem, ???, ????...)
+</pre>
+
+
+
+</div>
+
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">items <span style="color: #0000bb;">&lt;-</span> tibble(item_id = 1:nitem,
+                cond = rep(c(-.5, .5), times = nitem / 2),
+                iri = rnorm(nitem, 0, sd = iri_sd))
+</pre>
+</div>
+
+
+</div>
+</div>
+</div>
+
+<div id="outline-container-org482d39d" class="outline-3">
+<h3 id="org482d39d">Generate a sample of subjects</h3>
+<div class="outline-text-3" id="text-org482d39d">
+<p>
+To generate the by-subject random effects, you will need to generate data from a <b>bivariate normal distribution</b>.  To do this, we will use the function <code>MASS::mvrnorm</code>.  
+</p>
+
+<p>
+<i>WARNING: do not run <code>library("MASS")</code> just to get this one function, because <code>MASS</code> has a function <code>select()</code> that will overwrite the tidyverse version. Since all we want from MASS is the <code>mvrnorm()</code> function, we can just access it directly by the <code>pkgname::function</code> syntax, i.e., <code>MASS::mvrnorm()</code>.</i>
+</p>
+
+<p>
+Here is an example of how to use <code>MASS::mvrnorm()</code> to randomly generate correlated data (with \(r = -.6\)) for a simple bivariate case. In this example, the variances of each of the two variables is defined as 1, such that the covariance becomes equal to the correlation between the variables.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R"><span style="color: #505050;">## </span><span style="color: #505050;">mx is the variance-covariance matrix</span>
+mx <span style="color: #0000bb;">&lt;-</span> matrix(c(1, -.6,
+               -.6, 1), nrow = 2, byrow = <span style="color: #8f0075;">TRUE</span>)
+
+biv_data <span style="color: #0000bb;">&lt;-</span> MASS::mvrnorm(1000, mu = c(0, 0), Sigma = mx)
+
+<span style="color: #505050;">## </span><span style="color: #505050;">look at biv_data</span>
+ggplot(as.tibble(biv_data), aes(V1, V2)) + geom_point()
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="biv_data.png" alt="biv_data.png" />
+</p>
+</div>
+
+<p>
+Your subjects table should look like this:
+</p>
+
+
+<div class='solution'><button>Click to reveal full table</button>
+
+<pre class="example">
+# A tibble: 100 x 3
+    subj_id       sri      srs
+      &lt;int&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+  1       1 -156.      -49.6  
+  2       2  -60.1      -7.54 
+  3       3 -166.      -16.2  
+  4       4  -66.7      52.0  
+  5       5  136.       33.9  
+  6       6  -13.1      22.7  
+  7       7  -42.7     -59.8  
+  8       8 -124.       21.2  
+  9       9  192.        7.19 
+ 10      10  -33.3     -68.7  
+ 11      11  142.       71.2  
+ 12      12  106.       29.3  
+ 13      13  -17.2      12.8  
+ 14      14   12.5      30.7  
+ 15      15   38.1       1.80 
+ 16      16 -140.      -11.8  
+ 17      17  -73.9     -83.0  
+ 18      18   35.4     -85.6  
+ 19      19  -53.1      61.0  
+ 20      20   43.1      -8.44 
+ 21      21  138.       29.0  
+ 22      22  218.       48.8  
+ 23      23 -146.      -30.1  
+ 24      24   58.7     -40.4  
+ 25      25   30.7      -9.15 
+ 26      26  -91.8      -8.32 
+ 27      27    6.93    -46.6  
+ 28      28  -26.5      72.5  
+ 29      29  215.       50.9  
+ 30      30  -16.5       2.88 
+ 31      31   62.0      31.2  
+ 32      32    2.48    -22.5  
+ 33      33   38.9      28.1  
+ 34      34  -58.0     -28.1  
+ 35      35  -57.1      74.0  
+ 36      36 -180.        6.71 
+ 37      37   46.3      -7.96 
+ 38      38  -74.9      -7.87 
+ 39      39   21.1     -29.6  
+ 40      40  -96.1     -59.2  
+ 41      41  122.      -30.3  
+ 42      42  109.      -27.6  
+ 43      43  -81.2     -20.1  
+ 44      44   -3.99    -14.3  
+ 45      45   48.7       8.77 
+ 46      46  -82.7      -2.90 
+ 47      47 -106.       38.6  
+ 48      48  150.       -0.445
+ 49      49  167.      -28.0  
+ 50      50  -82.9      -8.71 
+ 51      51   13.8      10.8  
+ 52      52  -19.7      34.7  
+ 53      53   45.2     -16.2  
+ 54      54   75.4      -2.60 
+ 55      55  -90.0     -26.6  
+ 56      56  -37.5      11.2  
+ 57      57   93.3     -37.5  
+ 58      58   25.2      11.0  
+ 59      59   10.0      19.9  
+ 60      60   34.4      -1.13 
+ 61      61   56.6      -9.50 
+ 62      62  -14.2     -21.8  
+ 63      63   23.2       8.11 
+ 64      64  -34.2       7.19 
+ 65      65   82.3      23.8  
+ 66      66   52.3     -11.3  
+ 67      67  -87.6     -30.4  
+ 68      68   50.2     -67.5  
+ 69      69 -185.       69.3  
+ 70      70 -101.      -52.2  
+ 71      71  -48.9      70.9  
+ 72      72   18.8      12.4  
+ 73      73  -78.4     -27.0  
+ 74      74 -106.       34.4  
+ 75      75 -174.        0.376
+ 76      76  137.       65.2  
+ 77      77 -132.       -6.56 
+ 78      78  -80.0     -74.4  
+ 79      79   61.3      30.3  
+ 80      80   18.1      26.4  
+ 81      81  188.      -31.0  
+ 82      82  -38.3    -129.   
+ 83      83   -7.84    -16.6  
+ 84      84   57.8      -0.744
+ 85      85   93.3       7.13 
+ 86      86  150.       -7.91 
+ 87      87 -141.       -2.64 
+ 88      88   71.4     -10.8  
+ 89      89  -64.5      -2.47 
+ 90      90  133.      -57.6  
+ 91      91   74.1       7.29 
+ 92      92  -23.3      55.0  
+ 93      93   84.1      77.6  
+ 94      94   61.8      11.1  
+ 95      95  -87.3     -34.8  
+ 96      96    0.0734   79.7  
+ 97      97  215.       59.8  
+ 98      98   47.8      26.2  
+ 99      99  134.       40.4  
+100     100   56.7     -15.3
+</pre>
+
+
+</div>
+
+
+<div class='solution'><button>Hint 1</button>
+
+<pre class="example">
+recall that:
+  sri_sd : by-subject random intercept standard deviation
+  srs_sd : by-subject random slope standard deviation
+       r : correlation between intercept and slope
+</pre>
+
+
+
+</div>
+
+
+<div class='solution'><button>Hint 2</button>
+
+<pre class="example">
+covariance = r * sri_sd * srs_sd
+</pre>
+
+
+
+</div>
+
+
+<div class='solution'><button>Hint 3</button>
+
+<pre class="example">
+matrix(    sri_sd^2,        r * sri_sd * srs_sd,
+       r * sri_sd * srs_sd,      srs_sd^2)
+</pre>
+
+
+
+</div>
+
+
+<div class='solution'><button>Hint 4: (matrix to tibble)</button>
+
+<pre class="example">
+as.tibble(mx)
+</pre>
+
+
+
+</div>
+
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">mx <span style="color: #0000bb;">&lt;-</span> matrix(c(sri_sd^2,               rcor * sri_sd * srs_sd,
+               rcor * sri_sd * srs_sd, srs_sd^2),
+             nrow = 2, byrow = <span style="color: #8f0075;">TRUE</span>) <span style="color: #505050;"># </span><span style="color: #505050;">look at it</span>
+
+by_subj_rfx <span style="color: #0000bb;">&lt;-</span> MASS::mvrnorm(nsubj, mu = c(sri = 0, srs = 0), Sigma = mx)
+
+subjects <span style="color: #0000bb;">&lt;-</span> as.tibble(by_subj_rfx) <span style="color: #0000bb;">%&gt;%</span>
+  mutate(subj_id = row_number()) <span style="color: #0000bb;">%&gt;%</span>
+  select(subj_id, everything())
+</pre>
+</div>
+
+
+</div>
+</div>
+</div>
+
+<div id="outline-container-org516fa04" class="outline-3">
+<h3 id="org516fa04">Generate a sample of encounters (trials)</h3>
+<div class="outline-text-3" id="text-org516fa04">
+<p>
+Each trial is an <b>encounter</b> between a particular subject and stimulus.  In this experiment, each subject will see each stimulus.  Generate a table <code>trials</code> that lists the encounters in the experiments. Note: each participant encounters each stimulus item once.  Use the <code>crossing()</code> function to create all possible encounters.
+</p>
+
+<p>
+Now apply this example to generate the table below, where <code>err</code> is the residual term, drawn from \(N \sim \left(0, \sigma^2\right)\), where \(\sigma\) is <code>err_sd</code>.
+</p>
+
+<pre class="example">
+# A tibble: 5,000 x 3
+   subj_id item_id     err
+     &lt;int&gt;   &lt;int&gt;   &lt;dbl&gt;
+ 1       1       1 -134.  
+ 2       1       2 -127.  
+ 3       1       3  142.  
+ 4       1       4 -335.  
+ 5       1       5  120.  
+ 6       1       6   -9.00
+ 7       1       7   44.7 
+ 8       1       8   48.4 
+ 9       1       9  -63.7 
+10       1      10 -304.  
+# … with 4,990 more rows
+</pre>
+
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">trials <span style="color: #0000bb;">&lt;-</span> crossing(subj_id = subjects <span style="color: #0000bb;">%&gt;%</span> pull(subj_id),
+                   item_id = items <span style="color: #0000bb;">%&gt;%</span> pull(item_id)) <span style="color: #0000bb;">%&gt;%</span>
+  mutate(err = rnorm(nrow(subjects) * nrow(items), mean = 0, sd = err_sd))
+</pre>
+</div>
+
+
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgb3071f0" class="outline-3">
+<h3 id="orgb3071f0">Join <code>subjects</code>, <code>items</code>, and <code>trials</code></h3>
+<div class="outline-text-3" id="text-orgb3071f0">
+<p>
+Merge the information in <code>subjects</code>, <code>items</code>, and <code>trials</code> to create the full dataset <code>dat</code>, which looks like this:
+</p>
+
+<pre class="example">
+# A tibble: 5,000 x 7
+   subj_id item_id   sri   iri   srs  cond     err
+     &lt;int&gt;   &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;
+ 1       1       1 -156.  14.9 -49.6  -0.5 -134.  
+ 2       1       2 -156. -86.3 -49.6   0.5 -127.  
+ 3       1       3 -156. -12.8 -49.6  -0.5  142.  
+ 4       1       4 -156. -13.9 -49.6   0.5 -335.  
+ 5       1       5 -156.  55.6 -49.6  -0.5  120.  
+ 6       1       6 -156. -45.9 -49.6   0.5   -9.00
+ 7       1       7 -156. -42.0 -49.6  -0.5   44.7 
+ 8       1       8 -156. -87.6 -49.6   0.5   48.4 
+ 9       1       9 -156. -97.4 -49.6  -0.5  -63.7 
+10       1      10 -156. -85.2 -49.6   0.5 -304.  
+# … with 4,990 more rows
+</pre>
+
+<p>
+Note: this is the full <i>decomposition matrix</i> for this model.
+</p>
+
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">dat_sim <span style="color: #0000bb;">&lt;-</span> subjects <span style="color: #0000bb;">%&gt;%</span>
+  inner_join(trials, <span style="color: #223fbf;">"subj_id"</span>) <span style="color: #0000bb;">%&gt;%</span>
+  inner_join(items, <span style="color: #223fbf;">"item_id"</span>) <span style="color: #0000bb;">%&gt;%</span>
+  arrange(subj_id, item_id) <span style="color: #0000bb;">%&gt;%</span>
+  select(subj_id, item_id, sri, iri, srs, cond, err)
+</pre>
+</div>
+
+
+</div>
+</div>
+</div>
+
+<div id="outline-container-orga8a0cca" class="outline-3">
+<h3 id="orga8a0cca">Create the response variable</h3>
+<div class="outline-text-3" id="text-orga8a0cca">
+<p>
+Add the response variable <code>Y</code> to dat according to the model formula:
+</p>
+
+<div class="org-center">
+<p>
+\(Y_{si} = \beta_0 + S_{0s} + I_{0i} + (\beta_1 + S_{1s})X_{i} + e_{si}\)
+</p>
+</div>
+
+<p>
+so that the resulting table (<code>dat2</code>) looks like this:
+</p>
+
+<pre class="example">
+# A tibble: 5,000 x 8
+   subj_id item_id     Y   sri   iri   srs  cond     err
+     &lt;int&gt;   &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;
+ 1       1       1  509. -156.  14.9 -49.6  -0.5 -134.  
+ 2       1       2  446. -156. -86.3 -49.6   0.5 -127.  
+ 3       1       3  758. -156. -12.8 -49.6  -0.5  142.  
+ 4       1       4  310. -156. -13.9 -49.6   0.5 -335.  
+ 5       1       5  805. -156.  55.6 -49.6  -0.5  120.  
+ 6       1       6  604. -156. -45.9 -49.6   0.5   -9.00
+ 7       1       7  631. -156. -42.0 -49.6  -0.5   44.7 
+ 8       1       8  620. -156. -87.6 -49.6   0.5   48.4 
+ 9       1       9  468. -156. -97.4 -49.6  -0.5  -63.7 
+10       1      10  270. -156. -85.2 -49.6   0.5 -304.  
+# … with 4,990 more rows
+</pre>
+
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">dat_sim2 <span style="color: #0000bb;">&lt;-</span> dat_sim <span style="color: #0000bb;">%&gt;%</span>
+  mutate(Y = mu + sri + iri + (eff + srs) * cond + err) <span style="color: #0000bb;">%&gt;%</span>
+  select(subj_id, item_id, Y, everything())
+</pre>
+</div>
+
+
+</div>
+</div>
+</div>
+
+<div id="outline-container-org931a244" class="outline-3">
+<h3 id="org931a244">Fitting the model</h3>
+<div class="outline-text-3" id="text-org931a244">
+<p>
+Now that you have created simulated data, estimate the model using <code>lme4::lmer()</code>, and run <code>summary()</code>.
+</p>
+
+
+<div class='solution'><button>Solution (fitting the model)</button>
+
+<div class="org-src-container">
+<pre class="src src-R"><span style="color: #0000bb;">library</span>(<span style="color: #223fbf;">"lme4"</span>)
+
+mod_sim <span style="color: #0000bb;">&lt;-</span> lmer(Y ~ cond + (1 + cond | subj_id) + (1 | item_id),
+                dat_sim2, REML = <span style="color: #8f0075;">FALSE</span>)
+
+summary(mod_sim, corr = <span style="color: #8f0075;">FALSE</span>)
+</pre>
+</div>
+
+<pre class="example">
+
+Linear mixed model fit by maximum likelihood  ['lmerMod']
+Formula: Y ~ cond + (1 + cond | subj_id) + (1 | item_id)
+   Data: dat_sim2
+
+     AIC      BIC   logLik deviance df.resid 
+ 67643.4  67689.0 -33814.7  67629.4     4993 
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.4633 -0.6692  0.0006  0.6706  3.4623 
+
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr
+ subj_id  (Intercept) 10241.7  101.20       
+          cond          341.7   18.49   0.17
+ item_id  (Intercept)  8134.5   90.19       
+ Residual             40278.8  200.70       
+Number of obs: 5000, groups:  subj_id, 100; item_id, 50
+
+Fixed effects:
+            Estimate Std. Error t value
+(Intercept)   805.02      16.53  48.708
+cond           81.06      26.20   3.094
+</pre>
+
+
+</div>
+
+<p>
+Now see if you can identify the data generating parameters in the output of <code>summary()</code>.
+</p>
+
+<p>
+First, try to find \(\beta_0\) and \(\beta_1\).
+</p>
+
+
+<div class='solution'><button>Solution (fixed effects)</button>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">parameter</th>
+<th scope="col" class="org-left">variable</th>
+<th scope="col" class="org-right">input</th>
+<th scope="col" class="org-right">estimate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">\(\hat{\beta}_0\)</td>
+<td class="org-left"><code>mu</code></td>
+<td class="org-right">800</td>
+<td class="org-right">805.025</td>
+</tr>
+
+<tr>
+<td class="org-left">\(\hat{\beta}_1\)</td>
+<td class="org-left"><code>eff</code></td>
+<td class="org-right">80</td>
+<td class="org-right">81.057</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+
+<p>
+First, now try to find estimates of random effects parameters \(\tau_{00}\), \(\tau_{11}\), \(\rho\), \(\omega_{00}\), and \(\sigma\).
+</p>
+
+
+<div class='solution'><button>Solution (random effects)</button>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">parameter</th>
+<th scope="col" class="org-left">variable</th>
+<th scope="col" class="org-right">input</th>
+<th scope="col" class="org-right">estimate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">\(\hat{\tau}_{00}\)</td>
+<td class="org-left"><code>sri_sd</code></td>
+<td class="org-right">100</td>
+<td class="org-right">101.201</td>
+</tr>
+
+<tr>
+<td class="org-left">\(\hat{\tau}_{11}\)</td>
+<td class="org-left"><code>srs_sd</code></td>
+<td class="org-right">40</td>
+<td class="org-right">18.486</td>
+</tr>
+
+<tr>
+<td class="org-left">\(\hat{\rho}\)</td>
+<td class="org-left"><code>rcor</code></td>
+<td class="org-right">0.2</td>
+<td class="org-right">0.172</td>
+</tr>
+
+<tr>
+<td class="org-left">\(\hat{\omega}_{00}\)</td>
+<td class="org-left"><code>iri_sd</code></td>
+<td class="org-right">80</td>
+<td class="org-right">90.192</td>
+</tr>
+
+<tr>
+<td class="org-left">\(\hat{\sigma}\)</td>
+<td class="org-left"><code>err_sd</code></td>
+<td class="org-right">200</td>
+<td class="org-right">200.696</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org0704a73" class="outline-2">
+<h2 id="org0704a73">Estimating LMEMs: Keysar et al. (2000)</h2>
+<div class="outline-text-2" id="text-org0704a73">
+<p>
+Here we will work with some data from Keysar, Barr, Balin, and Brauner (2000), Taking perspective in conversation: The role of mutual knowledge in
+comprehension.  <i>Psychological Science</i>, 11, 32&#x2013;38.
+</p>
+
+<p>
+When interpreting expressions e.g. <i>the small candle</i>, do listeners experience egocentric interference?
+</p>
+
+<div class="org-center">
+
+<div class="figure">
+<p><img src="KBBB2000Setup.png" alt="KBBB2000Setup.png" />
+</p>
+</div>
+</div>
+
+<ul class="org-ul">
+<li>20 subjects, 12 items for each subject (N=240)</li>
+<li>one factor: condition (competitor vs. noncompetitor)</li>
+<li>data recorded using a 60 Hz eyetracker</li>
+<li>DV: latency to fixate the target object, measured from onset of the
+critical word</li>
+</ul>
+</div>
+
+<div id="outline-container-org3b911fe" class="outline-3">
+<h3 id="org3b911fe">Wrangle the data</h3>
+<div class="outline-text-3" id="text-org3b911fe">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<caption class="t-above"><span class="table-number">Table 1:</span> codebook</caption>
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Field</th>
+<th scope="col" class="org-left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>SubjID</code></td>
+<td class="org-left">Subject identifier (N=20)</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>cond</code></td>
+<td class="org-left">Condition (E=competitor, C=noncompetitor)</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>crit</code></td>
+<td class="org-left">Moment of onset of critical word (frames)</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>targfix</code></td>
+<td class="org-left">Moment the hand touched the target (frames)</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>object</code></td>
+<td class="org-left">Name of the experimental item</td>
+</tr>
+</tbody>
+</table>
+
+<ol class="org-ol">
+<li>Load the data from <a href="keysar_et_al.rds"><code>keysar_et_al.rds</code></a> (hint: <code>?readRDS</code>)</li>
+<li value="2">calculate <code>tfix</code>, the latency for touching the target in
+milliseconds, store this in the dataframe <code>dat</code>
+<ul class="org-ul">
+<li>note: data frames are 60Hz; i.e., spaced 1/60 seconds apart</li>
+</ul></li>
+</ol>
+
+
+<div class='solution'><button>Hint (convert to ms)</button>
+
+<pre class="example">
+1000 * ((targfix - crit) / 60)
+</pre>
+
+
+
+</div>
+
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">dat <span style="color: #0000bb;">&lt;-</span> readRDS(<span style="color: #223fbf;">"keysar_et_al.rds"</span>) <span style="color: #0000bb;">%&gt;%</span>
+  mutate(tfix = 1000 * ((targfix - crit) / 60))
+</pre>
+</div>
+
+
+</div>
+
+<ol class="org-ol">
+<li value="3">familiarize yourself with the data and check the data quality</li>
+</ol>
+
+
+<div class='solution'><button>Hint</button>
+
+<p>
+you might want to plot distribution of DV (<code>tfix</code>) and run summary()
+</p>
+
+
+</div>
+
+
+<div class='solution'><button>Solution</button>
+
+
+<div class="figure">
+<p><img src="tfix.png" alt="tfix.png" />
+</p>
+</div>
+
+
+</div>
+
+<ol class="org-ol">
+<li value="5">calculate means and SDs for each condition</li>
+</ol>
+
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">dat <span style="color: #0000bb;">%&gt;%</span>
+  group_by(cond) <span style="color: #0000bb;">%&gt;%</span>
+  summarise(m = mean(tfix, na.rm = <span style="color: #8f0075;">TRUE</span>), sd = sd(tfix, na.rm = <span style="color: #8f0075;">TRUE</span>))  
+</pre>
+</div>
+
+<pre class="example">
+
+# A tibble: 2 x 3
+  cond      m    sd
+  &lt;fct&gt; &lt;dbl&gt; &lt;dbl&gt;
+1 C     2609. 2275.
+2 E     4058. 3559.
+</pre>
+
+
+
+</div>
+</div>
+</div>
+
+<div id="outline-container-orga8f90bf" class="outline-3">
+<h3 id="orga8f90bf">Linear mixed-effects model analysis</h3>
+<div class="outline-text-3" id="text-orga8f90bf">
+<ol class="org-ol">
+<li value="6">Now do the analysis using model comparison in a linear mixed
+effects model, with maximal random effects
+<ul class="org-ul">
+<li>tip: use deviation coding for condition</li>
+</ul></li>
+</ol>
+
+
+<div class='solution'><button>Solution</button>
+
+<div class="org-src-container">
+<pre class="src src-R">dat2 <span style="color: #0000bb;">&lt;-</span> dat <span style="color: #0000bb;">%&gt;%</span>
+  mutate(cnd = if_else(cond == <span style="color: #223fbf;">"E"</span>, .5, -.5))
+
+mod <span style="color: #0000bb;">&lt;-</span> lmer(tfix ~ cnd + (cnd | SubjID) +
+              (cnd | object), dat2, REML = <span style="color: #8f0075;">FALSE</span>)
+
+summary(mod)
+</pre>
+</div>
+
+<pre class="example">
+
+boundary (singular) fit: see ?isSingular
+
+Linear mixed model fit by maximum likelihood  ['lmerMod']
+Formula: tfix ~ cnd + (cnd | SubjID) + (cnd | object)
+   Data: dat2
+
+     AIC      BIC   logLik deviance df.resid 
+  4434.6   4465.7  -2208.3   4416.6      226 
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-1.5439 -0.5190 -0.1772  0.1488  4.4490 
+
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr
+ SubjID   (Intercept)  418444   646.87      
+          cnd          795779   892.06  1.00
+ object   (Intercept)  636254   797.66      
+          cnd            3461    58.83  1.00
+ Residual             7657326  2767.19      
+Number of obs: 235, groups:  SubjID, 20; object, 12
+
+Fixed effects:
+            Estimate Std. Error t value
+(Intercept)   3326.7      326.5  10.190
+cnd           1441.7      413.0   3.491
+
+Correlation of Fixed Effects:
+    (Intr)
+cnd 0.237 
+optimizer (nloptwrap) convergence code: 0 (OK)
+boundary (singular) fit: see ?isSingular
+</pre>
+
+
+</div>
+
+<ol class="org-ol">
+<li value="7">Derive \(p\)-values using:
+<ul class="org-ul">
+<li>Wald \(z\) statistic (&ldquo;t-as-z&rdquo;), and</li>
+<li>Likelihood ratio tests</li>
+</ul></li>
+</ol>
+
+
+<div class='solution'><button>Solution</button>
+
+<ul class="org-ul">
+<li>Wald \(z\)</li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-R">cf <span style="color: #0000bb;">&lt;-</span> fixef(mod)
+serr <span style="color: #0000bb;">&lt;-</span> sqrt(diag(vcov(mod)))
+tval <span style="color: #0000bb;">&lt;-</span> cf / serr
+
+2 * (1 - pnorm(abs(tval)))
+</pre>
+</div>
+
+<pre class="example">
+
+ (Intercept)          cnd 
+0.0000000000 0.0004813184
+</pre>
+
+
+<ul class="org-ul">
+<li>Likelihood ratio test</li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-R">mod2 <span style="color: #0000bb;">&lt;-</span> update(mod, . ~ . -cnd)
+
+anova(mod, mod2)
+</pre>
+</div>
+
+<pre class="example">
+boundary (singular) fit: see ?isSingular
+
+Data: dat2
+Models:
+mod2: tfix ~ (cnd | SubjID) + (cnd | object)
+mod: tfix ~ cnd + (cnd | SubjID) + (cnd | object)
+     npar    AIC    BIC  logLik deviance  Chisq Df Pr(&gt;Chisq)   
+mod2    8 4442.7 4470.4 -2213.4   4426.7                        
+mod     9 4434.6 4465.7 -2208.3   4416.6 10.116  1    0.00147 **
+---
+codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+</pre>
+
+
+</div>
+
+<ol class="org-ol">
+<li value="8">Would you say that subjects or items introduce more overall
+variation in grand mean target latencies? <select class='solveme' name='q_1' data-answer='["items"]'> <option></option> <option>items</option> <option>subjects</option></select></li>
+
+<li value="9">Do subjects or items vary more in terms of the effect of condition
+(competitor)? <select class='solveme' name='q_2' data-answer='["subjects"]'> <option></option> <option>items</option> <option>subjects</option></select></li>
+</ol>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orge0c98ed" class="outline-2">
+<h2 id="orge0c98ed"></h2>
+<div class="outline-text-2" id="text-orge0c98ed">
+<script>
+
+/* update total correct if #total_correct exists */
+update_total_correct = function() {
+  if (t = document.getElementById("total_correct")) {
+    t.innerHTML =
+      document.getElementsByClassName("correct").length + " of " +
+      document.getElementsByClassName("solveme").length + " correct";
+  }
+}
+
+/* solution button toggling function */
+b_func = function() {
+  var cl = this.parentElement.classList;
+  if (cl.contains('open')) {
+    cl.remove("open");
+  } else {
+    cl.add("open");
+  }
+}
+
+/* function for checking solveme answers */
+solveme_func = function(e) {
+  var real_answers = JSON.parse(this.dataset.answer);
+  var my_answer = this.value;
+  var cl = this.classList;
+  if (cl.contains("ignorecase")) {
+    my_answer = my_answer.toLowerCase();
+  }
+  if (cl.contains("nospaces")) {
+    my_answer = my_answer.replace(/ /g, "");
+  }
+
+  if (my_answer !== "" & real_answers.includes(my_answer)) {
+    cl.add("correct");
+  } else {
+    cl.remove("correct");
+  }
+  update_total_correct();
+}
+
+window.onload = function() {
+  /* set up solution buttons */
+  var buttons = document.getElementsByTagName("button");
+
+  for (var i = 0; i < buttons.length; i++) {
+    if (buttons[i].parentElement.classList.contains('solution')) {
+      buttons[i].onclick = b_func;
+    }
+  }
+
+  /* set up solveme inputs */
+  var solveme = document.getElementsByClassName("solveme");
+
+  for (var i = 0; i < solveme.length; i++) {
+    /* make sure input boxes don't auto-anything */
+    solveme[i].setAttribute("autocomplete","off");
+    solveme[i].setAttribute("autocorrect", "off");
+    solveme[i].setAttribute("autocapitalize", "off"); 
+    solveme[i].setAttribute("spellcheck", "false");
+    solveme[i].value = "";
+
+    /* adjust answer for ignorecase or nospaces */
+    var cl = solveme[i].classList;
+    var real_answer = solveme[i].dataset.answer;
+    if (cl.contains("ignorecase")) {
+      real_answer = real_answer.toLowerCase();
+    }
+    if (cl.contains("nospaces")) {
+      real_answer = real_answer.replace(/ /g, "");
+    }
+    solveme[i].dataset.answer = real_answer;
+
+    /* attach checking function */
+    solveme[i].onkeyup = solveme_func;
+    solveme[i].onchange = solveme_func;
+  }
+
+  update_total_correct();
+}
+
+</script>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Created: 2021-04-17 Sat 07:55</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

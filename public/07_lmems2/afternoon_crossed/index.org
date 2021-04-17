@@ -1,0 +1,855 @@
+#+TITLE: Linear mixed-effects models with crossed random factors of subjects and stimuli
+#+OPTIONS: html-link-use-abs-url:nil html-postamble:auto
+#+OPTIONS: html-preamble:t html-scripts:t html-style:t
+#+OPTIONS: html5-fancy:nil tex:t toc:t num:nil tags:nil h:2
+#+HTML_DOCTYPE: xhtml-strict
+#+HTML_CONTAINER: div
+#+DESCRIPTION:
+#+KEYWORDS:
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../../css/my_css.css" />
+#+HTML_LINK_HOME: ../../index.html
+#+HTML_LINK_UP:   ../../index.html
+#+HTML_MATHJAX:
+#+HTML_HEAD:
+#+HTML_HEAD_EXTRA:
+#+SUBTITLE:
+#+INFOJS_OPT:
+#+CREATOR: <a href="https://www.gnu.org/software/emacs/">Emacs</a> 24.5.1 (<a href="http://orgmode.org">Org</a> mode 9.1.5)
+#+LATEX_HEADER:
+#+PROPERTY: header-args:R :session *R* :exports both :results output :tangle script_sim.R
+
+* Setup                                                            :noexport:
+
+#+begin_src R :exports none :results silent :tangle junk.R
+  options(crayon.enabled = FALSE, tidyverse.quiet = TRUE)
+  library("webex")
+  library("tidyverse")
+#+end_src
+
+#+NAME: hide
+#+begin_src R :exports results :results html value :var x = "Solution" :tangle junk.R
+hide(x)
+#+end_src
+
+#+NAME: unhide
+#+begin_src R :exports results :results html value :tangle junk.R
+unhide()
+#+end_src
+
+* Tasks                                                            :noexport:
+** shiny app for generating bivariate data
+- manipulate each variance independently
+- manipulate the covariance
+- top view of the bivariate distribution, side view
+** extra hint for data generation
+
+* Script
+
+The scripts below contain the full solutions to the problems below. Please attempt the problems before consulting them.
+
+- (optional) download [[file:script_sim.R][the full script for the data simulation section]]
+- (optional) download [[file:script_kbbb_2000.R][the full script for the KBBB (2000) re-analysis]]
+
+* Generating multilevel data
+
+For this first set of exercises, we will generate simulated data corresponding to an experiment with a single, two-level factor (independent variable) that is within-subjects and between-items.  Let's imagine that the experiment involves lexical decisions to a set of words (e.g., is "PINT" a word or nonword?), and the dependent variable is response time (in milliseconds), and the independent variable is word type (noun vs verb).  We want to treat both subjects and words as random factors (so that we can generalize to the population of events where subjects encounter words).
+
+The general linear model for our study is:
+
+#+BEGIN_CENTER
+\(Y_{si} = \beta_0 + S_{0s} + I_{0i} + (\beta_1 + S_{1s})X_{i} + e_{si}\)
+#+END_CENTER
+
+where:
+
+| \(Y_{si}\)  | =Y=   | RT for subject \(s\) responding to item \(i\);    |
+| \(\beta_0\) | =mu=  | grand mean;                                       |
+| \(S_{0s}\)  | =sri= | random intercept for subject \(s\);               |
+| \(I_{0i}\)  | =iri= | random intercept for item \(i\);                  |
+| \(\beta_1\) | =eff= | fixed effect of word type (slope);                |
+| \(S_{1s}\)  | =srs= | by-subject random slope;                          |
+| \(X_{i}\)   | =x=   | deviation-coded predictor variable for word type; |
+| \(e_{si}\)  | =err= | residual error.                                   |
+
+*** Subjects
+
+\(&lt;S_{0i},S_{1i}&gt; \sim N(&lt;0,0&gt;, \Sigma)\), where
+
+#+LaTeX: \vspace{8pt}
+
+\(\Sigma = \left(\begin{array}{cc}{\tau_{00}}^2 & \rho\tau_{00}\tau_{11} \\
+         \rho\tau_{00}\tau_{11} & {\tau_{11}}^2 \\
+         \end{array}\right) \)
+
+#+LaTeX: \vspace{8pt}
+
+file:img/bivariatedist.jpg
+
+*** Items
+
+\(I_{0i} \sim N(0, \omega_{00}^2)\)
+
+** Set up the environment and define the parameters for the DGP
+
+If you want to get the same results as everyone else for this exercise, then we all should seed the random number generator with the same value.  While we're at it, let's load in the packages we need.
+
+#+begin_src R :exports code :results silent
+  library("lme4")
+  library("tidyverse")
+
+  set.seed(11709)  
+#+end_src
+
+Now let's define the parameters for the DGP (data generating process).
+
+#+BEGIN_SRC R :results silent
+  nsubj <- 100 # number of subjects
+  nitem <- 50  # must be an even number
+
+  mu <- 800 # grand mean
+  eff <- 80 # 80 ms difference
+  effc <- c(-.5, .5) # deviation codes
+
+  iri_sd <- 80 # by-item random intercept sd (omega_00)
+
+  ## for the by-subjects variance-covariance matrix
+  sri_sd <- 100 # by-subject random intercept sd
+  srs_sd <- 40 # by-subject random slope sd
+  rcor <- .2 # correlation between intercept and slope
+
+  err_sd <- 200 # residual (standard deviation)
+#+END_SRC
+
+You'll create three tables:
+
+| =subjects= | table of subject data including =subj_id= and subject random effects    |
+| =items=    | table of stimulus data including =item_id= and item random effect       |
+| =trials=   | table of trials enumerating encounters between subjects/stimuli         |
+
+Then you will merge together the information in the three tables, and calculate the response variable according to the model formula above.
+
+** Generate a sample of stimuli
+
+Let's randomly generate our src_R[:exports results :results value]{nitem} items. Create a tibble called =item= like the one below, where =iri= are the by-item random intercepts (drawn from a normal distribution with variance \(\omega_{00}^2\) = =iri_sd^2=).  Half of the words are of type NOUN (=cond= = -.5) and half of type VERB (=cond= = .5).
+
+#+NAME: item_tibble
+#+begin_src R :exports none :results silent
+  items <- tibble(item_id = 1:nitem,
+		  cond = rep(c(-.5, .5), times = nitem / 2),
+		  iri = rnorm(nitem, 0, sd = iri_sd))
+#+end_src
+
+#+begin_src R :exports results
+  items
+#+end_src
+
+#+CALL: hide("Hint (cond)") :results value html
+
+=rep()=
+
+#+CALL: unhide() :results value html
+
+#+CALL: hide("Hint (iri)") :results value html
+
+: rnorm(nitem, ???, ????...)
+
+#+CALL: unhide() :results value html
+
+#+CALL: hide() :results value html
+
+#+begin_src R :noweb yes :exports code :eval never :tangle junk.R
+  <<item_tibble>>
+#+end_src
+
+#+CALL: unhide() :results value html
+
+** Generate a sample of subjects
+
+To generate the by-subject random effects, you will need to generate data from a *bivariate normal distribution*.  To do this, we will use the function =MASS::mvrnorm=.  
+
+/WARNING: do not run =library("MASS")= just to get this one function, because =MASS= has a function =select()= that will overwrite the tidyverse version. Since all we want from MASS is the =mvrnorm()= function, we can just access it directly by the =pkgname::function= syntax, i.e., =MASS::mvrnorm()=./
+
+Here is an example of how to use =MASS::mvrnorm()= to randomly generate correlated data (with \(r = -.6\)) for a simple bivariate case. In this example, the variances of each of the two variables is defined as 1, such that the covariance becomes equal to the correlation between the variables.
+
+#+begin_src R :exports both :results output graphics file :file biv_data.png
+  ## mx is the variance-covariance matrix
+  mx <- matrix(c(1, -.6,
+		 -.6, 1), nrow = 2, byrow = TRUE)
+
+  biv_data <- MASS::mvrnorm(1000, mu = c(0, 0), Sigma = mx)
+
+  ## look at biv_data
+  ggplot(as.tibble(biv_data), aes(V1, V2)) + geom_point()
+#+end_src
+
+#+RESULTS:
+[[file:biv_data.png]]
+
+Your subjects table should look like this:
+
+#+CALL: hide("Click to reveal full table") :results html value
+
+#+NAME: by_subjects
+#+begin_src R :exports none :results silent
+  mx <- matrix(c(sri_sd^2,               rcor * sri_sd * srs_sd,
+		 rcor * sri_sd * srs_sd, srs_sd^2),
+	       nrow = 2, byrow = TRUE) # look at it
+
+  by_subj_rfx <- MASS::mvrnorm(nsubj, mu = c(sri = 0, srs = 0), Sigma = mx)
+
+  subjects <- as.tibble(by_subj_rfx) %>%
+    mutate(subj_id = row_number()) %>%
+    select(subj_id, everything())
+#+end_src
+
+#+begin_src R :exports results
+  subjects %>% print(n = +Inf)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+    subj_id         sri          srs
+1         1   24.580915  -51.6877275
+2         2  -77.594509   19.6935847
+3         3   19.264787   43.4742371
+4         4   42.460010   59.8815683
+5         5   49.228419  -19.5395888
+6         6  -95.829079  -24.6671874
+7         7  -74.464875  -20.3029829
+8         8  235.849087   12.9789997
+9         9   96.069002   -3.3658331
+10       10   65.899958    2.4991932
+11       11   92.483355  -87.2358033
+12       12  108.334608   19.8200251
+13       13  -83.516719  -20.7450265
+14       14   29.273748   53.3913044
+15       15   -7.204443   22.5014031
+16       16   63.249389  -53.9295385
+17       17  -53.979761  -28.2188543
+18       18 -199.198310   -9.3096118
+19       19  -44.958673  -73.6532756
+20       20   43.139121    4.6831056
+21       21   49.520988   -3.2129339
+22       22  136.988283   35.2296292
+23       23  -42.219182   50.5248227
+24       24  -63.899659  -49.0245588
+25       25  -55.225274  -74.3108759
+26       26   65.067881   23.8462790
+27       27   -5.889687   -6.0372260
+28       28   17.062036   34.1086957
+29       29  119.987433  -14.2565332
+30       30   37.409750  -12.9393282
+31       31   55.993129  -21.7572281
+32       32   23.304260  -17.0115751
+33       33  -49.574663    5.8613920
+34       34   18.063992   60.1599340
+35       35   18.432313   -6.5125151
+36       36  153.919882    9.6844282
+37       37  -65.100674  -45.9332083
+38       38   50.900150   89.6691545
+39       39  187.600925   50.0392214
+40       40  106.689491    6.5490334
+41       41   87.114417   63.1103500
+42       42  -26.803955   -6.2863903
+43       43 -104.386438   27.6908301
+44       44  128.043207   54.4845947
+45       45  -87.334037  -28.3017632
+46       46  104.325247   31.9662418
+47       47 -135.348508  -67.5144456
+48       48  -25.623062  -69.0522287
+49       49  -90.750931   57.0173332
+50       50   78.435406    1.6085765
+51       51  112.165551   13.8117772
+52       52  -57.631786   18.8965241
+53       53   79.069883    4.5022343
+54       54    3.401977   -2.3928409
+55       55  169.734305   -7.8157203
+56       56   25.765707 -100.5284022
+57       57    3.729934   85.3723529
+58       58   -9.757311  -16.4402799
+59       59  115.420289   -4.8730172
+60       60   27.907967  -36.9284747
+61       61   40.000411   43.6047967
+62       62 -117.071642  -29.6858481
+63       63  -18.949121  -53.9120565
+64       64  -30.378230  -19.4525040
+65       65  -70.858163  -28.4257568
+66       66 -129.387617   36.3925606
+67       67  -33.986742   -4.4751091
+68       68   40.902245  -59.2936630
+69       69 -129.453229   25.8098580
+70       70   95.386161   34.3455184
+71       71    5.149258  -35.2268955
+72       72 -108.976397  -12.2639217
+73       73  -24.974234    8.1848745
+74       74  -24.634131  -56.0477418
+75       75  205.789536    7.0926354
+76       76    0.581962  -39.3563049
+77       77  -19.638679  -24.8223548
+78       78   39.963260   41.0675126
+79       79  -57.505568   41.6661799
+80       80 -285.169029  -17.0138191
+81       81  -74.916574  -14.9283938
+82       82   56.562450    0.5323946
+83       83   21.337265   -9.9272061
+84       84   39.442034   66.7534412
+85       85   72.601588   17.0706696
+86       86  106.105852   28.8525695
+87       87   54.160160   17.4978354
+88       88  -43.966042 -107.3921807
+89       89   43.960064   -9.1036483
+90       90   19.914583   16.6220380
+91       91  -73.838274  -67.5741523
+92       92 -115.605761  -38.4044842
+93       93    2.624104  -29.1292878
+94       94    5.507312   31.4952012
+95       95 -105.167477  -12.7152769
+96       96  -11.673350   78.0050748
+97       97   68.484428   36.9325651
+98       98  -22.821255   -9.0691355
+99       99  -89.186839   53.2829283
+100     100  -18.391723  -14.0547326
+#+end_example
+
+#+CALL: unhide() :results html value
+
+#+CALL: hide("Hint 1") :results value html
+
+: recall that:
+:   sri_sd : by-subject random intercept standard deviation
+:   srs_sd : by-subject random slope standard deviation
+:        r : correlation between intercept and slope
+
+#+CALL: unhide() :results html value
+
+#+CALL: hide("Hint 2") :results value html
+
+: covariance = r * sri_sd * srs_sd
+
+#+CALL: unhide() :results html value
+
+#+CALL: hide("Hint 3") :results value html
+
+: matrix(    sri_sd^2,        r * sri_sd * srs_sd,
+:        r * sri_sd * srs_sd,      srs_sd^2)
+
+#+CALL: unhide() :results html value
+
+#+CALL: hide("Hint 4: (matrix to tibble)") :results value html
+
+: as.tibble(mx)
+
+#+CALL: unhide() :results html value
+
+#+CALL: hide() :results value html
+
+#+begin_src R :exports code :eval never :noweb yes :tangle junk.R
+  <<by_subjects>>
+#+end_src
+
+#+CALL: unhide() :results html value
+
+** Generate a sample of encounters (trials)
+
+Each trial is an *encounter* between a particular subject and stimulus.  In this experiment, each subject will see each stimulus.  Generate a table =trials= that lists the encounters in the experiments. Note: each participant encounters each stimulus item once.  Use the =crossing()= function to create all possible encounters.
+
+Now apply this example to generate the table below, where =err= is the residual term, drawn from \(N \sim \left(0, \sigma^2\right)\), where \(\sigma\) is =err_sd=.
+
+#+NAME: trials
+#+begin_src R :exports none :results silent
+  trials <- crossing(subjects %>% select(subj_id),
+		     items %>% select(item_id)) %>%
+    mutate(err = rnorm(nrow(subjects) * nrow(items), mean = 0, sd = err_sd))
+#+end_src
+
+#+begin_src R :exports results
+  trials
+#+end_src
+
+#+RESULTS:
+#+begin_example
+   subj_id item_id        err
+1        1       1 -135.41408
+2        1       2 -100.69221
+3        1       3  108.58109
+4        1       4   13.44455
+5        1       5 -198.44847
+6        1       6 -210.84269
+7        1       7 -301.96701
+8        1       8  -71.76168
+9        1       9 -274.85938
+10       1      10  -91.86590
+#+end_example
+
+#+CALL: hide() :results html value
+
+#+begin_src R :noweb yes :tangle junk.R :eval never
+  <<trials>>
+#+end_src
+
+#+CALL: unhide() :results html value
+
+** Join =subjects=, =items=, and =trials=
+
+Merge the information in =subjects=, =items=, and =trials= to create the full dataset =dat=, which looks like this:
+
+#+NAME: dat
+#+begin_src R :exports none :results silent
+  dat_sim <- subjects %>%
+    inner_join(trials, "subj_id") %>%
+    inner_join(items, "item_id") %>%
+    arrange(subj_id, item_id) %>%
+    select(subj_id, item_id, sri, iri, srs, cond, err)
+#+end_src
+
+#+begin_src R :exports results
+  dat_sim
+#+end_src
+
+#+RESULTS:
+#+begin_example
+   subj_id item_id      sri        iri       srs cond        err
+1        1       1 24.58092 -43.223975 -51.68773 -0.5 -135.41408
+2        1       2 24.58092 -16.315779 -51.68773  0.5 -100.69221
+3        1       3 24.58092   8.491186 -51.68773 -0.5  108.58109
+4        1       4 24.58092 -41.891812 -51.68773  0.5   13.44455
+5        1       5 24.58092 -19.791705 -51.68773 -0.5 -198.44847
+6        1       6 24.58092 114.792610 -51.68773  0.5 -210.84269
+7        1       7 24.58092 -28.545640 -51.68773 -0.5 -301.96701
+8        1       8 24.58092 105.142066 -51.68773  0.5  -71.76168
+9        1       9 24.58092 -49.800385 -51.68773 -0.5 -274.85938
+10       1      10 24.58092  51.878246 -51.68773  0.5  -91.86590
+#+end_example
+
+Note: this is the full /decomposition matrix/ for this model.
+
+#+CALL: hide() :results html value
+
+#+begin_src R :noweb yes :eval never :tangle junk.R
+  <<dat>>
+#+end_src
+
+#+CALL: unhide() :results html value
+
+** Create the response variable
+
+Add the response variable =Y= to dat according to the model formula:
+
+#+BEGIN_CENTER
+\(Y_{si} = \beta_0 + S_{0s} + I_{0i} + (\beta_1 + S_{1s})X_{i} + e_{si}\)
+#+END_CENTER
+
+so that the resulting table (=dat2=) looks like this:
+
+#+NAME: dat2
+#+begin_src R :exports none :results silent
+  dat_sim2 <- dat_sim %>%
+    mutate(Y = mu + sri + iri + (eff + srs) * cond + err) %>%
+    select(subj_id, item_id, Y, everything())
+#+end_src
+
+#+RESULTS:
+
+#+begin_src R :exports results
+  dat_sim2
+#+end_src
+
+#+RESULTS:
+#+begin_example
+   subj_id item_id         Y      sri         iri      srs cond         err
+1        1       1 1005.2112 13.79765   63.555295 10.84998 -0.5  173.283296
+2        1       2 1252.8449 13.79765  -39.481510 10.84998  0.5  433.103761
+3        1       3  819.7407 13.79765   -5.408809 10.84998 -0.5   56.776849
+4        1       4  929.6939 13.79765   32.382401 10.84998  0.5   38.088823
+5        1       5  825.8937 13.79765   63.871460 10.84998 -0.5   -6.350402
+6        1       6 1009.5467 13.79765   57.273558 10.84998  0.5   93.050513
+7        1       7  964.2478 13.79765   13.554473 10.84998 -0.5  182.320720
+8        1       8  753.1730 13.79765   -2.478127 10.84998  0.5 -103.571488
+9        1       9  623.2405 13.79765  -45.088733 10.84998 -0.5 -100.043400
+10       1      10  585.9798 13.79765 -189.588827 10.84998  0.5  -83.653975
+#+end_example
+
+#+CALL: hide() :results html value
+
+#+begin_src R :noweb yes :eval never :tangle junk.R
+  <<dat2>>
+#+end_src
+
+#+CALL: unhide() :results html value
+
+** Fitting the model
+
+Now that you have created simulated data, estimate the model using =lme4::lmer()=, and run =summary()=.
+
+#+CALL: hide("Solution (fitting the model)") :results html value
+
+#+BEGIN_SRC R 
+  library("lme4")
+
+  mod_sim <- lmer(Y ~ cond + (1 + cond | subj_id) + (1 | item_id),
+		  dat_sim2, REML = FALSE)
+
+  summary(mod_sim, corr = FALSE)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+Linear mixed model fit by maximum likelihood  ['lmerMod']
+Formula: Y ~ cond + (1 + cond | subj_id) + (1 | item_id)
+   Data: dat_sim2
+
+     AIC      BIC   logLik deviance df.resid 
+ 67488.0  67533.6 -33737.0  67474.0     4993 
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.3310 -0.6625 -0.0043  0.6548  3.2863 
+
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr
+ subj_id  (Intercept)  8066     89.81       
+          cond         1009     31.77   0.69
+ item_id  (Intercept)  7632     87.36       
+ Residual             39156    197.88       
+Number of obs: 5000, groups:  subj_id, 100; item_id, 50
+
+Fixed effects:
+            Estimate Std. Error t value
+(Intercept)   820.05      15.53  52.810
+cond           67.55      25.53   2.646
+#+end_example
+
+#+CALL: unhide() :results html value
+
+Now see if you can identify the data generating parameters in the output of =summary()=.
+
+#+begin_src R :exports none :results silent 
+  srfx <- attr(VarCorr(mod_sim)$subj_id, "stddev")
+  irfx <- attr(VarCorr(mod_sim)$item_id, "stddev")
+  rc <- attr(VarCorr(mod_sim)$subj_id, "correlation")[1, 2]
+
+  res <- attr(VarCorr(mod_sim), "sc")
+
+  ffx <- fixef(mod_sim)
+#+END_src
+
+First, try to find \(\beta_0\) and \(\beta_1\).
+
+#+CALL: hide("Solution (fixed effects)") :results html value
+
+#+begin_export latex
+\vspace{8pt}
+#+end_export
+
+#+BEGIN_SRC R :exports results :results value table :colnames yes
+  tribble(~parameter, ~variable, ~input, ~estimate,
+	  "\\(\\hat{\\beta}_0\\)", "=mu=", mu, round(ffx[1], 3),
+	  "\\(\\hat{\\beta}_1\\)", "=eff=", eff, round(ffx[2], 3))
+#+end_src
+
+#+RESULTS:
+| parameter         | variable | input | estimate |
+|-------------------+----------+-------+----------|
+| \(\hat{\beta}_0\) | =mu=     |   800 |  820.052 |
+| \(\hat{\beta}_1\) | =eff=    |    80 |   67.551 |
+
+#+CALL: unhide() :results html value
+
+First, now try to find estimates of random effects parameters \(\tau_{00}\), \(\tau_{11}\), \(\rho\), \(\omega_{00}\), and \(\sigma\).
+
+#+CALL: hide("Solution (random effects)") :results html value
+
+#+begin_export latex
+\vspace{8pt}
+#+end_export
+
+#+begin_src R :exports results :results value table :colnames yes
+  tribble(~parameter, ~variable, ~input, ~estimate,
+	  "\\(\\hat{\\tau}_{00}\\)", "=sri_sd=", sri_sd, round(srfx[1], 3),
+	  "\\(\\hat{\\tau}_{11}\\)", "=srs_sd=", srs_sd, round(srfx[2], 3),
+	  "\\(\\hat{\\rho}\\)", "=rcor=", rcor, round(rc, 3),
+	  "\\(\\hat{\\omega}_{00}\\)", "=iri_sd=", iri_sd, round(irfx[1], 3),
+	  "\\(\\hat{\\sigma}\\)", "=err_sd=", err_sd, round(res, 3))
+#+end_src
+
+#+RESULTS:
+| parameter             | variable | input | estimate |
+|-----------------------+----------+-------+----------|
+| \(\hat{\tau}_{00}\)   | =sri_sd= |   100 |    89.81 |
+| \(\hat{\tau}_{11}\)   | =srs_sd= |    40 |   31.768 |
+| \(\hat{\rho}\)        | =rcor=   |   0.2 |     0.69 |
+| \(\hat{\omega}_{00}\) | =iri_sd= |    80 |    87.36 |
+| \(\hat{\sigma}\)      | =err_sd= |   200 |  197.879 |
+
+* Estimating LMEMs: Keysar et al. (2000)
+  :PROPERTIES:
+  :header-args:R: header-args:R :session *R* :exports both :results output :tangle script_kbbb_2000.R
+  :END:
+
+Here we will work with some data from Keysar, Barr, Balin, and Brauner (2000), Taking perspective in conversation: The role of mutual knowledge in
+comprehension.  /Psychological Science/, 11, 32--38.
+
+When interpreting expressions e.g. /the small candle/, do listeners experience egocentric interference?
+
+#+BEGIN_CENTER
+#+ATTR_LATEX: :width .6\textwidth
+[[file:KBBB2000Setup.png]]
+#+END_CENTER
+
+- 20 subjects, 12 items for each subject (N=240)
+- one factor: condition (competitor vs. noncompetitor)
+- data recorded using a 60 Hz eyetracker
+- DV: latency to fixate the target object, measured from onset of the
+  critical word
+
+** Wrangle the data
+
+#+CAPTION: codebook
+| Field      | Description                                     |
+|------------+-------------------------------------------------|
+| =SubjID=   | Subject identifier (N=20)                       |
+| =cond=     | Condition (E=competitor, C=noncompetitor)       |
+| =crit=     | Moment of onset of critical word (frames)       |
+| =targfix=  | Moment the hand touched the target (frames)     |
+| =object=   | Name of the experimental item                   |
+
+1. Load the data from [[file:keysar_et_al.rds][=keysar_et_al.rds=]] (hint: =?readRDS=)
+2. [@2] calculate =tfix=, the latency for touching the target in
+   milliseconds, store this in the dataframe =dat=
+   - note: data frames are 60Hz; i.e., spaced 1/60 seconds apart
+
+#+CALL: hide("Hint (convert to ms)") :results html value
+
+: 1000 * ((targfix - crit) / 60)
+
+#+CALL: unhide() :results html value
+
+#+CALL: hide() :results html value
+
+#+begin_src R
+  dat <- readRDS("keysar_et_al.rds") %>%
+    mutate(tfix = 1000 * ((targfix - crit) / 60))
+#+end_src
+
+#+CALL: unhide() :results html value
+
+3. [@3] familiarize yourself with the data and check the data quality 
+
+#+CALL: hide("Hint") :results html value
+
+you might want to plot distribution of DV (=tfix=) and run summary()
+
+#+CALL: unhide() :results html value
+
+#+CALL: hide() :results html value
+
+#+begin_src R :exports results :results output graphics file :file tfix.png
+  ggplot(dat, aes(tfix)) + geom_histogram()
+#+end_src
+
+#+CALL: unhide() :results html value
+
+5. [@5] calculate means and SDs for each condition
+
+#+CALL: hide() :results html value
+
+#+begin_src R
+  dat %>%
+    group_by(cond) %>%
+    summarise(m = mean(tfix, na.rm = TRUE), sd = sd(tfix, na.rm = TRUE),
+	      .groups = "drop")  
+#+end_src
+
+#+RESULTS:
+:   cond        m       sd
+: 1    C 2609.195 2274.745
+: 2    E 4057.843 3558.879
+
+#+CALL: unhide() :results html value
+
+** Linear mixed-effects model analysis
+
+6. [@6] Now do the analysis using model comparison in a linear mixed
+   effects model, with maximal random effects
+   - tip: use deviation coding for condition
+
+#+CALL: hide() :results html value
+
+#+begin_src R
+  dat2 <- dat %>%
+    mutate(cnd = if_else(cond == "E", .5, -.5))
+
+  mod <- lmer(tfix ~ cnd + (cnd | SubjID) +
+		(cnd | object), dat2, REML = FALSE)
+
+  summary(mod)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+Linear mixed model fit by maximum likelihood  ['lmerMod']
+Formula: tfix ~ cnd + (cnd | SubjID) + (cnd | object)
+   Data: dat2
+
+     AIC      BIC   logLik deviance df.resid 
+  4434.6   4465.7  -2208.3   4416.6      226 
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-1.5439 -0.5190 -0.1772  0.1488  4.4490 
+
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr
+ SubjID   (Intercept)  418439   646.87      
+          cnd          795791   892.07  1.00
+ object   (Intercept)  636261   797.66      
+          cnd            3462    58.83  1.00
+ Residual             7657324  2767.19      
+Number of obs: 235, groups:  SubjID, 20; object, 12
+
+Fixed effects:
+            Estimate Std. Error t value
+(Intercept)   3326.7      326.5  10.190
+cnd           1441.7      413.0   3.491
+
+Correlation of Fixed Effects:
+    (Intr)
+cnd 0.237
+#+end_example
+
+#+CALL: unhide() :results html value
+
+7. [@7] Derive \(p\)-values using:
+   - Wald \(z\) statistic ("t-as-z"), and
+   - Likelihood ratio tests
+
+#+CALL: hide() :results html value
+
+- Wald \(z\)
+
+#+begin_src R
+  cf <- fixef(mod)
+  serr <- sqrt(diag(vcov(mod)))
+  tval <- cf / serr
+
+  2 * (1 - pnorm(abs(tval)))
+#+end_src
+
+#+RESULTS:
+:  
+: (Intercept)          cnd 
+: 0.0000000000 0.0004813293
+
+- Likelihood ratio test
+
+#+begin_src R
+  mod2 <- update(mod, . ~ . -cnd)
+
+  anova(mod, mod2)
+#+end_src
+
+#+RESULTS:
+: Data: dat2
+: Models:
+: mod2: tfix ~ (cnd | SubjID) + (cnd | object)
+: mod: tfix ~ cnd + (cnd | SubjID) + (cnd | object)
+:      Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(>Chisq)   
+: mod2  8 4442.7 4470.4 -2213.4   4426.7                            
+: mod   9 4434.6 4465.7 -2208.3   4416.6 10.116      1    0.00147 **
+: ---
+: Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+#+CALL: unhide() :results html value
+
+8. [@8] Would you say that subjects or items introduce more overall
+   variation in grand mean target latencies? src_R[:exports results :results html value]{mcq(c(answer = "items", "subjects"))} 
+
+9. [@9] Do subjects or items vary more in terms of the effect of condition
+   (competitor)? src_R[:exports results :results html value]{mcq(c("items", answer = "subjects"))}
+
+* 
+
+#+begin_export html
+ <script>
+
+ /* update total correct if #total_correct exists */
+ update_total_correct = function() {
+   if (t = document.getElementById("total_correct")) {
+     t.innerHTML =
+       document.getElementsByClassName("correct").length + " of " +
+       document.getElementsByClassName("solveme").length + " correct";
+   }
+ }
+
+ /* solution button toggling function */
+ b_func = function() {
+   var cl = this.parentElement.classList;
+   if (cl.contains('open')) {
+     cl.remove("open");
+   } else {
+     cl.add("open");
+   }
+ }
+
+ /* function for checking solveme answers */
+ solveme_func = function(e) {
+   var real_answers = JSON.parse(this.dataset.answer);
+   var my_answer = this.value;
+   var cl = this.classList;
+   if (cl.contains("ignorecase")) {
+     my_answer = my_answer.toLowerCase();
+   }
+   if (cl.contains("nospaces")) {
+     my_answer = my_answer.replace(/ /g, "");
+   }
+  
+   if (my_answer !== "" & real_answers.includes(my_answer)) {
+     cl.add("correct");
+   } else {
+     cl.remove("correct");
+   }
+   update_total_correct();
+ }
+
+ window.onload = function() {
+   /* set up solution buttons */
+   var buttons = document.getElementsByTagName("button");
+
+   for (var i = 0; i < buttons.length; i++) {
+     if (buttons[i].parentElement.classList.contains('solution')) {
+       buttons[i].onclick = b_func;
+     }
+   }
+  
+   /* set up solveme inputs */
+   var solveme = document.getElementsByClassName("solveme");
+
+   for (var i = 0; i < solveme.length; i++) {
+     /* make sure input boxes don't auto-anything */
+     solveme[i].setAttribute("autocomplete","off");
+     solveme[i].setAttribute("autocorrect", "off");
+     solveme[i].setAttribute("autocapitalize", "off"); 
+     solveme[i].setAttribute("spellcheck", "false");
+     solveme[i].value = "";
+    
+     /* adjust answer for ignorecase or nospaces */
+     var cl = solveme[i].classList;
+     var real_answer = solveme[i].dataset.answer;
+     if (cl.contains("ignorecase")) {
+       real_answer = real_answer.toLowerCase();
+     }
+     if (cl.contains("nospaces")) {
+       real_answer = real_answer.replace(/ /g, "");
+     }
+     solveme[i].dataset.answer = real_answer;
+    
+     /* attach checking function */
+     solveme[i].onkeyup = solveme_func;
+     solveme[i].onchange = solveme_func;
+   }
+  
+   update_total_correct();
+ }
+
+ </script>
+#+end_export

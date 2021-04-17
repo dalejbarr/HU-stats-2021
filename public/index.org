@@ -36,10 +36,10 @@
 |            | 14:00-17:00 | Multiple regression ([[file:slides/03_reg/index.html][slides]]) ([[file:05_regression/afternoon_multreg/multreg_walkthru.html][walkthrough]])                    |
 |------------+-------------+---------------------------------------------------------------|
 | Sat 17-Apr | 10:00-13:00 | Interactions ([[file:slides/interactions_slides/index.html][slides]]) ([[file:06_interactions/interactions_walkthru/interactions_stub.Rmd][activity]]) ([[file:06_interactions/interactions_walkthru/interactions_solution.html][solution]])                   |
-|            | 14:00-17:00 | Linear Mixed-Effects Models ([[file:slides/lmems_1/index.html][slides]]) ([[file:07_lmm_1/lmem1_stub.Rmd][activity]]) ([[file:07_lmm_1/lmem1_solution.html][solution]])    |
+|            | 14:00-17:00 | Linear Mixed-Effects Models ([[file:slides/lmems_1/index.html][slides]]) ([[file:06_interactions/afternoon_activity/lmem1_stub.Rmd][activity]]) ([[file:06_interactions/afternoon_activity/lmem1_solution.html][solution]])    |
 |------------+-------------+---------------------------------------------------------------|
-| Sat 24-Apr | 10:00-13:00 | Linear Mixed-Effects Models 2                                 |
-|            | 14:00-17:00 | LMMs with crossed random effects of subjects and stimuli      |
+| Sat 24-Apr | 10:00-13:00 | Linear Mixed-Effects Models 2 ([[file:07_lmems2/morning_activity/stroop-stub.html][activity]]) ([[file:07_lmems2/morning_activity/stroop-solution.html][solution]])           |
+|            | 14:00-17:00 | LMMs for simultaneous generalization ([[file:07_lmems2/afternoon_crossed/index.org][activity]])                       |
 |------------+-------------+---------------------------------------------------------------|
 | Sat 08-May | 10:00-13:00 | Catch-up / review / Q&A                                       |
 |            | 14:00-17:00 | Catch-up / review / Q&A                                       |

@@ -1,0 +1,29 @@
+---
+title: "Replacing t-tests with Linear Mixed Effects Models"
+author: "Dale Barr"
+output: html_document
+---
+
+# Stroop data
+
+In the Stroop task (Stroop, 1937), participants see a sequence of words (e.g., “red”) printed in different colours. The participant’s task is simply to say aloud what colour each word is printed in. For example, if a participant were to see the word “horse” printed in green, they are to respond by saying “green”, not “horse.” In effect, participants can completely ignore the words during the task since they only have to name the colours.
+
+Each word appears one by one in a random order, and the participant’s response time is measured: for instance, the time it takes from seeing the green word “horse” until responding “green”.
+
+In the classic version of the task, the words that participants see are actually colour names; for example, the words blue, purple, brown, red, or green. On some trials, the colour that a word is printed in matches the actual word (congruent trial, e.g., the word “red” printed in red). On others, they are mismatched (incongruent trial, e.g., the word “red” printed in green or blue). As you might imagine, participants are slower (and less accurate) to name the printed colour on incongruent than on congruent trials. This difference in response time is known as “the Stroop effect” and is generally thought to indicate the automatic and obligatory nature of reading processes.
+
+## Your task
+
+Imagine that you have run a study testing the hypothesis that native English speakers will show a larger Stroop effect than people who speak English fluently, but as a second language. You will be analyzing simulated data from such a (hypothetical) study.
+
+You have one file [`demographics2.csv`](demographics2.csv){target="_download"} with information about the participants: their ID (`subj_id`) and whether they are a native English speaker (`native_speaker`). Of the 100 participants, 4 did not respond to the question about whether they are a native speaker. Write code to remove these participants before proceeding.
+
+You have a separate file [`stroop2.csv`](stroop2.csv){target="_download"} with the results of the Stroop task. Each row is one trial, with that participant’s ID (`subj_id`), the word (`word`), the colour of the ink that the word was written in (`ink_colour`), the response that the participant gave (`response`), and the reaction time for the response (`rt`).
+
+Each participant is shown a set of congruent trials, where the word and the ink colour matched, and a set of incongruent trials, where the word and the ink colour did not match. The response is correct if it matches the ink colour.
+
+Perform your analysis in an R Markdown file. Make sure you include the following steps:
+
+1. Prepare the data for analysis, removing any trials with inaccurate responses.
+2. Make an informative plot of the cell means.
+3. Analyze the data using a linear-mixed effects model, with DV `rt` and IVs `native_speaker` and congruency (whether the ink colour matches the word). Use model comparison to test all main effects and interactions.
