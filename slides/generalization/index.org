@@ -1,0 +1,298 @@
+#+SETUPFILE: setup.org
+#+TITLE: Improving the generalizability of studies where subjects respond to stimuli
+#+AUTHOR: Dale Barr
+#+DATE: University of Glasgow
+#+PROPERTY: header-args:R :session *R* :exports both :results output
+
+* Setup                                                            :noexport:
+
+#+begin_src R :results silent
+  options(crayon.enabled = FALSE)
+
+  library("tidyverse")
+  library("lme4")
+  library("funfact")
+
+  three_way_mixed <- function() {
+    my_design <- list(ivs = c(A = 2, B = 2, C = 2),
+		      n_item = 16,
+		      between_subj = sample(LETTERS[1:3], 1))
+
+    dat <- sim_norm(my_design, 8, params = gen_pop(my_design, 8)) %>%
+      as_tibble() %>%
+      select(subj_id, A, B, C, DV = Y) %>%
+      sample_n(nrow(.))
+
+    list(my_design, dat)
+  }
+
+  three_way_mixed_both <- function() {
+    n_subj <- 16L
+    n_item <- 16L
+    if (sample(c(TRUE, FALSE), 1L)) {
+      n_subj <- 8L
+    } else {
+      n_item <- 8L
+    }
+    my_design <- c(list(ivs = c(A = 2, B = 2, C = 2),
+			n_item = n_item))
+
+    dat <- sim_norm(my_design, n_subj, params = gen_pop(my_design, n_subj)) %>%
+      as_tibble() %>%
+      select(subj_id, item_id, A, B, C, DV = Y) %>%
+      sample_n(nrow(.))
+
+    list(my_design, dat)  
+  }  
+
+  set.seed(9122005)
+  dat1 <- three_way_mixed()[[2]]
+  dat2 <- three_way_mixed_both()[[2]]
+
+  ##print.tbl_df <- function(x, ...) {
+  ##  print(head(as.data.frame(x), ifelse(nrow(x) > 20, 10, nrow(x)), ...))
+  ##  invisible(x)
+  ## } 
+#+end_src
+
+
+* Common experimental scenarios
+
+Commonly subjects are asked to:
+
+- name words / make lexical decisions
+- judge the trustworthiness of faces
+- read/rate stories or scenarios
+- remember or make judgments about scenes
+
+#+begin_notes
+- most people worry a lot about the quality of their stimuli
+- and worry about generalizing beyond the sample of subjects
+- but (outside psycholing) rare to worry about whether findings will
+  generalize beyond their stimuli
+#+end_notes
+
+* The "Language-As-Fixed-Effect" Fallacy
+
+- Psycholinguistic experiments sample language materials as well as subjects
+- Language stimuli should be treated as a random, not fixed factor
+- Clark's suggestion: \(F'\), min-\(F'\)
+
+#+begin_citation
+Clark, H. H. (1973). [[https://doi.org/10.1016/S0022-5371(73)80014-3][The language-as-fixed-effect fallacy: A critique of language statistics in psychological research]]. /Journal of Verbal Learning and Verbal Behavior/, /12/, 335-359.
+
+Coleman, E. B. (1964). [[https://doi.org/10.2466%2Fpr0.1964.14.1.219][Generalizing to a language population]]. /Psychological Reports/, /14/, 219--226.
+#+end_citation
+
+* Problems with min-\(F'\)
+
+- Low power (Forster & Dickinson, 1978)
+  - especially when critical variances are small
+  - alternative \(F_1 \times F_2\) criterion is powerful, but invalid
+
+- Inherits limitations from ANOVA
+  - categorical IVs, continuous DVs
+  - problems with unbalanced data
+
+#+begin_citation
+Forster, K. I., & Dickinson, R. G. (1976). [[https://doi.org/10.1016/0022-5371(76)90014-1][More on the language-as-fixed-effect fallacy: Monte Carlo estimates of error rates for F1, F2, F′, and min F′]]. /Journal of Verbal Learning and Verbal Behavior/, /15/, 135--142.
+#+end_citation
+
+* Linear mixed-effects models
+
+- /simultaneously/ accounts for subjects + stimuli
+- allows continuous & categorical predictors
+- better handling of unbalanced data
+- estimated using *=lme4=* and *=brms=* (R), *=MixedModels.jl=* (Julia), *=PyMC3=* (Python)
+- BUT: technically demanding, and estimation is iterative (MLE) so may not converge
+
+#+begin_citation
+Baayen, R. H., Davidson, D. J., & Bates, D. M. (2008). [[https://doi.org/10.1016/j.jml.2007.12.005][Mixed-effects modeling with crossed random effects for subjects and items.]] /Journal of Memory and Language/, /59/, 390--412.
+
+Hoffman, L., & Rovine, M. J. (2007). [[https://doi.org/10.3758/BF03192848][Multilevel models for the experimental psychologist: Foundations and illustrative examples]]. /Behavior Research Methods/, 39, 101--117.
+
+Quené, H., & Van den Bergh, H. (2008). [[https://doi.org/10.1016/j.jml.2008.02.002][Examples of mixed-effects modeling with crossed random effects and with binomial data.]] /Journal of Memory and Language/, /59/, 413--425.
+#+end_citation
+
+* Web app
+
+https://shiny.psy.gla.ac.uk/Dale/crossed/
+
+#+begin_notes
+- todo: explain random intercepts and random slopes
+#+end_notes
+
+* Some myths
+
+1. A "random intercepts only" model is sufficient
+2. Only a problem for psycholinguists
+3. Matching stimuli solves the problem
+4. Same stimuli across conditions solves the problem 
+5. Bigger N/replication solves the problem
+
+* 1. Random intercepts only?
+
+- random intercepts only assumes /effect homogeneity/ for within-unit effects
+
+- In ANOVA, by-subject random slope variance is accounted for by aggregation or by the "treatment-by-subject" error term
+
+- "keep it maximal" strategy: all within-unit effects with multiple observations per cell get a random slope
+
+#+begin_notes
+- in other words: that an effect shows zero variability for all participants; exhaustively described by a constant
+#+end_notes
+
+#+begin_citation
+Barr, D. J., Levy, R., Scheepers, C., & Tily, H. J. (2013). [[https://doi.org/10.1016/j.jml.2012.11.001][Random effects structure for confirmatory hypothesis testing: Keep it maximal]]. /Journal of Memory and Language/, /68/, 255--278.
+
+Barr, D. J. (2013). [[https://doi.org/10.3389/fpsyg.2013.00328][Random effects structure for testing interactions in linear mixed-effects models]]. /Frontiers in Psychology/, /4/, 328.
+#+end_citation
+
+* simulation: between-item
+
+[[file:img/kim_1.png]]
+
+* simulation: within-item
+
+[[file:img/kim_2.png]]
+
+* Design-driven or data-driven?
+
+- Matuschek et al. argue for data-driven random effects
+- Can boost power when random slope variance is small
+- However, outside of simple cases with conservative criteria, risk is
+  unknown
+
+#+begin_citation
+Matuschek, H., Kliegl, R., Vasishth, S., Baayen, H., & Bates, D. (2017). [[https://doi.org/10.1016/j.jml.2017.01.001][Balancing Type I error and power in linear mixed models]]. /Journal of Memory and Language/, /94/, 305-315.
+#+end_citation
+
+* 2. Only a problem for psycholinguists?
+
+* generalizing over encounters
+
+The target of inference in much of psychology and related fields has
+been misidentified as a population of /subjects/ or /stimuli/, when the
+actual target of inference is a population of events: *encounters*
+
+#+begin_smaller
+- readers encountering particular types of words
+- male participants judging attractiveness of female faces, or vice versa
+- gamers encountering particular types of violent games
+- audience members encountering particular types of dance movements
+- insomniacs (versus controls) encountering emotional expressions
+- birds hearing particular types of birdsongs
+#+end_smaller
+
+#+begin_citation
+Barr, D. J. (2018). [[https://psyarxiv.com/mcrzu/][Generalizing Over Encounters: Statistical and Theoretical Considerations]]. In S. A. Rueschemeyer & M. G. Gaskell (Eds.), /The Oxford Handbook of Psycholinguistics/ (2nd Ed). 
+#+end_citation
+
+* social psychology
+
+- false positive error rates inflated for by-subject only designs
+- re-analyzed four social psychology datasets, showing insights that
+  would have been missed by modeling subject variability only
+
+#+begin_citation
+Judd, C. M., Westfall, J., & Kenny, D. A. (2012). [[https://psycnet.apa.org/doi/10.1037/a0028347][Treating stimuli as a random factor in social psychology: A new and comprehensive solution to a pervasive but largely ignored problem.]] /Journal of Personality and Social Psychology/, /103/, 54--69.
+#+end_citation
+
+* neuroimaging
+
+[[file:img/westfall_yarkoni.png]]
+
+#+begin_notes
+- regression coefficients for activation in the amygdala
+- by-subject summary test statistics from fMRI studies showed 50-200% inflation relative to models accounting for stimulus variation
+#+end_notes
+
+#+begin_citation
+Westfall, J., Nichols, T. E., & Yarkoni, T. (2016). [[https://dx.doi.org/10.12688%2Fwellcomeopenres.10298.2][Fixing the stimulus-as-fixed-effect fallacy in task fMRI]]. /Wellcome Open Research/, 1: 23.
+#+end_citation
+
+* 3. Matching stimuli?
+
+- use NHST to show no difference between materials forming your two conditions?
+  - e.g., word frequency not significantly different for your two stimulus sets
+- PROBLEM: impossible to perfectly equate stimuli, stimulus sets repeat /with each new subject/ that is added
+
+#+begin_citation
+Sassenhagen, J., & Alday, P. M. (2016). [[https://doi.org/10.1016/j.bandl.2016.08.001][A common misapplication of statistical inference: nuisance control with null-hypothesis significance tests.]] /Brain and Language/, /162/, 42--45.
+#+end_citation
+
+* 4. Same stimuli across conditions?
+
+Using the same stimuli across conditions only controls for influence of by-item random intercept variance on your effect of interest, *not* any by-item random slope variance!
+
+* 5. Replication? Big N?
+
+#+begin_center
+/Instead of by-subjects analysis, why not just replicate?/
+#+end_center
+
+- Successful replication with *the same stimuli* ambiguous between replicating stimulus biases and demonstrating robustness
+- True effect with *different stimuli* may yield highly significant effects across studies but in /conflicting/ directions
+
+* 
+
+[[file:img/subject_n.png]]
+
+* Why mixed-effects models are great
+
+- Extremely flexible, can handle many research designs and data types
+- Give insight into variability at multiple levels (subject, item, trial)
+- Represent a /full generative model/ of the data
+  - thus allow better grasp on power
+- Allow simultaneous generalization over multiple sampling units
+
+#+begin_notes
+- increase subject N or item N?
+#+end_notes
+
+* Why mixed-effects models are not so great
+
+- Extremely flexible, easy to misuse
+- Reporting standards: Still the Wild West
+- Convergence problems can be frustrating
+  - BUT: see *=MixedModels.jl=* and *=brms=*
+
+* Solutions other than mixed-effects models
+
+- Use a *very* large number of stimuli
+- Use different stimuli for each subject
+- Use a very *small* number and call it a case study
+- Add /...for these stimuli/ to the title of your paper
+
+* The tip of the iceberg?
+
+#+begin_center
+Also need to consider other factors than just /stimuli/ and /subjects/
+#+end_center
+
+- construct operationalization
+- task (e.g., ego depletion)
+
+#+begin_citation
+Yarkoni, T. (2019). [[https://psyarxiv.com/jqw35/][The generalizability crisis (preprint)]].
+#+end_citation
+
+#+begin_notes
+- tension between demonstrating /replicability/ and /generalizability/ and way more interest and resourses have focused on replicatibility
+#+end_notes
+
+* Recommended tutorials/books/resources
+
+#+begin_citation
+Brauer, M., & Curtin, J. J. (2018). [[https://psycnet.apa.org/doi/10.1037/met0000159][Linear mixed-effects models and the analysis of nonindependent data: A unified framework to analyze categorical and continuous independent variables that vary within-subjects and/or within-items]]. /Psychological Methods/, /23/, 389.
+
+DeBruine, L., & Barr, D. J. (in press). Understanding mixed effects models through data simulation. /Advances and Methods in Practice in Psychological Science/.([[https://psyarxiv.com/xp5cy][preprint]])
+
+Luke, S. G. (2017). [[https://doi.org/10.3758/s13428-016-0809-y][Evaluating significance in linear mixed-effects models in R]]. /Behavior Research Methods/, /49/, 1494-1502.
+
+McElreath, R. (2020). /Statistical rethinking: A Bayesian course with examples in R and Stan/. CRC press.
+
+Westfall, J., Kenny, D. A., & Judd, C. M. (2014). [[https://psycnet.apa.org/doi/10.1037/xge0000014][Statistical power and optimal design in experiments in which samples of participants respond to samples of stimuli]]. /Journal of Experimental Psychology: General/, /143/, 2020.
+
+Winter, B. (2019). /Statistics for linguists: An introduction using R/. Routledge.
+#+end_citation

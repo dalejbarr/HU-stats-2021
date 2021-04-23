@@ -1,0 +1,45 @@
+.reveal section img { background:none; border:none; box-shadow:none; }
+
+.bibstyle p {
+    font-size: 32%;
+    line-height: 1;
+    text-align: left;
+}
+
+.smalltbl table {
+    font-size: 60%;
+    line-height: .9em;
+}
+
+.smalltbl2 table {
+    font-size: 50%;
+}
+
+.smalltbl td.left {
+    text-align: left;
+}
+
+.smalltbl td.left {
+    text-align: right;
+}
+
+.smaller p {
+    font-size: 40%;
+    line-height: .4em;
+}
+
+.smallleft p {
+    font-size: 70%;
+    line-height: 1em;
+    text-align: left;
+}
+
+.citation p {
+    font-size: 40%;
+    text-align: left;
+}
+
+.smaller li {
+    font-size: 70%;
+    line-height: 1em;
+}

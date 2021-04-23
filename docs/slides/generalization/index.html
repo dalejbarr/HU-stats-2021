@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Improving the generalizability of studies where subjects respond to stimuli</title>
+<meta name="author" content="(Dale Barr)"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="./reveal.js/css/reveal.css"/>
+
+<link rel="stylesheet" href="./reveal.js/css/theme/black.css" id="theme"/>
+
+<link rel="stylesheet" href="./mods.css"/>
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = './reveal.js/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition=""><h3>Improving the generalizability of studies where subjects respond to stimuli</h3><b>Dale Barr</b><p>University of Glasgow</p>
+</section>
+
+<section>
+<section id="slide-org28f50c3" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="org28f50c3">Common experimental scenarios</h2>
+<p>
+Commonly subjects are asked to:
+</p>
+
+<ul>
+<li>name words / make lexical decisions</li>
+<li>judge the trustworthiness of faces</li>
+<li>read/rate stories or scenarios</li>
+<li>remember or make judgments about scenes</li>
+
+</ul>
+
+<aside class="notes">
+<ul>
+<li>most people worry a lot about the quality of their stimuli</li>
+<li>and worry about generalizing beyond the sample of subjects</li>
+<li>but (outside psycholing) rare to worry about whether findings will
+generalize beyond their stimuli</li>
+
+</ul>
+
+</aside>
+
+<div class="slide-footer"></div>
+</section>
+</section>
+<section>
+<section id="slide-org5d4b323" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="org5d4b323">The &ldquo;Language-As-Fixed-Effect&rdquo; Fallacy</h2>
+<ul>
+<li>Psycholinguistic experiments sample language materials as well as subjects</li>
+<li>Language stimuli should be treated as a random, not fixed factor</li>
+<li>Clark&rsquo;s suggestion: \(F'\), min-\(F'\)</li>
+
+</ul>
+
+<div class="citation">
+<p>
+Clark, H. H. (1973). <a href="https://doi.org/10.1016/S0022-5371(73)80014-3">The language-as-fixed-effect fallacy: A critique of language statistics in psychological research</a>. <i>Journal of Verbal Learning and Verbal Behavior</i>, <i>12</i>, 335-359.
+</p>
+
+<p>
+Coleman, E. B. (1964). <a href="https://doi.org/10.2466%2Fpr0.1964.14.1.219">Generalizing to a language population</a>. <i>Psychological Reports</i>, <i>14</i>, 219&#x2013;226.
+</p>
+
+</div>
+
+<div class="slide-footer"></div>
+</section>
+</section>
+<section>
+<section id="slide-org48468c0" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="org48468c0">Problems with min-\(F'\)</h2>
+<ul>
+<li>Low power (Forster &amp; Dickinson, 1978)
+<ul>
+<li>especially when critical variances are small</li>
+<li>alternative \(F_1 \times F_2\) criterion is powerful, but invalid</li>
+
+</ul></li>
+
+<li>Inherits limitations from ANOVA
+<ul>
+<li>categorical IVs, continuous DVs</li>
+<li>problems with unbalanced data</li>
+
+</ul></li>
+
+</ul>
+
+<div class="citation">
+<p>
+Forster, K. I., &amp; Dickinson, R. G. (1976). <a href="https://doi.org/10.1016/0022-5371(76)90014-1">More on the language-as-fixed-effect fallacy: Monte Carlo estimates of error rates for F1, F2, F′, and min F′</a>. <i>Journal of Verbal Learning and Verbal Behavior</i>, <i>15</i>, 135&#x2013;142.
+</p>
+
+</div>
+
+<div class="slide-footer"></div>
+</section>
+</section>
+<section>
+<section id="slide-orgf0d3870" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="orgf0d3870">Linear mixed-effects models</h2>
+<ul>
+<li><i>simultaneously</i> accounts for subjects + stimuli</li>
+<li>allows continuous &amp; categorical predictors</li>
+<li>better handling of unbalanced data</li>
+<li>estimated using <b><code>lme4</code></b> and <b><code>brms</code></b> (R), <b><code>MixedModels.jl</code></b> (Julia), <b><code>PyMC3</code></b> (Python)</li>
+<li>BUT: technically demanding, and estimation is iterative (MLE) so may not converge</li>
+
+</ul>
+
+<div class="citation">
+<p>
+Baayen, R. H., Davidson, D. J., &amp; Bates, D. M. (2008). <a href="https://doi.org/10.1016/j.jml.2007.12.005">Mixed-effects modeling with crossed random effects for subjects and items.</a> <i>Journal of Memory and Language</i>, <i>59</i>, 390&#x2013;412.
+</p>
+
+<p>
+Hoffman, L., &amp; Rovine, M. J. (2007). <a href="https://doi.org/10.3758/BF03192848">Multilevel models for the experimental psychologist: Foundations and illustrative examples</a>. <i>Behavior Research Methods</i>, 39, 101&#x2013;117.
+</p>
+
+<p>
+Quené, H., &amp; Van den Bergh, H. (2008). <a href="https://doi.org/10.1016/j.jml.2008.02.002">Examples of mixed-effects modeling with crossed random effects and with binomial data.</a> <i>Journal of Memory and Language</i>, <i>59</i>, 413&#x2013;425.
+</p>
+
+</div>
+
+<div class="slide-footer"></div>
+</section>
+</section>
+<section>
+<section id="slide-orgd30c963" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="orgd30c963">Web app</h2>
+<p>
+<a href="https://shiny.psy.gla.ac.uk/Dale/crossed/">https://shiny.psy.gla.ac.uk/Dale/crossed/</a>
+</p>
+
+<aside class="notes">
+<ul>
+<li>todo: explain random intercepts and random slopes</li>
+
+</ul>
+
+</aside>
+
+<div class="slide-footer"></div>
+</section>
+</section>
+<section>
+<section id="slide-org164cec0" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="org164cec0">Some myths</h2>
+<ol>
+<li>A &ldquo;random intercepts only&rdquo; model is sufficient</li>
+<li>Only a problem for psycholinguists</li>
+<li>Matching stimuli solves the problem</li>
+<li>Same stimuli across conditions solves the problem</li>
+<li>Bigger N/replication solves the problem</li>
+
+</ol>
+
+<div class="slide-footer"></div>
+</section>
+</section>
+<section>
+<section id="slide-orgd515cdf" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="orgd515cdf">1. Random intercepts only?</h2>
+<ul>
+<li>random intercepts only assumes <i>effect homogeneity</i> for within-unit effects</li>
+
+<li>In ANOVA, by-subject random slope variance is accounted for by aggregation or by the &ldquo;treatment-by-subject&rdquo; error term</li>
+
+<li>&ldquo;keep it maximal&rdquo; strategy: all within-unit effects with multiple observations per cell get a random slope</li>
+
+</ul>
+
+<aside class="notes">
+<ul>
+<li>in other words: that an effect shows zero variability for all participants; exhaustively described by a constant</li>
+
+</ul>
+
+</aside>
+
+<div class="citation">
+<p>
+Barr, D. J., Levy, R., Scheepers, C., &amp; Tily, H. J. (2013). <a href="https://doi.org/10.1016/j.jml.2012.11.001">Random effects structure for confirmatory hypothesis testing: Keep it maximal</a>. <i>Journal of Memory and Language</i>, <i>68</i>, 255&#x2013;278.
+</p>
+
+<p>
+Barr, D. J. (2013). <a href="https://doi.org/10.3389/fpsyg.2013.00328">Random effects structure for testing interactions in linear mixed-effects models</a>. <i>Frontiers in Psychology</i>, <i>4</i>, 328.
+</p>
+
+</div>
+
+<div class="slide-footer"></div>
+</section>
+</section>
+<section>
+<section id="slide-org4286340" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="org4286340">simulation: between-item</h2>
+
+<div class="figure">
+<p><img src="img/kim_1.png" alt="kim_1.png" />
+</p>
+</div>
+
+<div class="slide-footer"></div>
+</section>
+</section>
+<section>
+<section id="slide-orgc5381f8" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="orgc5381f8">simulation: within-item</h2>
+
+<div class="figure">
+<p><img src="img/kim_2.png" alt="kim_2.png" />
+</p>
+</div>
+
+<div class="slide-footer"></div>
+</section>
+</section>
+<section>
+<section id="slide-org4f1e67a" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="org4f1e67a">Design-driven or data-driven?</h2>
+<ul>
+<li>Matuschek et al. argue for data-driven random effects</li>
+<li>Can boost power when random slope variance is small</li>
+<li>However, outside of simple cases with conservative criteria, risk is
+unknown</li>
+
+</ul>
+
+<div class="citation">
+<p>
+Matuschek, H., Kliegl, R., Vasishth, S., Baayen, H., &amp; Bates, D. (2017). <a href="https://doi.org/10.1016/j.jml.2017.01.001">Balancing Type I error and power in linear mixed models</a>. <i>Journal of Memory and Language</i>, <i>94</i>, 305-315.
+</p>
+
+</div>
+
+<div class="slide-footer"></div>
+</section>
+</section>
+<section>
+<section id="slide-org607bfc4" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="org607bfc4">2. Only a problem for psycholinguists?</h2>
+
+<div class="slide-footer"></div>
+</section>
+</section>
+<section>
+<section id="slide-orgd77f834" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="orgd77f834">generalizing over encounters</h2>
+<p>
+The target of inference in much of psychology and related fields has
+been misidentified as a population of <i>subjects</i> or <i>stimuli</i>, when the
+actual target of inference is a population of events: <b>encounters</b>
+</p>
+
+<div class="smaller">
+<ul>
+<li>readers encountering particular types of words</li>
+<li>male participants judging attractiveness of female faces, or vice versa</li>
+<li>gamers encountering particular types of violent games</li>
+<li>audience members encountering particular types of dance movements</li>
+<li>insomniacs (versus controls) encountering emotional expressions</li>
+<li>birds hearing particular types of birdsongs</li>
+
+</ul>
+
+</div>
+
+<div class="citation">
+<p>
+Barr, D. J. (2018). <a href="https://psyarxiv.com/mcrzu/">Generalizing Over Encounters: Statistical and Theoretical Considerations</a>. In S. A. Rueschemeyer &amp; M. G. Gaskell (Eds.), <i>The Oxford Handbook of Psycholinguistics</i> (2nd Ed). 
+</p>
+
+</div>
+
+<div class="slide-footer"></div>
+</section>
+</section>
+<section>
+<section id="slide-orgdc29f4d" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="orgdc29f4d">social psychology</h2>
+<ul>
+<li>false positive error rates inflated for by-subject only designs</li>
+<li>re-analyzed four social psychology datasets, showing insights that
+would have been missed by modeling subject variability only</li>
+
+</ul>
+
+<div class="citation">
+<p>
+Judd, C. M., Westfall, J., &amp; Kenny, D. A. (2012). <a href="https://psycnet.apa.org/doi/10.1037/a0028347">Treating stimuli as a random factor in social psychology: A new and comprehensive solution to a pervasive but largely ignored problem.</a> <i>Journal of Personality and Social Psychology</i>, <i>103</i>, 54&#x2013;69.
+</p>
+
+</div>
+
+<div class="slide-footer"></div>
+</section>
+</section>
+<section>
+<section id="slide-orgf8865d5" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="orgf8865d5">neuroimaging</h2>
+
+<div class="figure">
+<p><img src="img/westfall_yarkoni.png" alt="westfall_yarkoni.png" />
+</p>
+</div>
+
+<aside class="notes">
+<ul>
+<li>regression coefficients for activation in the amygdala</li>
+<li>by-subject summary test statistics from fMRI studies showed 50-200% inflation relative to models accounting for stimulus variation</li>
+
+</ul>
+
+</aside>
+
+<div class="citation">
+<p>
+Westfall, J., Nichols, T. E., &amp; Yarkoni, T. (2016). <a href="https://dx.doi.org/10.12688%2Fwellcomeopenres.10298.2">Fixing the stimulus-as-fixed-effect fallacy in task fMRI</a>. <i>Wellcome Open Research</i>, 1: 23.
+</p>
+
+</div>
+
+<div class="slide-footer"></div>
+</section>
+</section>
+<section>
+<section id="slide-org00fb970" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="org00fb970">3. Matching stimuli?</h2>
+<ul>
+<li>use NHST to show no difference between materials forming your two conditions?
+<ul>
+<li>e.g., word frequency not significantly different for your two stimulus sets</li>
+
+</ul></li>
+<li>PROBLEM: impossible to perfectly equate stimuli, stimulus sets repeat <i>with each new subject</i> that is added</li>
+
+</ul>
+
+<div class="citation">
+<p>
+Sassenhagen, J., &amp; Alday, P. M. (2016). <a href="https://doi.org/10.1016/j.bandl.2016.08.001">A common misapplication of statistical inference: nuisance control with null-hypothesis significance tests.</a> <i>Brain and Language</i>, <i>162</i>, 42&#x2013;45.
+</p>
+
+</div>
+
+<div class="slide-footer"></div>
+</section>
+</section>
+<section>
+<section id="slide-orgcaab873" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="orgcaab873">4. Same stimuli across conditions?</h2>
+<p>
+Using the same stimuli across conditions only controls for influence of by-item random intercept variance on your effect of interest, <b>not</b> any by-item random slope variance!
+</p>
+
+<div class="slide-footer"></div>
+</section>
+</section>
+<section>
+<section id="slide-orge0ad55c" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="orge0ad55c">5. Replication? Big N?</h2>
+<div class="org-center">
+<p>
+<i>Instead of by-subjects analysis, why not just replicate?</i>
+</p>
+</div>
+
+<ul>
+<li>Successful replication with <b>the same stimuli</b> ambiguous between replicating stimulus biases and demonstrating robustness</li>
+<li>True effect with <b>different stimuli</b> may yield highly significant effects across studies but in <i>conflicting</i> directions</li>
+
+</ul>
+
+<div class="slide-footer"></div>
+</section>
+</section>
+<section>
+<section id="slide-org0361ef1" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="org0361ef1"></h2>
+
+<div class="figure">
+<p><img src="img/subject_n.png" alt="subject_n.png" />
+</p>
+</div>
+
+<div class="slide-footer"></div>
+</section>
+</section>
+<section>
+<section id="slide-org2a40f1c" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="org2a40f1c">Why mixed-effects models are great</h2>
+<ul>
+<li>Extremely flexible, can handle many research designs and data types</li>
+<li>Give insight into variability at multiple levels (subject, item, trial)</li>
+<li>Represent a <i>full generative model</i> of the data
+<ul>
+<li>thus allow better grasp on power</li>
+
+</ul></li>
+<li>Allow simultaneous generalization over multiple sampling units</li>
+
+</ul>
+
+<aside class="notes">
+<ul>
+<li>increase subject N or item N?</li>
+
+</ul>
+
+</aside>
+
+<div class="slide-footer"></div>
+</section>
+</section>
+<section>
+<section id="slide-orge09e81a" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="orge09e81a">Why mixed-effects models are not so great</h2>
+<ul>
+<li>Extremely flexible, easy to misuse</li>
+<li>Reporting standards: Still the Wild West</li>
+<li>Convergence problems can be frustrating
+<ul>
+<li>BUT: see <b><code>MixedModels.jl</code></b> and <b><code>brms</code></b></li>
+
+</ul></li>
+
+</ul>
+
+<div class="slide-footer"></div>
+</section>
+</section>
+<section>
+<section id="slide-org11b376d" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="org11b376d">Solutions other than mixed-effects models</h2>
+<ul>
+<li>Use a <b>very</b> large number of stimuli</li>
+<li>Use different stimuli for each subject</li>
+<li>Use a very <b>small</b> number and call it a case study</li>
+<li>Add <i>&#x2026;for these stimuli</i> to the title of your paper</li>
+
+</ul>
+
+<div class="slide-footer"></div>
+</section>
+</section>
+<section>
+<section id="slide-org25936ec" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="org25936ec">The tip of the iceberg?</h2>
+<div class="org-center">
+<p>
+Also need to consider other factors than just <i>stimuli</i> and <i>subjects</i>
+</p>
+</div>
+
+<ul>
+<li>construct operationalization</li>
+<li>task (e.g., ego depletion)</li>
+
+</ul>
+
+<div class="citation">
+<p>
+Yarkoni, T. (2019). <a href="https://psyarxiv.com/jqw35/">The generalizability crisis (preprint)</a>.
+</p>
+
+</div>
+
+<aside class="notes">
+<ul>
+<li>tension between demonstrating <i>replicability</i> and <i>generalizability</i> and way more interest and resourses have focused on replicatibility</li>
+
+</ul>
+
+</aside>
+
+<div class="slide-footer"></div>
+</section>
+</section>
+<section>
+<section id="slide-orge1169fe" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="orge1169fe">Recommended tutorials/books/resources</h2>
+<div class="citation">
+<p>
+Brauer, M., &amp; Curtin, J. J. (2018). <a href="https://psycnet.apa.org/doi/10.1037/met0000159">Linear mixed-effects models and the analysis of nonindependent data: A unified framework to analyze categorical and continuous independent variables that vary within-subjects and/or within-items</a>. <i>Psychological Methods</i>, <i>23</i>, 389.
+</p>
+
+<p>
+DeBruine, L., &amp; Barr, D. J. (in press). Understanding mixed effects models through data simulation. <i>Advances and Methods in Practice in Psychological Science</i>.(<a href="https://psyarxiv.com/xp5cy">preprint</a>)
+</p>
+
+<p>
+Luke, S. G. (2017). <a href="https://doi.org/10.3758/s13428-016-0809-y">Evaluating significance in linear mixed-effects models in R</a>. <i>Behavior Research Methods</i>, <i>49</i>, 1494-1502.
+</p>
+
+<p>
+McElreath, R. (2020). <i>Statistical rethinking: A Bayesian course with examples in R and Stan</i>. CRC press.
+</p>
+
+<p>
+Westfall, J., Kenny, D. A., &amp; Judd, C. M. (2014). <a href="https://psycnet.apa.org/doi/10.1037/xge0000014">Statistical power and optimal design in experiments in which samples of participants respond to samples of stimuli</a>. <i>Journal of Experimental Psychology: General</i>, <i>143</i>, 2020.
+</p>
+
+<p>
+Winter, B. (2019). <i>Statistics for linguists: An introduction using R</i>. Routledge.
+</p>
+
+</div>
+<div class="slide-footer"></div>
+</section>
+</section>
+</div>
+</div>
+<script src="./reveal.js/js/reveal.js"></script>
+
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+multiplex: {
+    secret: '', // null if client
+    id: '', // id, obtained from socket.io server
+    url: '' // Location of socket.io server
+},
+
+// Optional libraries used to extend on reveal.js
+dependencies: [
+{ src: 'vid.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: './reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+ { src: './reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: './reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: './reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: './reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }]
+,});
+
+
+</script>
+</body>
+</html>

@@ -38,8 +38,8 @@
 | Sat 17-Apr | 10:00-13:00 | Interactions ([[file:slides/interactions_slides/index.html][slides]]) ([[file:06_interactions/interactions_walkthru/interactions_stub.Rmd][activity]]) ([[file:06_interactions/interactions_walkthru/interactions_solution.html][solution]])                   |
 |            | 14:00-17:00 | Linear Mixed-Effects Models ([[file:slides/lmems_1/index.html][slides]]) ([[file:06_interactions/afternoon_activity/lmem1_stub.Rmd][activity]]) ([[file:06_interactions/afternoon_activity/lmem1_solution.html][solution]])    |
 |------------+-------------+---------------------------------------------------------------|
-| Sat 24-Apr | 10:00-13:00 | Linear Mixed-Effects Models 2 ([[file:07_lmems2/morning_activity/stroop-stub.html][activity]]) ([[file:07_lmems2/morning_activity/stroop-solution.html][solution]])           |
-|            | 14:00-17:00 | LMMs for simultaneous generalization ([[file:07_lmems2/afternoon_crossed/index.org][activity]])                       |
+| Sat 24-Apr | 10:00-13:00 | Linear Mixed-Effects Models 2 ([[file:slides/specifying_lmems/index.html][slides]]) ([[file:07_lmems2/morning_activity/stroop-stub.html][activity]]) ([[file:07_lmems2/morning_activity/stroop-solution.html][solution]])  |
+|            | 14:00-17:00 | LMMs for simultaneous generalization ([[file:slides/generalization/index.html][slides]]) ([[file:07_lmems2/afternoon_crossed/index.org][activity]])                    |
 |------------+-------------+---------------------------------------------------------------|
 | Sat 08-May | 10:00-13:00 | Catch-up / review / Q&A                                       |
 |            | 14:00-17:00 | Catch-up / review / Q&A                                       |
@@ -131,6 +131,7 @@ These materials are not required; some are reference materials, others allow you
 - McCandliss, D. (2012) /Information is beautiful./
 - [[http://docs.ggplot2.org/current][ggplot2 documentation]]
 - [[http://www.cookbook-r.com/Graphs][R graphics cookbook]]
+- [[https://github.com/jorvlan/open-visualizations][raincloud plot examples]]
 
 ** Regression
 

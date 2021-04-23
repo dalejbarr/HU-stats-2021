@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Specifying Linear Mixed Effects Models</title>
+<meta name="author" content="(Dale Barr)"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="./reveal.js/dist/reveal.css"/>
+
+<link rel="stylesheet" href="./reveal.js/dist/theme/black.css" id="theme"/>
+
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = './reveal.js/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<meta name="description" content="Specifying LMEMs">
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide"><h3>Specifying Linear Mixed Effects Models</h3><b>Dale Barr</b><p>University of Glasgow</p>
+</section>
+
+<section>
+<section id="slide-org74fdeb0">
+<h2 id="org74fdeb0">Matching model to design</h2>
+<div class="outline-text-2" id="text-org74fdeb0">
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org83e7120">
+<h3 id="org83e7120"></h3>
+
+<div class="figure">
+<p><img src="four_functions.png" alt="four_functions.png" />
+</p>
+</div>
+
+</section>
+</section>
+<section>
+<section id="slide-org5e75d4f">
+<h3 id="org5e75d4f"></h3>
+
+<div class="figure">
+<p><img src="single_level_fns.png" alt="single_level_fns.png" />
+</p>
+</div>
+
+</section>
+</section>
+<section>
+<section id="slide-org32f9331">
+<h3 id="org32f9331">Recognizing multilevel data</h3>
+<ul>
+<li>within-subject factor</li>
+<li>pseudoreplications</li>
+<li>multiple stimulus items</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orgf1d358e">
+<h3 id="orgf1d358e"></h3>
+
+<div class="figure">
+<p><img src="multilevel_fns.png" alt="multilevel_fns.png" />
+</p>
+</div>
+
+</section>
+</section>
+<section>
+<section id="slide-orgfccfcd7">
+<h2 id="orgfccfcd7">Example: Independent samples t-test on multilevel data</h2>
+<div style="padding:1em; border: 2px solid blue;">
+
+<div class="smallleft">
+<p>
+You ran a study looking alcohol consumption and simple RT. Data is stored in <code>subjects</code> and <code>simple_rt</code>. Subjects (<code>sub</code>) were randomly assigned to one of two groups (<code>cond</code>). One group drank alcohol before performing the task, while the other had a placebo drink.
+</p>
+
+<p>
+You measured how quickly each subject pressed a button in response to a flashing light (<code>RT</code>). Each subject provided 8 measurements of response time. Remove data from subjects S01 and S11 before your analysis.
+</p>
+
+</div>
+
+</div>
+
+</section>
+</section>
+<section>
+<section id="slide-org05979ca">
+<h3 id="org05979ca">t-test on subject means (1)</h3>
+<p>
+<a href="./simple_rt.zip">Download zip with the csv files</a>
+</p>
+
+<div class="column" style="float:left; width: 60%">
+
+<div class="org-src-container">
+
+<pre  class="src src-R" id="subj_means" ><code trim><span style="color: #0000bb;">library</span>(<span style="color: #223fbf;">"tidyverse"</span>)
+
+subjects <span style="color: #0000bb;">&lt;-</span> read_csv(<span style="color: #223fbf;">"simple_rt/subjects.csv"</span>,
+                     col_types = <span style="color: #223fbf;">"icc"</span>)
+
+simple_rt <span style="color: #0000bb;">&lt;-</span> read_csv(<span style="color: #223fbf;">"simple_rt/simple_rt.csv"</span>,
+                      col_types = <span style="color: #223fbf;">"icci"</span>)
+
+combined <span style="color: #0000bb;">&lt;-</span> subjects <span style="color: #0000bb;">%&gt;%</span>
+  filter(sub != <span style="color: #223fbf;">"S01"</span>,
+         sub != <span style="color: #223fbf;">"S11"</span>) <span style="color: #0000bb;">%&gt;%</span>
+  inner_join(simple_rt, <span style="color: #223fbf;">"sub"</span>) <span style="color: #0000bb;">%&gt;%</span>
+  select(sub, cond, RT)
+
+subj_means <span style="color: #0000bb;">&lt;-</span> combined <span style="color: #0000bb;">%&gt;%</span>
+  group_by(sub, cond) <span style="color: #0000bb;">%&gt;%</span>
+  summarise(mean_RT = mean(RT), 
+            .groups = <span style="color: #223fbf;">"drop"</span>) <span style="color: #0000bb;">%&gt;%</span>
+  ungroup()
+
+subj_means
+</code></pre>
+</div>
+
+</div>
+
+<div class="column" style="float:right; width: 40%">
+
+<pre class="example">
+# A tibble: 14 x 3
+   sub   cond    mean_RT
+   &lt;chr&gt; &lt;chr&gt;     &lt;dbl&gt;
+ 1 S02   placebo    514.
+ 2 S03   placebo    528.
+ 3 S04   alcohol    507 
+ 4 S05   placebo    476.
+ 5 S06   alcohol    450.
+ 6 S07   placebo    488.
+ 7 S08   placebo    411.
+ 8 S09   alcohol    430.
+ 9 S10   alcohol    458.
+10 S12   alcohol    537.
+11 S13   alcohol    500 
+12 S14   placebo    434.
+13 S15   placebo    393.
+14 S16   alcohol    425
+</pre>
+
+</div>
+
+</section>
+</section>
+<section>
+<section id="slide-org62b161f">
+<h3 id="org62b161f">t-test on subject means (2)</h3>
+<div class="org-src-container">
+
+<pre  class="src src-R" ><code trim>t.test(mean_RT ~ cond, subj_means, var.equal = <span style="color: #8f0075;">TRUE</span>)
+</code></pre>
+</div>
+
+<pre class="example">
+
+	Two Sample t-test
+
+data:  mean_RT by cond
+t = 0.35278, df = 12, p-value = 0.7304
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ -46.21515  64.07230
+sample estimates:
+mean in group alcohol mean in group placebo 
+             472.2500              463.3214
+</pre>
+
+</section>
+</section>
+<section>
+<section id="slide-orgc7f146f">
+<h3 id="orgc7f146f">Random-intercepts LMM</h3>
+<div class="column" style="float:left; width: 60%">
+
+<div class="org-center">
+<p>
+<b>Level 1:</b>
+</p>
+</div>
+
+<p>
+\(Y_{ij} = \beta_0 + \beta_1 X_{ij} + e_{ij} \)
+</p>
+
+<div class="org-center">
+<p>
+<b>Level 2:</b>
+</p>
+</div>
+
+<p>
+\(\beta_0 = \gamma_{00} + S_{0i}\)
+</p>
+
+<p>
+\(\beta_1 = \gamma_{10}\)
+</p>
+
+</div>
+
+<div class="column" style="float:right; width: 40%">
+
+<p>
+<b>Variance Components</b>
+</p>
+
+<p>
+\( S_{0i} \sim N \left( 0, {\tau_{00}}^2 \right) \)
+</p>
+
+<p>
+\(e_{ij} \sim N \left( 0, \sigma^2 \right) \) 
+</p>
+
+</div>
+
+</section>
+</section>
+<section>
+<section id="slide-org0469cee">
+<h3 id="org0469cee">web app</h3>
+<p>
+<a href="https://shiny.psy.gla.ac.uk/Dale/icc/">https://shiny.psy.gla.ac.uk/Dale/icc/</a>
+</p>
+
+</section>
+</section>
+<section>
+<section id="slide-org2c7b170">
+<h2 id="org2c7b170">Expressing study design in the mixed-effects framework</h2>
+<div class="outline-text-2" id="text-org2c7b170">
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org63ee109">
+<h3 id="org63ee109">Coding categorical predictors</h3>
+<ul>
+<li>Recommendation: Make your own, don&rsquo;t rely on R defaults. Why?
+<ul>
+<li>model comparison doesn&rsquo;t work with variables of type <code>factor</code></li>
+<li>defaults don&rsquo;t support ANOVA-style interpretation</li>
+
+</ul></li>
+
+</ul>
+
+<p>
+<a href="https://psyteachr.github.io/ug3-stats/interactions.html#code-your-own-categorical-predictors-in-factorial-designs">see these course materials</a>
+</p>
+
+<p>
+<a href="https://shiny.psy.gla.ac.uk/Dale/factorial2/">web app</a>
+</p>
+
+</section>
+</section>
+<section>
+<section id="slide-orgfbb9c93">
+<h3 id="orgfbb9c93">Multiparameter tests</h3>
+<p>
+<a href="https://psyteachr.github.io/ug3-stats/linear-mixed-effects-models-with-one-random-factor.html#multiparameter-tests">see course materials</a>
+</p>
+
+</section>
+</section>
+<section>
+<section id="slide-org272589c">
+<h3 id="org272589c">Rules for random effects (1)</h3>
+<p>
+Always include random intercepts for any random factor (e.g.,
+subjects) where you have multiple observations on the DV.
+</p>
+
+<p>
+<code>Y ~ (1 | subject)</code>
+</p>
+
+<p>
+Do I also need a random slope for factor <code>A</code>?
+</p>
+
+<ol>
+<li><code>A</code> is within-subjects</li>
+<li>multiple observations per level of <code>A</code></li>
+
+</ol>
+
+<p>
+<code>Y ~ A + (1 + A | subject)</code>
+</p>
+
+</section>
+</section>
+<section>
+<section id="slide-orgd07ee98">
+<h3 id="orgd07ee98">Rules for random effects (2)</h3>
+<p>
+What random slopes do I need for interaction ABC? (<a href="https://www.frontiersin.org/articles/10.3389/fpsyg.2013.00328/full">Barr ,2013</a>)
+</p>
+
+<ul>
+<li>identify highest-order combination of within factors</li>
+
+<li>if you have multiple observations per level of that factor / per
+cell of those factors, then you need a random slope for that factor
+/ interaction of factors</li>
+
+</ul>
+</section>
+</section>
+</div>
+</div>
+<p> Created by Dale Barr </p>
+<script src="./reveal.js/dist/reveal.js"></script>
+<script src="./reveal.js/plugin/markdown/markdown.js"></script>
+<script src="./reveal.js/plugin/zoom/zoom.js"></script>
+<script src="./reveal.js/plugin/notes/notes.js"></script>
+
+
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+plugins: [RevealMarkdown,RevealZoom,RevealNotes],
+width:1200, height:800, margin: 0.1, minScale:0.2, maxScale:2.5, transition:'fade',
+multiplex: {
+    secret: '', // null if client
+    id: '', // id, obtained from socket.io server
+    url: '' // Location of socket.io server
+},
+
+// Optional libraries used to extend on reveal.js
+dependencies: [
+]
+});
+
+
+</script>
+</body>
+</html>

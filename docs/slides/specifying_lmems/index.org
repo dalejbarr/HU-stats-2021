@@ -1,0 +1,213 @@
+#+AUTHOR: Dale Barr
+#+DATE: University of Glasgow
+
+#+REVEAL_INIT_OPTIONS: width:1200, height:800, margin: 0.1, minScale:0.2, maxScale:2.5, transition:'fade'
+#+OPTIONS: num:nil toc:nil ^:nil reveal_transition:fade H:2
+#+OPTIONS: reveal_single_file:nil
+#+OPTIONS: reveal_title_slide:"<h3>%t</h3><b>%a</b><p>%d</p>" 
+#+REVEAL_THEME: black
+#+REVEAL_HEAD_PREAMBLE: <meta name="description" content="Specifying LMEMs">
+#+REVEAL_POSTAMBLE: <p> Created by Dale Barr </p>
+
+#+REVEAL_ROOT: ./reveal.js
+#+REVEAL_HLEVEL: 2
+
+#+REVEAL_HIGHLIGHT_CSS: %r/lib/css/zenburn.css
+
+#+TITLE: Specifying Linear Mixed Effects Models
+#+PROPERTY: header-args:R :session *R* :exports both :results output
+
+* Setup                                                            :noexport:
+
+#+begin_src R :exports none :results silent
+  options(crayon.enabled = FALSE, tidyverse.quiet = TRUE)
+  library("tidyverse")
+  source("../theme_jetblack.R")
+  theme_set(theme_jetblack(14L))
+#+end_src
+
+* Matching model to design
+
+** 
+
+[[file:four_functions.png]]
+
+** 
+
+[[file:single_level_fns.png]]
+
+** Recognizing multilevel data
+
+- within-subject factor
+- pseudoreplications
+- multiple stimulus items
+
+** 
+
+[[file:multilevel_fns.png]]
+
+* Example: Independent samples t-test on multilevel data
+
+#+REVEAL_HTML: <div style="padding:1em; border: 2px solid blue;">
+
+#+begin_smallleft
+You ran a study looking alcohol consumption and simple RT. Data is stored in =subjects= and =simple_rt=. Subjects (=sub=) were randomly assigned to one of two groups (=cond=). One group drank alcohol before performing the task, while the other had a placebo drink.
+
+You measured how quickly each subject pressed a button in response to a flashing light (=RT=). Each subject provided 8 measurements of response time. Remove data from subjects S01 and S11 before your analysis.
+#+end_smallleft
+
+#+REVEAL_HTML: </div>
+
+** t-test on subject means (1)
+
+[[./simple_rt.zip][Download zip with the csv files]]
+
+#+REVEAL_HTML: <div class="column" style="float:left; width: 60%">
+
+#+NAME: subj_means
+#+begin_src R
+  library("tidyverse")
+
+  subjects <- read_csv("simple_rt/subjects.csv",
+		       col_types = "icc")
+
+  simple_rt <- read_csv("simple_rt/simple_rt.csv",
+			col_types = "icci")
+
+  combined <- subjects %>%
+    filter(sub != "S01",
+	   sub != "S11") %>%
+    inner_join(simple_rt, "sub") %>%
+    select(sub, cond, RT)
+
+  subj_means <- combined %>%
+    group_by(sub, cond) %>%
+    summarise(mean_RT = mean(RT), 
+              .groups = "drop") %>%
+    ungroup()
+
+  subj_means
+#+end_src
+
+#+REVEAL_HTML: </div>
+
+#+REVEAL_HTML: <div class="column" style="float:right; width: 40%">
+
+#+RESULTS: subj_means
+#+begin_example
+
+# A tibble: 14 x 3
+   sub   cond    mean_RT
+   <chr> <chr>     <dbl>
+ 1 S02   placebo    514.
+ 2 S03   placebo    528.
+ 3 S04   alcohol    507 
+ 4 S05   placebo    476.
+ 5 S06   alcohol    450.
+ 6 S07   placebo    488.
+ 7 S08   placebo    411.
+ 8 S09   alcohol    430.
+ 9 S10   alcohol    458.
+10 S12   alcohol    537.
+11 S13   alcohol    500 
+12 S14   placebo    434.
+13 S15   placebo    393.
+14 S16   alcohol    425
+#+end_example
+
+#+REVEAL_HTML: </div>
+
+** t-test on subject means (2)
+
+#+begin_src R
+  t.test(mean_RT ~ cond, subj_means, var.equal = TRUE)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+
+	Two Sample t-test
+
+data:  mean_RT by cond
+t = 0.35278, df = 12, p-value = 0.7304
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ -46.21515  64.07230
+sample estimates:
+mean in group alcohol mean in group placebo 
+             472.2500              463.3214
+#+end_example
+
+** Random-intercepts LMM
+
+#+REVEAL_HTML: <div class="column" style="float:left; width: 60%">
+
+#+begin_center
+*Level 1:*
+#+end_center
+
+\(Y_{ij} = \beta_0 + \beta_1 X_{ij} + e_{ij} \)
+
+#+begin_center
+*Level 2:*
+#+end_center
+
+\(\beta_0 = \gamma_{00} + S_{0i}\)
+
+\(\beta_1 = \gamma_{10}\)
+
+#+REVEAL_HTML: </div>
+
+#+REVEAL_HTML: <div class="column" style="float:right; width: 40%">
+
+*Variance Components*
+
+\( S_{0i} \sim N \left( 0, {\tau_{00}}^2 \right) \)
+
+\(e_{ij} \sim N \left( 0, \sigma^2 \right) \) 
+
+#+REVEAL_HTML: </div>
+
+** web app
+
+https://shiny.psy.gla.ac.uk/Dale/icc/
+
+* Expressing study design in the mixed-effects framework
+
+** Coding categorical predictors
+
+- Recommendation: Make your own, don't rely on R defaults. Why?
+  - model comparison doesn't work with variables of type =factor=
+  - defaults don't support ANOVA-style interpretation
+
+[[https://psyteachr.github.io/ug3-stats/interactions.html#code-your-own-categorical-predictors-in-factorial-designs][see these course materials]]
+
+[[https://shiny.psy.gla.ac.uk/Dale/factorial2/][web app]]
+
+** Multiparameter tests
+
+[[https://psyteachr.github.io/ug3-stats/linear-mixed-effects-models-with-one-random-factor.html#multiparameter-tests][see course materials]]
+
+** Rules for random effects (1)
+
+Always include random intercepts for any random factor (e.g.,
+subjects) where you have multiple observations on the DV.
+
+=Y ~ (1 | subject)=
+
+Do I also need a random slope for factor =A=?
+
+1) =A= is within-subjects
+2) multiple observations per level of =A=
+
+=Y ~ A + (1 + A | subject)=
+
+** Rules for random effects (2)
+
+What random slopes do I need for interaction ABC? ([[https://www.frontiersin.org/articles/10.3389/fpsyg.2013.00328/full][Barr ,2013]])
+
+- identify highest-order combination of within factors
+
+- if you have multiple observations per level of that factor / per
+  cell of those factors, then you need a random slope for that factor
+  / interaction of factors
