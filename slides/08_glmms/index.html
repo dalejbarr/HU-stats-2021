@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Generalized linear mixed models</title>
+<meta name="author" content="(Dale Barr)"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="./reveal.js/dist/reveal.css"/>
+
+<link rel="stylesheet" href="./reveal.js/dist/theme/black.css" id="theme"/>
+
+<link rel="stylesheet" href="./local.css"/>
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = './reveal.js/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<meta name="description" content="Correlation and Regression">
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide"><h1 class="title">Generalized linear mixed models</h1><h2 class="author">Dale Barr</h2><h2 class="date">Psychology, University of Glasgow</h2><p class="date">Created: 2021-05-06 Thu 12:11</p>
+</section>
+
+<section>
+<section id="slide-org3c115f2">
+<h2 id="org3c115f2">Overview</h2>
+<ol>
+<li>Introduction to generalized linear (mixed) models</li>
+<li>Logistic regression</li>
+<li>Worked example (Titanic data)</li>
+
+</ol>
+
+</section>
+</section>
+<section>
+<section id="slide-orgf4e8598">
+<h2 id="orgf4e8598">Generalized Linear (Mixed) Models</h2>
+<div class="outline-text-2" id="text-orgf4e8598">
+</div>
+</section>
+<section id="slide-org2360a29">
+<h4 id="org2360a29">Discrete data</h4>
+<ul>
+<li>categorical (dichotomous/polychotomous)
+<ul>
+<li>type of linguistic structure produced (X, Y, Z)</li>
+<li>region viewed in a visual world study</li>
+<li>number of items recalled out of N</li>
+<li>accurate or inaccurate selection</li>
+<li>hired or not hired</li>
+<li>Likert scales</li>
+
+</ul></li>
+
+<li>counts (no. opportunities ill-defined)
+<ul>
+<li>no. of speech errors in a corpus</li>
+<li>no. of turn shifts in a conversation</li>
+<li>no. words in a utterance</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org7e88c79">
+<h4 id="org7e88c79">Why not treat discrete data as continuous?</h4>
+<ul>
+<li>Proportions range between 0 and 1</li>
+<li>Variance proportional to the mean (expected probability or rate)</li>
+<li>Spurious interactions due to scaling effects</li>
+
+</ul>
+
+</section>
+<section id="slide-org5cfce7e">
+<h4 id="org5cfce7e">Generalized linear models</h4>
+<ul>
+<li>Allows use of regular linear regression by projecting the DV onto an
+appropriate scale</li>
+
+<li>Key elements of GLMs: 
+<ul>
+<li>link function</li>
+<li>variance function</li>
+
+</ul></li>
+
+</ul>
+
+<div class="smalltbl">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">data</th>
+<th scope="col" class="org-left">approach</th>
+<th scope="col" class="org-left">link</th>
+<th scope="col" class="org-left">variance</th>
+<th scope="col" class="org-left">function</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">binary</td>
+<td class="org-left">logistic regression</td>
+<td class="org-left">logit</td>
+<td class="org-left">binomial</td>
+<td class="org-left"><code>glm()</code>, <code>lme4::glmer()</code></td>
+</tr>
+
+<tr>
+<td class="org-left">count</td>
+<td class="org-left">Poisson regression</td>
+<td class="org-left">log</td>
+<td class="org-left">Poisson</td>
+<td class="org-left"><code>glm()</code>, <code>lme4::glmer()</code></td>
+</tr>
+
+<tr>
+<td class="org-left">ordinal</td>
+<td class="org-left">ordinal regression</td>
+<td class="org-left">logit</td>
+<td class="org-left">binomial</td>
+<td class="org-left"><code>ordinal::clm()</code>, <code>ordinal::clmm()</code></td>
+</tr>
+</tbody>
+</table>
+
+</div>
+
+</section>
+</section>
+<section>
+<section id="slide-org6426b1e">
+<h2 id="org6426b1e">Logistic regression</h2>
+<div class="outline-text-2" id="text-org6426b1e">
+</div>
+</section>
+<section id="slide-org785c64e">
+<h4 id="org785c64e">Odds and log odds</h4>
+<div class="smalltbl">
+<p>
+
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left"><b>Bernoulli trial</b></td>
+<td class="org-left">An event that has a binary outcome, with one outcome typically referred to as &rsquo;success&rsquo;</td>
+</tr>
+
+<tr>
+<td class="org-left"><b>proportion</b></td>
+<td class="org-left">A ratio of successes to the total number of Bernoulli trials, proportion of days of the week that are Wednesday is 1/7 or about .14</td>
+</tr>
+
+<tr>
+<td class="org-left"><b>odds</b></td>
+<td class="org-left">A ratio of successes to non-successes, i.e., odds of a day being Wednesday are 1 to 6, natural odds= 1/6 = .17</td>
+</tr>
+
+<tr>
+<td class="org-left"><b>log odds</b></td>
+<td class="org-left">The (natural) log of the odds (turns multiplicative effects into additive effects)</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+
+</section>
+<section id="slide-orgcd6c8b7">
+<h4 id="orgcd6c8b7">Properties of log odds (&rsquo;logit&rsquo;)</h4>
+<p>
+\(log\left(\frac{p}{1-p}\right)\) or \(log\left(\frac{Y}{N-Y}\right)\)
+</p>
+
+<p>
+where \(p\) is a proportion, \(N\) is total trials and \(Y\) is observed successes
+</p>
+
+<ul>
+<li>Scale goes from \(-\infty\) to \(+\infty\)</li>
+<li>Scale is symmetric around zero</li>
+<li>If negative, means that Pr(success)\(<.5\)</li>
+<li>If positive, Pr(success)\(>.5\)</li>
+
+</ul>
+
+</section>
+<section id="slide-orgfc12914">
+<h4 id="orgfc12914">Logistic regression</h4>
+<p>
+\(\eta = \beta_0 + \beta_1 X\)
+</p>
+
+<ul>
+<li>link function: \(\eta = log\left(\frac{p}{1-p}\right)\)</li>
+
+<li>inverse link function: \(p = \frac{1}{1+exp(-\eta)}\)</li>
+
+<li>getting odds from logit: exp(\(\eta\))</li>
+
+<li>variance function (binomial): \(np(1-p)\)</li>
+
+</ul>
+
+</section>
+<section id="slide-org5154de0">
+<h4 id="org5154de0">Logit app</h4>
+<p>
+<a href="https://shiny.psy.gla.ac.uk/Dale/logit">https://shiny.psy.gla.ac.uk/Dale/logit</a>
+</p>
+
+</section>
+<section id="slide-orge25c92b">
+<h4 id="orge25c92b">Estimating logit models</h4>
+<ul>
+<li><p>
+single-level data, bernoulli trials
+</p>
+<pre class="example">
+mod &lt;- glm(DV ~ IV, family = binomial(link = "logit"), ...)
+</pre></li>
+
+<li><p>
+single-level data, binomial counts
+</p>
+<pre class="example">
+mod &lt;- glm(cbind(Y, K) ~ IV, family = binomial(link = "logit"), ...)
+</pre>
+
+<p>
+where K = N - Y
+</p></li>
+
+<li>multi-level data: same, but use <code>lme4::glmer()</code></li>
+
+</ul>
+
+
+</section>
+</section>
+<section>
+<section id="slide-org5393e02">
+<h2 id="org5393e02">Worked example: Titanic data</h2>
+<div class="outline-text-2" id="text-org5393e02">
+</div>
+</section>
+<section id="slide-org6d82260">
+<h4 id="org6d82260">Titanic dataset</h4>
+<p>
+<a href="https://www.kaggle.com/c/titanic">https://www.kaggle.com/c/titanic</a>
+</p>
+
+
+<div class="figure">
+<p><img src="titanic.png" alt="titanic.png" />
+</p>
+</div>
+
+</section>
+<section id="slide-org090ac95">
+<h4 id="org090ac95">survival by passenger sex (data)</h4>
+<div class="org-src-container">
+
+<pre  class="src src-R" ><code trim>dat <span style="color: #0000bb;">&lt;-</span> readxl::read_excel(<span style="color: #223fbf;">"titanic4.xls"</span>)
+
+dat <span style="color: #0000bb;">%&gt;%</span>
+  count(survived, sex)
+</code></pre>
+</div>
+
+<pre class="example">
+  survived sex        n
+     &lt;dbl&gt; &lt;chr&gt;  &lt;int&gt;
+1        0 female   127
+2        0 male     682
+3        1 female   339
+4        1 male     161
+</pre>
+
+
+<div class="org-src-container">
+
+<pre  class="src src-R" ><code trim>dat <span style="color: #0000bb;">%&gt;%</span>
+  group_by(sex) <span style="color: #0000bb;">%&gt;%</span>
+  summarise(p = mean(survived),
+            Y = sum(survived),
+            N = n(), .groups=<span style="color: #223fbf;">"drop"</span>)
+</code></pre>
+</div>
+
+<pre class="example">
+
+# A tibble: 2 x 4
+  sex        p     Y     N
+  &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;
+1 female 0.727   339   466
+2 male   0.191   161   843
+</pre>
+
+</section>
+<section id="slide-orge0e2f95">
+<h4 id="orge0e2f95">survival by passenger sex (model)</h4>
+<div class="org-src-container">
+
+<pre  class="src src-R" ><code trim>mod <span style="color: #0000bb;">&lt;-</span> glm(survived ~ sex, binomial(link = <span style="color: #223fbf;">"logit"</span>),  dat)
+summary(mod)
+</code></pre>
+</div>
+
+<pre class="example">
+
+Call:
+glm(formula = survived ~ sex, family = binomial(link = "logit"), 
+    data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-1.6124  -0.6511  -0.6511   0.7977   1.8196  
+
+Coefficients:
+            Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)   0.9818     0.1040   9.437   &lt;2e-16 ***
+sexmale      -2.4254     0.1360 -17.832   &lt;2e-16 ***
+---
+codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 1741.0  on 1308  degrees of freedom
+Residual deviance: 1368.1  on 1307  degrees of freedom
+AIC: 1372.1
+
+Number of Fisher Scoring iterations: 4
+</pre>
+
+</section>
+<section id="slide-org558d507">
+<h4 id="org558d507">Age and survival</h4>
+<div class="column" style="float:left; width: 40%">
+<div class="org-src-container">
+
+<pre  class="src src-R" ><code trim><span style="color: #505050;">## </span><span style="color: #505050;">lots of NAs</span>
+dat <span style="color: #0000bb;">%&gt;%</span>
+  count(f = is.na(age))
+</code></pre>
+</div>
+
+<pre class="example">
+
+# A tibble: 2 x 2
+  f         n
+  &lt;lgl&gt; &lt;int&gt;
+1 FALSE  1046
+2 TRUE    263
+</pre>
+
+
+<div class="org-src-container">
+
+<pre  class="src src-R" ><code trim>ggplot(dat, aes(age)) +
+  geom_histogram()
+</code></pre>
+</div>
+
+
+<div class="figure">
+<p><img src="agehist.png" alt="agehist.png" />
+</p>
+</div>
+
+</div>
+
+<div class="column" style="float:right; width: 60%">
+<div class="org-src-container">
+
+<pre  class="src src-R" ><code trim>dat2 <span style="color: #0000bb;">&lt;-</span> dat <span style="color: #0000bb;">%&gt;%</span>
+  filter(!is.na(age)) <span style="color: #0000bb;">%&gt;%</span>
+  mutate(decade = floor(age / 10) * 10) <span style="color: #0000bb;">%&gt;%</span>
+  group_by(decade) <span style="color: #0000bb;">%&gt;%</span>
+  summarise(p_survive = mean(survived),
+            N = n(),
+            .groups = <span style="color: #223fbf;">"drop"</span>)
+</code></pre>
+</div>
+
+<div class="org-src-container">
+
+<pre  class="src src-R" ><code trim>g <span style="color: #0000bb;">&lt;-</span> ggplot(dat2, aes(decade, p_survive)) +
+  geom_point(aes(size = N))
+
+g
+</code></pre>
+</div>
+
+
+<div class="figure">
+<p><img src="ageplot.png" alt="ageplot.png" />
+</p>
+</div>
+
+</div>
+
+</section>
+<section id="slide-org40e32b7">
+<h4 id="org40e32b7">Estimation</h4>
+<div class="org-src-container">
+
+<pre  class="src src-R" ><code trim>mod <span style="color: #0000bb;">&lt;-</span> glm(survived ~ age, binomial(link = <span style="color: #223fbf;">"logit"</span>), dat)
+summary(mod)
+</code></pre>
+</div>
+
+<pre class="example">
+
+Call:
+glm(formula = survived ~ age, family = binomial(link = "logit"), 
+    data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-1.1189  -1.0361  -0.9768   1.3187   1.5162  
+
+Coefficients:
+             Estimate Std. Error z value Pr(&gt;|z|)  
+(Intercept) -0.136531   0.144715  -0.943   0.3455  
+age         -0.007899   0.004407  -1.792   0.0731 .
+---
+codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 1414.6  on 1045  degrees of freedom
+Residual deviance: 1411.4  on 1044  degrees of freedom
+  (263 observations deleted due to missingness)
+AIC: 1415.4
+
+Number of Fisher Scoring iterations: 4
+</pre>
+
+</section>
+<section id="slide-orgc79af32">
+<h4 id="orgc79af32">Plot</h4>
+<div class="org-src-container">
+
+<pre  class="src src-R" ><code trim>newdat <span style="color: #0000bb;">&lt;-</span> tibble(age = seq(0, 80, .2))
+<span style="color: #505050;">## </span><span style="color: #505050;">see ?predict.glm</span>
+my_pred <span style="color: #0000bb;">&lt;-</span> predict(mod, newdat, type = <span style="color: #223fbf;">"response"</span>)
+
+dat3 <span style="color: #0000bb;">&lt;-</span> newdat <span style="color: #0000bb;">%&gt;%</span>
+  mutate(p_survive = my_pred)
+
+
+
+g + geom_line(aes(x = age, y = p_survive), data = dat3)
+</code></pre>
+</div>
+
+
+<div class="figure">
+<p><img src="ageplot2.png" alt="ageplot2.png" />
+</p>
+</div>
+</section>
+</section>
+</div>
+</div>
+<p> Created by Dale Barr </p>
+<script src="./reveal.js/dist/reveal.js"></script>
+<script src="./reveal.js/plugin/markdown/markdown.js"></script>
+<script src="./reveal.js/plugin/notes/notes.js"></script>
+
+
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+plugins: [RevealMarkdown,RevealNotes],
+width:1200, height:800, margin: 0.1, minScale:0.2, maxScale:2.5, transition:'fade',
+multiplex: {
+    secret: '', // null if client
+    id: '', // id, obtained from socket.io server
+    url: '' // Location of socket.io server
+},
+
+// Optional libraries used to extend on reveal.js
+dependencies: [
+]
+});
+
+
+</script>
+</body>
+</html>

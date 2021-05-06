@@ -39,9 +39,9 @@
 |            | 14:00-17:00 | Linear Mixed-Effects Models ([[file:slides/lmems_1/index.html][slides]]) ([[file:06_interactions/afternoon_activity/lmem1_stub.Rmd][activity]]) ([[file:06_interactions/afternoon_activity/lmem1_solution.html][solution]])    |
 |------------+-------------+---------------------------------------------------------------|
 | Sat 24-Apr | 10:00-13:00 | Linear Mixed-Effects Models 2 ([[file:slides/specifying_lmems/index.html][slides]]) ([[file:07_lmems2/morning_activity/stroop-stub.html][activity]]) ([[file:07_lmems2/morning_activity/stroop-solution.html][solution]])  |
-|            | 14:00-17:00 | LMMs for simultaneous generalization ([[file:slides/generalization/index.html][slides]]) ([[file:07_lmems2/afternoon_crossed/index.org][activity]])                    |
+|            | 14:00-17:00 | LMMs for simultaneous generalization ([[file:slides/generalization/index.html][slides]]) ([[file:07_lmems2/afternoon_crossed/index.org][activity]])      |
 |------------+-------------+---------------------------------------------------------------|
-| Sat 08-May | 10:00-13:00 | Catch-up / review / Q&A                                       |
+| Sat 08-May | 10:00-13:00 | Generalized Linear Models ([[file:slides/08_glmms/index.html][slides]]) ([[file:08_glmms/morning_fillers/activity/logitmodels.zip][activity]]) ([[file:08_glmms/morning_fillers/activity/logitmodels_solution.html][solution]])      |
 |            | 14:00-17:00 | Catch-up / review / Q&A                                       |
 |------------+-------------+---------------------------------------------------------------|
 

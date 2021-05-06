@@ -1,0 +1,273 @@
+#+STARTUP: beamer
+#+TITLE:     Advanced Stats: Lec 03 GLMs
+#+AUTHOR:    Dale J. Barr
+#+EMAIL:     dale.barr@glasgow.ac.uk
+#+DATE:      University of Glasgow
+#+DESCRIPTION: 
+#+KEYWORDS: 
+#+LANGUAGE:  en
+#+OPTIONS:   H:2 num:nil toc:nil \n:nil @:t ::t |:t ^:t -:t f:t *:t <:t ^:nil
+#+OPTIONS:   TeX:t LaTeX:nil skip:nil d:(not LOGBOOK) todo:t pri:nil tags:t
+#+EXPORT_SELECT_TAGS: export
+#+EXPORT_EXCLUDE_TAGS: noexport
+#+LINK_UP:   
+#+LINK_HOME: 
+#+LaTeX_CLASS: beamer
+#+LaTeX_CLASS_OPTIONS: [presentation]
+#+LATEX_HEADER: \usepackage{helvet}
+#+LATEX_HEADER: \usepackage{xcolor}
+#+LATEX_HEADER: \definecolor{lgray}{rgb}{0.90,0.90,0.90}
+#+BEAMER_THEME: Boadilla
+#+BEAMER_COLOR_THEME: seahorse
+#+COLUMNS: %45ITEM %10BEAMER_env(Env) %10BEAMER_act(Act) %4BEAMER_col(Col) %8BEAMER_opt(Opt)
+#+PROPERTY: BEAMER_col_ALL 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 0.0 :ETC
+#+PROPERTY: header-args:R :session *R* :exports code
+
+* Setup																														 :noexport:
+
+#+name: setup-minted
+#+begin_src emacs-lisp :exports none :results silent
+(setq org-src-preserve-indentation t)
+(setq org-latex-minted-options
+			'(("frame" "none")
+				("fontsize" "\\scriptsize")
+				("linenos" "false")
+				("bgcolor" "lgray")
+				("tabsize" "2")
+				))
+#+end_src
+
+* Logistic regression
+
+** Continuous vs. discrete data
+
+Two discrete types of data are common in psychology/linguistics
+
+- categorical (dichotomous/polychotomous)
+  - type of linguistic structure produced (X, Y, Z)
+  - region looked at in a visual world study (target, other)
+  - number of items recalled out of N
+  - accurate or inaccurate selection
+  - hired or not hired
+
+- counts (no. opportunities ill-defined)
+  - no. of speech errors in a corpus
+  - no. of turn shifts in a conversation
+  - no. words in a utterance
+
+** Why not treat discrete data as continuous?
+- Proportions range between 0 and 1
+- Variance proportional to the mean (expected probability or rate)
+- Spurious interactions due to scaling effects
+
+** Generalized linear models
+
+- Allows use of regular linear regression by projecting the DV onto an
+  appropriate scale
+
+- Key elements of GLMs: 
+  - link function
+  - variance function
+
+** Odds and log odds
+
+#+BEGIN_EXPORT latex
+\begin{description}[Bernoulli trial]
+
+\item[Bernoulli trial] An event that has a binary outcome, with one
+  outcome typically referred to as ``success''
+
+\item[proportion] A ratio of successes to the total number of
+  Bernoulli trials, proportion of days of the week that are Wednesday
+  is 1/7 or about .14
+
+\item[odds] A ratio of successes to non-successes, i.e., odds of a
+  day being Wednesday are 1 to 6, natural odds= 1/6 = .17
+
+\item[log odds] The (natural) log of the odds (turns multiplicative
+  effects into additive effects)
+
+\end{description}
+#+END_EXPORT
+
+** Properties of log odds or ``logit''
+
+log odds: $log\left(\frac{p}{1-p}\right)$ or $log\left(\frac{Y}{N-Y}\right)$
+
+where $p$ is a proportion, $N$ is total trials and $Y$ is observed successes
+
+- Scale goes from \(-\infty\) to \(+\infty\)
+- Scale is symmetric around zero
+- If negative, means that Pr(success)\(<.5\)
+- If positive, Pr(success)\(>.5\)
+
+** Logistic regression
+
+#+BEGIN_EXPORT latex
+\begin{columns}[T]
+\begin{column}{.5\textwidth}
+DV has 2 categories\\[6pt]
+\structure{model}\\
+$\eta = \beta_0 + \beta_1 X$\\
+\vspace{6pt}
+\structure{link function}\\
+$\eta = log\left(\frac{p}{1-p}\right)$\\
+\vspace{6pt}
+\structure{inverse link function}\\
+$p = \frac{1}{1+exp(-\eta)}$\\
+getting odds from logit: exp($\eta$)\\
+\vspace{6pt}
+\structure{variance function} (binomial)\\
+$np(1-p)$\\
+\end{column}
+\begin{column}{.5\textwidth}
+\includegraphics[scale=.4]{img/logit}
+\end{column}
+\end{columns}
+#+END_EXPORT
+
+* Titanic dataset
+
+** Titanic dataset (kaggle)
+
+*** left																															:BMCOL:
+		:PROPERTIES:
+		:BEAMER_col: .37
+		:END:
+
+#+LaTeX: \begin{tiny}
+
+#+BEGIN_EXAMPLE
+VARIABLE DESCRIPTIONS:
+survival        Survival
+                (0 = No; 1 = Yes)
+pclass          Passenger Class
+                (1st; 2nd; 3rd)
+name            Name
+sex             Sex
+age             Age
+sibsp           N Siblings/Spouses Aboard
+parch           N Parents/Children Aboard
+ticket          Ticket Number
+fare            Passenger Fare
+cabin           Cabin
+embarked        Port of Embarkation
+                (C = Cherbourg; 
+                 Q = Queenstown; 
+                 S = Southampton)
+#+END_EXAMPLE
+
+#+LaTeX: \end{tiny}
+
+*** right																															:BMCOL:
+		:PROPERTIES:
+		:BEAMER_col: .63
+		:END:
+
+#+LaTeX: \begin{tiny}
+
+#+BEGIN_EXAMPLE
+SPECIAL NOTES:
+Pclass is a proxy for socio-economic status (SES)
+ 1st ~ Upper; 2nd ~ Middle; 3rd ~ Lower
+
+Age is in Years; Fractional if Age less than One (1)
+ If the Age is Estimated, it is in the form xx.5
+
+With respect to the family relation variables (i.e. sibsp and parch)
+some relations were ignored.  The following are the definitions used
+for sibsp and parch.
+
+Sibling:  Brother, Sister, Stepbrother, or Stepsister of Passenger 
+           Aboard Titanic
+Spouse:   Husband or Wife of Passenger Aboard Titanic 
+           (Mistresses and Fiances Ignored)
+Parent:   Mother or Father of Passenger Aboard Titanic
+Child:    Son, Daughter, Stepson, or Stepdaughter of Passenger 
+           Aboard Titanic
+
+Other family relatives excluded from this study include cousins,
+nephews/nieces, aunts/uncles, and in-laws.  Some children travelled
+only with a nanny, therefore parch=0 for them.  As well, some
+travelled with very close friends or neighbors in a village, however,
+the definitions do not support such relations.
+#+END_EXAMPLE
+
+#+LaTeX: \end{tiny}
+
+
+
+* Misc                                                             :noexport:
+
+** Data generation
+
+#+BEGIN_SRC R :tangle data_gen.R :eval never
+  library("tidyverse")
+
+  my_line <- function(x, b0 = 0, b1 = 1) {
+    b0 + b1 * x
+  }
+
+  ## get a probability from a value
+  logit_inv <- function(x) {
+    1 / (1 + exp(-my_line(x)))
+  }
+
+
+  gen_dat <- function(b0 = 0, b1 = 1, nobs = 200) {
+    data_frame(x = runif(nobs, -4, 4),
+               eta = my_line(x, b0, b1),
+               p = logit_inv(eta),
+               resp = map_int(p, function(x) sample(0:1, 1, prob = c(1 - x, x))))
+  }
+
+  make_plot <- function(b0 = 0, b1 = 1, nobs = 200) {
+
+    lindat <- data_frame(x = runif(nobs, -3, 3),
+			 e = rnorm(nobs),
+			 y = my_line(x, b0, b1))
+
+    logitdat <- lindat %>%
+      mutate(y = logit_inv(y))
+
+    full <- bind_rows(lindat %>% mutate(space = "linear: eta = b0 + b1 * x"),
+                      logitdat %>% mutate(space = "logit: (1 / (1 + exp(-eta)))"))
+
+    ggplot(full, aes(x, y)) +
+      geom_point() +
+      facet_wrap(~space, scales = "free_y")
+  }
+#+END_SRC
+
+** Titanic data
+
+#+BEGIN_SRC R :eval never
+  library("tidyverse")
+  library("readxl")
+  library("broom")
+
+  titanic  <- read_excel("titanic4.xls")
+
+  count(titanic, survived)
+  count(titanic, pclass)
+  count(titanic, sex)
+  count(titanic, sex, survived)
+
+  ggplot(titanic, aes(age)) + geom_histogram()
+
+  mod <- glm(survived ~ sex, titanic, family = binomial(link = "logit"))
+  mod_age <- glm(survived ~ age, titanic, family = binomial(link = "logit"))
+
+  ggplot(titanic, aes(age, survived)) + geom_smooth() + geom_point(alpha = .2)
+
+  newdat <- data_frame(age = 0:80,
+                       survive_logit = predict(mod_age, newdat),
+                       psurvive = 1 / (1 + exp(-survive_logit)))
+
+  ggplot(newdat, aes(age, psurvive)) + geom_line() +
+    ylim(c(0, 1))
+#+END_SRC
+
+
+* Logit models
+

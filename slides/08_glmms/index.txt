@@ -1,0 +1,301 @@
+#+AUTHOR: Dale Barr
+#+DATE: Psychology, University of Glasgow
+
+#+REVEAL_INIT_OPTIONS: width:1200, height:800, margin: 0.1, minScale:0.2, maxScale:2.5, transition:'fade'
+#+OPTIONS: toc:nil num:nil ^:nil
+#+REVEAL_THEME: black
+#+REVEAL_HLEVEL: 2
+#+REVEAL_HEAD_PREAMBLE: <meta name="description" content="Correlation and Regression">
+#+REVEAL_POSTAMBLE: <p> Created by Dale Barr </p>
+#+REVEAL_PLUGINS: (markdown notes)
+#+REVEAL_EXTRA_CSS: ./local.css
+
+#+REVEAL_ROOT: ./reveal.js
+#+REVEAL_HLEVEL: 2
+
+# #+REVEAL_TITLE_SLIDE_BACKGROUND: ../img/titlescreen.png
+#+REVEAL_HIGHLIGHT_CSS: %r/plugin/highlight/zenburn.css
+
+#+TITLE: Generalized linear mixed models
+#+PROPERTY: header-args:R :session *R* :exports both :results output
+
+* Setup                                                            :noexport:
+
+#+BEGIN_SRC R
+  options(crayon.enabled = FALSE, tidyverse.quiet = TRUE)
+  library("tidyverse")
+#+END_SRC
+
+
+* Overview
+
+1. Introduction to generalized linear (mixed) models
+2. Logistic regression
+3. Worked example (Titanic data)
+
+* Generalized Linear (Mixed) Models
+
+*** Discrete data
+
+- categorical (dichotomous/polychotomous)
+  - type of linguistic structure produced (X, Y, Z)
+  - region viewed in a visual world study
+  - number of items recalled out of N
+  - accurate or inaccurate selection
+  - hired or not hired
+  - Likert scales
+
+- counts (no. opportunities ill-defined)
+  - no. of speech errors in a corpus
+  - no. of turn shifts in a conversation
+  - no. words in a utterance
+
+*** Why not treat discrete data as continuous?
+- Proportions range between 0 and 1
+- Variance proportional to the mean (expected probability or rate)
+- Spurious interactions due to scaling effects
+
+*** Generalized linear models
+
+- Allows use of regular linear regression by projecting the DV onto an
+  appropriate scale
+
+- Key elements of GLMs: 
+  - link function
+  - variance function
+
+#+begin_smalltbl
+| data    | approach            | link  | variance | function                            |
+|---------+---------------------+-------+----------+-------------------------------------|
+| binary  | logistic regression | logit | binomial | ~glm()~, ~lme4::glmer()~            |
+| count   | Poisson regression  | log   | Poisson  | ~glm()~, ~lme4::glmer()~            |
+| ordinal | ordinal regression  | logit | binomial | ~ordinal::clm()~, ~ordinal::clmm()~ |
+#+end_smalltbl
+
+* Logistic regression
+
+*** Odds and log odds
+
+#+begin_smalltbl
+
+| *Bernoulli trial* | An event that has a binary outcome, with one outcome typically referred to as 'success'                                             |
+| *proportion*      | A ratio of successes to the total number of Bernoulli trials, proportion of days of the week that are Wednesday is 1/7 or about .14 |
+| *odds*            | A ratio of successes to non-successes, i.e., odds of a day being Wednesday are 1 to 6, natural odds= 1/6 = .17                      |
+| *log odds*        | The (natural) log of the odds (turns multiplicative effects into additive effects)                                                  |
+
+#+end_smalltbl
+
+*** Properties of log odds ('logit')
+
+$log\left(\frac{p}{1-p}\right)$ or $log\left(\frac{Y}{N-Y}\right)$
+
+where $p$ is a proportion, $N$ is total trials and $Y$ is observed successes
+
+- Scale goes from \(-\infty\) to \(+\infty\)
+- Scale is symmetric around zero
+- If negative, means that Pr(success)\(<.5\)
+- If positive, Pr(success)\(>.5\)
+
+*** Logistic regression
+
+$\eta = \beta_0 + \beta_1 X$
+
+- link function: $\eta = log\left(\frac{p}{1-p}\right)$
+
+- inverse link function: $p = \frac{1}{1+exp(-\eta)}$
+
+- getting odds from logit: exp($\eta$)
+
+- variance function (binomial): $np(1-p)$
+
+*** Logit app
+
+[[https://shiny.psy.gla.ac.uk/Dale/logit]]
+
+*** Estimating logit models
+
+- single-level data, bernoulli trials
+  : mod <- glm(DV ~ IV, family = binomial(link = "logit"), ...)
+
+- single-level data, binomial counts
+  : mod <- glm(cbind(Y, K) ~ IV, family = binomial(link = "logit"), ...)
+  where K = N - Y
+
+- multi-level data: same, but use =lme4::glmer()=
+
+
+* Worked example: Titanic data
+
+*** Titanic dataset
+
+https://www.kaggle.com/c/titanic
+
+[[file:titanic.png]]
+
+*** survival by passenger sex (data)
+
+#+begin_src R :results silent
+  dat <- readxl::read_excel("titanic4.xls")
+
+  dat %>%
+    count(survived, sex)
+#+end_src
+
+:   survived sex        n
+:      <dbl> <chr>  <int>
+: 1        0 female   127
+: 2        0 male     682
+: 3        1 female   339
+: 4        1 male     161
+
+#+begin_src R
+  dat %>%
+    group_by(sex) %>%
+    summarise(p = mean(survived),
+	      Y = sum(survived),
+	      N = n(), .groups="drop")
+#+end_src
+
+#+RESULTS:
+: # A tibble: 2 x 4
+:   sex        p     Y     N
+:   <chr>  <dbl> <dbl> <int>
+: 1 female 0.727   339   466
+: 2 male   0.191   161   843
+
+*** survival by passenger sex (model)
+
+#+begin_src R
+  mod <- glm(survived ~ sex, binomial(link = "logit"),  dat)
+  summary(mod)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+
+Call:
+glm(formula = survived ~ sex, family = binomial(link = "logit"), 
+    data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-1.6124  -0.6511  -0.6511   0.7977   1.8196  
+
+Coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)   0.9818     0.1040   9.437   <2e-16 ***
+sexmale      -2.4254     0.1360 -17.832   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 1741.0  on 1308  degrees of freedom
+Residual deviance: 1368.1  on 1307  degrees of freedom
+AIC: 1372.1
+
+Number of Fisher Scoring iterations: 4
+#+end_example
+
+*** Age and survival
+
+#+REVEAL_HTML: <div class="column" style="float:left; width: 40%">
+#+begin_src R
+  ## lots of NAs
+  dat %>%
+    count(f = is.na(age))
+#+end_src
+
+#+RESULTS:
+:       f    n
+: 1 FALSE 1046
+: 2  TRUE  263
+
+#+HEADER: :width 300 :height 300
+#+begin_src R :exports both :results output graphics file :file agehist.png
+ggplot(dat, aes(age)) +
+  geom_histogram()
+#+end_src
+
+#+RESULTS:
+[[file:agehist.png]]
+
+#+REVEAL_HTML: </div>
+
+#+REVEAL_HTML: <div class="column" style="float:right; width: 60%">
+#+begin_src R
+  dat2 <- dat %>%
+    filter(!is.na(age)) %>%
+    mutate(decade = floor(age / 10) * 10) %>%
+    group_by(decade) %>%
+    summarise(p_survive = mean(survived),
+	      N = n(),
+	      .groups = "drop")
+#+end_src
+
+#+HEADER: :width 350 :height 300
+#+begin_src R :exports both :results output graphics file :file ageplot.png
+  g <- ggplot(dat2, aes(decade, p_survive)) +
+    geom_point(aes(size = N))
+
+  g
+#+end_src
+
+#+RESULTS:
+[[file:ageplot.png]]
+
+#+REVEAL_HTML: </div>
+
+*** Estimation
+
+#+begin_src R :exports both :results output
+  mod <- glm(survived ~ age, binomial(link = "logit"), dat)
+  summary(mod)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+
+Call:
+glm(formula = survived ~ age, family = binomial(link = "logit"), 
+    data = dat)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-1.1189  -1.0361  -0.9768   1.3187   1.5162  
+
+Coefficients:
+             Estimate Std. Error z value Pr(>|z|)  
+(Intercept) -0.136531   0.144715  -0.943   0.3455  
+age         -0.007899   0.004407  -1.792   0.0731 .
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 1414.6  on 1045  degrees of freedom
+Residual deviance: 1411.4  on 1044  degrees of freedom
+  (263 observations deleted due to missingness)
+AIC: 1415.4
+
+Number of Fisher Scoring iterations: 4
+#+end_example
+
+*** Plot
+
+#+HEADER: :width 400 :height 400
+#+begin_src R :results output graphics file :file ageplot2.png
+  newdat <- tibble(age = seq(0, 80, .2))
+  ## see ?predict.glm
+  my_pred <- predict(mod, newdat, type = "response")
+
+  dat3 <- newdat %>%
+    mutate(p_survive = my_pred)
+
+
+
+  g + geom_line(aes(x = age, y = p_survive), data = dat3)
+#+end_src
+
+#+RESULTS:
+[[file:ageplot2.png]]

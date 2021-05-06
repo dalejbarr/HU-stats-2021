@@ -1,0 +1,123 @@
+#+startup: beamer
+#+title: Advanced mixed-models workshop: Session 5
+#+author: Dale Barr
+#+email: dale.barr@glasgow.ac.uk
+#+date: Bremen March 2015
+#+OPTIONS: toc:nil H:2 ^:nil
+#+LATEX_CLASS: beamer
+#+LATEX_CLASS_OPTIONS: []
+#+BEAMER_THEME: Boadilla
+#+LATEX_HEADER: \makeatletter \def\verbatim{\scriptsize\@verbatim \frenchspacing\@vobeyspaces \@xverbatim} \makeatother
+
+#+BEAMER_COLOR_THEME: seahorse
+#+LATEX_HEADER: \definecolor{lgray}{rgb}{0.90,0.90,0.90}
+#+LATEX_HEADER: \beamertemplatenavigationsymbolsempty
+#+LATEX_HEADER: \usemintedstyle{tango}
+#+LATEX_HEADER: \institute{University of Glasgow}
+
+#+COLUMNS: %40ITEM %10BEAMER_env(Env) %9BEAMER_envargs(Env Args) %4BEAMER_col(Col) %10BEAMER_extra(Extra)
+
+#+PROPERTY: header-args:R :session *R* :exports both :results output :tangle session_05.R
+
+* Setup 																													 :noexport:
+
+#+name: setup-minted
+#+begin_src emacs-lisp :exports none :results silent
+(setq org-src-preserve-indentation t)
+(setq org-latex-minted-options
+			'(("frame" "none")
+				("fontsize" "\\scriptsize")
+				("linenos" "false")
+				("bgcolor" "lgray")
+				("tabsize" "2")
+				))
+#+end_src
+
+* GLMs
+
+** Continuous vs. discrete data
+
+Two discrete types of data are common in psychology/linguistics
+
+- categorical (dichotomous/polychotomous)
+  - type of linguistic structure produced (X, Y, Z)
+  - region looked at in a visual world study (target, other)
+  - number of items recalled out of N
+  - accurate or inaccurate selection
+
+- counts (no. opportunities ill-defined)
+  - no. of speech errors in a corpus
+  - no. of turn shifts in a conversation
+  - no. words in a utterance
+
+** Why not treat discrete data as continuous?
+- Proportions range between 0 and 1
+- Variance proportional to the mean (expected probability or rate)
+- Spurious interactions due to scaling effects (see Jaeger, 2008)
+
+** Generalized linear models
+
+- Allows use of regular linear regression by projecting the DV onto an
+  appropriate scale
+
+- Key elements of GLMs: 
+  - link function
+  - variance function
+
+** Odds and log odds
+
+#+BEGIN_LaTeX
+\begin{description}[Bernoulli trial]
+
+\item[Bernoulli trial] An event that has a binary outcome, with one
+  outcome typically referred to as ``success''
+
+\item[proportion] A ratio of successes to the total number of
+  Bernoulli trials, proportion of days of the week that are Wednesday
+  is 1/7 or about .14
+
+\item[odds] A ratio of successes to non-successes, i.e., odds of a
+  day being Wednesday are 1 to 6, natural odds= 1/6 = .17
+
+\item[log odds] The (natural) log of the odds (turns multiplicative
+  effects into additive effects)
+
+\end{description}
+#+END_LaTeX
+
+** Properties of log odds or ``logit''
+
+log odds: $log\left(\frac{p}{1-p}\right)$ or $log\left(\frac{Y}{N-Y}\right)$
+
+where $p$ is a proportion, $N$ is total trials and $Y$ is observed successes
+
+- Scale goes from \(-\infty\) to \(+\infty\)
+- Scale is symmetric around zero
+- If negative, means that Pr(success)\(<.5\)
+- If positive, Pr(success)\(>.5\)
+
+** Logistic regression
+
+#+BEGIN_LaTeX
+\begin{columns}[T]
+\begin{column}{.5\textwidth}
+DV has 2 categories\\[6pt]
+\structure{model}\\
+$\eta = \beta_0 + \beta_1 X$\\
+\vspace{6pt}
+\structure{link function}\\
+$\eta = log\left(\frac{p}{1-p}\right)$\\
+\vspace{6pt}
+\structure{inverse link function}\\
+$p = \frac{1}{1+exp(-\eta)}$\\
+getting odds from logit: exp($\eta$)\\
+\vspace{6pt}
+\structure{variance function} (binomial)\\
+$np(1-p)$\\
+\end{column}
+\begin{column}{.5\textwidth}
+\includegraphics[scale=.4]{img/logit}
+\end{column}
+\end{columns}
+#+END_LaTeX
+
