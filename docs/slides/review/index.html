@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Review</title>
+<meta name="author" content="(Dale Barr)"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="./reveal.js/dist/reveal.css"/>
+
+<link rel="stylesheet" href="./reveal.js/dist/theme/black.css" id="theme"/>
+
+<link rel="stylesheet" href="./local.css"/>
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = './reveal.js/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<meta name="description" content="Correlation and Regression">
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide"><h1 class="title">Review</h1><h2 class="author">Dale Barr</h2><h2 class="date">Psychology, University of Glasgow</h2><p class="date">Created: 2021-05-08 Sat 08:21</p>
+</section>
+
+<section>
+<section id="slide-orgb61b961">
+<h2 id="orgb61b961">R/RStudio</h2>
+<ul>
+<li>R is not RStudio</li>
+<li><p>
+batch mode
+</p>
+
+<div class="org-src-container">
+
+<pre  class="src src-sh" ><code trim>Rscript script.R
+Rscript -e <span style="color: #223fbf;">'rmarkdown::render("report.Rmd")'</span>
+</code></pre>
+</div></li>
+
+<li>structure:
+<ul>
+<li>load packages, define functions, import data, etc.</li>
+
+</ul></li>
+<li>use <b>relative</b> not <b>absolute</b> paths
+<ul>
+<li><code>read_csv("data/trials.csv")</code> ✓</li>
+<li><code>read_csv("/Users/dale/trials.csv")</code> ❌</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgb61b961-split">
+
+<h2>R/RStudio</h2>
+
+<ul>
+<li>getting help
+<ul>
+<li>use built-in help before googling
+<code>?functionname</code></li>
+<li>don&rsquo;t forget: cheatsheets!</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orgd0f5a88">
+<h2 id="orgd0f5a88">Data Wrangling and Data Visualization</h2>
+<ul>
+<li>Principles of tidy data
+<ol>
+<li>Each observation is a row</li>
+<li>Each variable is a column</li>
+<li>Each observation unit is a table</li>
+
+</ol></li>
+
+<li>&ldquo;Wickham six&rdquo; one-table verbs
+<ul>
+<li><code>select()</code>: remove/re-order variables</li>
+<li><code>mutate()</code>: add variables~</li>
+<li><code>filter()</code>: remove observations</li>
+<li><code>arrange()</code>: re-order observations</li>
+<li><code>group_by()</code>: change unit of analysis</li>
+<li><code>summarize()</code>: calculate statistics</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgd0f5a88-split">
+
+<h2>Data Wrangling and Data Visualization</h2>
+
+<ul>
+<li>Two-table verbs
+<ul>
+<li>mutating joins
+<ul>
+<li><code>inner_join()</code></li>
+<li><code>left_join()</code></li>
+<li><code>full_join()</code></li>
+
+</ul></li>
+<li>filtering joins
+<code>semi_join()</code></li>
+<li><code>anti_join()</code></li>
+
+</ul></li>
+
+<li>Reshaping tabular data
+<ul>
+<li><code>pivot_wider()</code></li>
+<li><code>pivot_lonter()</code></li>
+
+</ul></li>
+
+<li>Pipes 
+<ul>
+<li><code>x %&gt;% y() %&gt;% z()</code> ✓</li>
+<li><code>z(y(x))</code> ❌</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org16bf7db">
+<h3 id="org16bf7db">Further study</h3>
+<div class="column" style="float:left; width: 50%">
+
+
+<div class="figure">
+<p><img src="r4ds.png" alt="r4ds.png" />
+</p>
+</div>
+
+</div>
+
+
+<div class="column" style="float:right; width: 50%">
+
+<ul>
+<li>see chapters on functions and iteration</li>
+
+</ul>
+
+<p>
+<a href="https://r4ds.had.co.nz/">https://r4ds.had.co.nz/</a>
+</p>
+
+</div>
+
+</section>
+</section>
+<section>
+<section id="slide-orge4d1fde">
+<h2 id="orge4d1fde">Probability and Probability Distributions</h2>
+<div class="outline-text-2" id="text-orge4d1fde">
+</div>
+</section>
+<section id="slide-orgeb65ab6">
+<h3 id="orgeb65ab6">distributions in R</h3>
+<ul>
+<li>binomial(size, prob)
+<ul>
+<li><code>dbinom(x, size, prob)</code></li>
+<li><code>qbinom(p, size, prob)</code></li>
+
+</ul></li>
+
+</ul>
+
+
+<div class="figure">
+<p><img src="binomial.png" alt="binomial.png" />
+</p>
+</div>
+
+</section>
+<section id="slide-orgeb65ab6-split">
+
+<h3>distributions in R</h3>
+
+<ul>
+<li>normal (\(\mu\), \(\sigma\))
+<ul>
+<li><code>pnorm(x, mean, sd, lower.tail)</code></li>
+<li><code>qnorm(p, mean, sd, lower.tail)</code></li>
+
+</ul></li>
+
+</ul>
+
+
+<div class="figure">
+<p><img src="normal.png" alt="normal.png" />
+</p>
+</div>
+
+</section>
+</section>
+<section>
+<section id="slide-org1bcb10c">
+<h2 id="org1bcb10c">Hypothesis testing</h2>
+<ul>
+<li>\(\alpha\) level: rate of false positives</li>
+<li>power: probability of detecting a true effect
+(1 - rate of false negatives)</li>
+<li><p>
+null hypotheses
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">\(H_0: \mu_0 = \mu_1\)</td>
+<td class="org-left">two tailed</td>
+</tr>
+
+<tr>
+<td class="org-left">\(H_0: \mu_0 < 0\)</td>
+<td class="org-left">one tailed</td>
+</tr>
+
+<tr>
+<td class="org-left">\(H_0: \vert \mu_0 - \mu_1 \vert  < \theta\)</td>
+<td class="org-left">equivalence</td>
+</tr>
+</tbody>
+</table></li>
+
+<li>\(p\) value: probability of test statistic at least as extreme as the
+one you observed assuming \(H_0\) is true</li>
+
+<li>effect size:
+statistical significance \(\ne\) practical significance</li>
+
+</ul>
+
+</section>
+<section id="slide-org8097db8">
+<h3 id="org8097db8">Further reading</h3>
+<p>
+Lakens, Scheel, &amp; Isager (2018). <a href="https://journals.sagepub.com/doi/full/10.1177/2515245918770963">Equivalence Testing for Psychological Research: A Tutorial</a>. <b>Advances in Methods and Practices in Psychological Science</b>.
+</p>
+
+<p>
+Greenland et al. (2016). <a href="https://link.springer.com/article/10.1007/s10654-016-0149-3">Statistical tests, p values, confidence intervals, and power: A guide to misinterpretations</a>
+</p>
+
+</section>
+<section id="slide-orgc009236">
+<h3 id="orgc009236">t-test and ANOVA</h3>
+<ul>
+<li>t-test interface in R
+<ul>
+<li>default is Welch t-test (unequal variances)</li>
+<li><code>t.test(..., paired = TRUE)</code> paired t-test</li>
+<li><code>t.test(..., paired = FALSE)</code> independent samples t-test</li>
+<li><code>t.test(v1, v2)</code> &rsquo;vector&rsquo; version (paired or independent)</li>
+<li><code>t.test(y ~ x)</code> &rsquo;data frame&rsquo; version (independent samples only!)</li>
+
+</ul></li>
+
+<li>ANOVA in R
+<ul>
+<li>many options, but easiest is <code>ez::ezANOVA()</code></li>
+
+</ul></li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-org28e2061">
+<h2 id="org28e2061">Regression</h2>
+<p>
+\(Y_i = \beta_0 + \beta_1 X_i + e_i\)
+</p>
+
+<ul>
+<li>equation for a line, with y-intercept \(\beta_0\) and slope \(\beta_1\)</li>
+<li>assumptions:
+<ul>
+<li>linearity, normality of <b>residuals</b>, homogeneity of variance</li>
+
+</ul></li>
+<li>fit using <code>lm()</code></li>
+
+</ul>
+
+</section>
+<section id="slide-org136e968">
+<h3 id="org136e968">Everything is a special case of regression</h3>
+<p>
+<code>t.test(y ~ x)</code> 
+</p>
+
+<p>
+is the same as
+</p>
+
+<p>
+<code>aov(y ~ x)</code>
+</p>
+
+<p>
+is the same as
+</p>
+
+<p>
+<code>lm(y ~ x)</code>
+</p>
+
+</section>
+<section id="slide-org99ba7ea">
+<h3 id="org99ba7ea">General(ized) linear models</h3>
+<ol>
+<li>Is the data single- or multi- level?</li>
+<li>Is the DV continuous/normally distributed?</li>
+
+</ol>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">structure</th>
+<th scope="col" class="org-left">DV</th>
+<th scope="col" class="org-left">function</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">single</td>
+<td class="org-left">continuous/normal</td>
+<td class="org-left"><code>lm()</code></td>
+</tr>
+
+<tr>
+<td class="org-left">single</td>
+<td class="org-left">not continuous/normal</td>
+<td class="org-left"><code>glm()</code></td>
+</tr>
+
+<tr>
+<td class="org-left">multilevel</td>
+<td class="org-left">continuous/normal</td>
+<td class="org-left"><code>lme4::lmer()</code></td>
+</tr>
+
+<tr>
+<td class="org-left">multilevel</td>
+<td class="org-left">not continuous/normal</td>
+<td class="org-left"><code>lme4::glmer()</code></td>
+</tr>
+</tbody>
+</table>
+
+</section>
+</section>
+<section>
+<section id="slide-orga329ca3">
+<h2 id="orga329ca3">Interactions</h2>
+<div class="outline-text-2" id="text-orga329ca3">
+</div>
+</section>
+<section id="slide-org97d2fa7">
+<h3 id="org97d2fa7">Continuous-by-categorical interactions</h3>
+<pre class="example">
+lm(formula = SAVE ~ HAS_DOG * AGE, data = dat)
+
+Coefficients:
+            Estimate Std.Error t value    Pr(&gt;|t|)
+(Intercept)   1043.3  58.28492   17.90 0.000000000
+HAS_DOG        -97.8 -48.17734    2.03 0.042356539
+AGE            165.9  53.51613    3.10 0.001935206
+HAS_DOG:AGE    -14.1 -10.07143    1.40 0.161513318
+</pre>
+
+<ul>
+<li>tip: center the continuous predictor</li>
+
+</ul>
+
+<p>
+see <a href="https://psyteachr.github.io/ug3-stats/interactions.html">https://psyteachr.github.io/ug3-stats/interactions.html</a> for a detailed walkthrough
+</p>
+
+</section>
+<section id="slide-orgc5e55c0">
+<h3 id="orgc5e55c0">Categorical-by-categorical interactions</h3>
+<ul>
+<li>RxC factorial designs</li>
+<li>factors \(\ne\) levels!</li>
+<li>main effects: tests of <b>marginal means</b>
+<ul>
+<li>\(H_0: \mu_{R_1} = \mu_{R_2}\)</li>
+<li>\(H_0: \mu_{C_1} = \mu_{C_2}\)</li>
+
+</ul></li>
+<li>simple effects: effect of \(A\) at level \(i\) of \(B\)
+<ul>
+<li>eff of \(C\) at \(R_1\): \(H_0: \mu_{R_1C_1} = \mu_{R_1C_2}\)</li>
+<li>eff of \(R\) at \(C_2\): \(H_0: \mu_{R_1C_2} = \mu_{R_2C_2}\)</li>
+
+</ul></li>
+<li>interaction: equivalence of simple effects
+<ul>
+<li>\(H_0: \mu_{R_1C_1} - \mu_{R_1C_2} = \mu_{R_2C_1} - \mu_{R_2C_2}\)</li>
+<li>\(H_0: \mu_{R_1C_1} - \mu_{R_2C_1} = \mu_{R_1C_2} - \mu_{R_2C_2}\)</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-orgca1b7b6">
+<h3 id="orgca1b7b6">Coding categorical predictors</h3>
+<ul>
+<li>you need \(k-1\) predictors for a \(k\) level factor</li>
+<li>dummy coding OK in single factor designs</li>
+<li>deviation coding preferred for factorial designs</li>
+
+</ul>
+
+<p>
+see <a href="https://psyteachr.github.io/ug3-stats/interactions.html#coding-schemes-for-categorical-variables">Coding scheme for categorical variables</a>
+</p>
+
+</section>
+<section id="slide-org072409b">
+<h3 id="org072409b">Beware the interaction fallacy!</h3>
+<p>
+simple effect of A is significant for group 1, n.s. for group 2
+</p>
+
+<p>
+<i>is NOT the same as</i>
+</p>
+
+<p>
+A-by-group interaction is significant
+</p>
+
+</section>
+</section>
+<section>
+<section id="slide-orgb64e223">
+<h2 id="orgb64e223">Linear Mixed-Effects Models</h2>
+<p>
+should be your <i>default</i> analysis technique!
+</p>
+
+</section>
+<section id="slide-org9dd8814">
+<h3 id="org9dd8814">Specifying random effects</h3>
+<p>
+You should consider random slopes for predictor X if both criteria are satistfied:
+</p>
+
+<ol>
+<li>Levels of X vary within sampling units (subjects, stimuli)</li>
+<li>There are multiple observations per level per sampling unit</li>
+
+</ol>
+
+<p>
+For interaction terms, consider the cell counts for the highest-order combination of within-unit factors.
+</p>
+
+<p>
+Tip: use the <code>dplyr::count(unit_id, X)</code> trick
+</p>
+
+</section>
+<section id="slide-org574f104">
+<h3 id="org574f104">Dealing with non-convergence</h3>
+<p>
+see <code>?lme4::convergence</code>
+</p>
+
+<ol>
+<li>center/scale your predictors</li>
+<li>make sure you&rsquo;re not trying to estimate random slopes for between-unit predictors</li>
+<li>simplify covariance structure
+<ul>
+<li><code>(A *B | unit_id)</code> \(\rightarrow\) <code>(A * B || unit_id)</code></li>
+
+</ul></li>
+<li>examine nonconverged estimates and remove variance components near zero (<b>unless</b> they are theory-critical)</li>
+<li>when all else fails: piecewise testing</li>
+
+</ol>
+
+</section>
+<section id="slide-org906a4ff">
+<h3 id="org906a4ff">Further reading</h3>
+<ul>
+<li>Barr, Levy, Scheepers, Tily (2013)</li>
+<li>Barr (2013)</li>
+<li>Brauer &amp; Curtin (2018)</li>
+<li>Luke (2016), evaluating significance</li>
+<li>Matuschek et al. (2017)</li>
+
+</ul>
+
+<p>
+<i>also, very good practical tips:</i>
+</p>
+
+<p>
+Bernd Figner, <a href="http://decision-lab.org/wp-content/uploads/2020/07/SOP_Mixed_Models_D2P2_v1_0_0.pdf">Standard Operating Procedures for Using Mixed-Effects Models</a>
+</p>
+</section>
+</section>
+</div>
+</div>
+<p> Created by Dale Barr </p>
+<script src="./reveal.js/dist/reveal.js"></script>
+<script src="./reveal.js/plugin/markdown/markdown.js"></script>
+<script src="./reveal.js/plugin/notes/notes.js"></script>
+
+
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+plugins: [RevealMarkdown,RevealNotes],
+width:1200, height:800, margin: 0.1, minScale:0.2, maxScale:2.5, transition:'fade',
+multiplex: {
+    secret: '', // null if client
+    id: '', // id, obtained from socket.io server
+    url: '' // Location of socket.io server
+},
+
+// Optional libraries used to extend on reveal.js
+dependencies: [
+]
+});
+
+
+</script>
+</body>
+</html>

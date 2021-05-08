@@ -18,6 +18,8 @@
 #+creator: <a href="https://www.gnu.org/software/emacs/">Emacs</a> 26.3 (<a href="https://orgmode.org">Org</a> mode 9.3)
 #+latex_header:
 
+[[file:HU_stats_2021.zip][*DOWNLOAD course materials for offline use*]]
+
 | Day        |        Time | Topic                                                         |
 |------------+-------------+---------------------------------------------------------------|
 | Tue 06-Apr | 10:00-13:00 | Getting started with R/RStudio ([[file:01_data_wrangling/morning_intro_to_R/intro_to_coding_in_R.html][walkthrough]])                  |
@@ -42,7 +44,7 @@
 |            | 14:00-17:00 | LMMs for simultaneous generalization ([[file:slides/generalization/index.html][slides]]) ([[file:07_lmems2/afternoon_crossed/index.org][activity]])      |
 |------------+-------------+---------------------------------------------------------------|
 | Sat 08-May | 10:00-13:00 | Generalized Linear Models ([[file:slides/08_glmms/index.html][slides]]) ([[file:08_glmms/morning_fillers/activity/logitmodels.zip][activity]]) ([[file:08_glmms/morning_fillers/activity/logitmodels_solution.html][solution]])      |
-|            | 14:00-17:00 | Catch-up / review / Q&A                                       |
+|            | 14:00-17:00 | Catch-up / review / Q&A ([[file:slides/review/index.html][slides]])                              |
 |------------+-------------+---------------------------------------------------------------|
 
 * Course description
